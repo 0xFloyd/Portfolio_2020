@@ -1,11 +1,8 @@
-car portfolio
-https://github.com/brunosimon/folio-2019/blob/master/src/javascript/World/Car.js
+//AMMO TUTORIAL
+https://medium.com/@bluemagnificent/intro-to-javascript-3d-physics-using-ammo-js-and-three-js-dd48df81f591
+https://medium.com/@bluemagnificent/moving-objects-in-javascript-3d-physics-using-ammo-js-and-three-js-6e39eff6d9e5
 
-prevent pan from going underneath canvas
-https://threejs.org/examples/#webgl_shaders_ocean
+https://github.com/brunosimon/folio-2019/blob/master/src/javascript/World/Controls.js
 
-moving in first person
-https://threejs.org/examples/#misc_controls_pointerlock
-
-youtube
-https://threejs.org/examples/#css3d_youtube
+wasm version to load faster
+https://forum.babylonjs.com/t/use-wasm-version-of-ammo-js/2728/6
