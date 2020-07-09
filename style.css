@@ -85,6 +85,7 @@ select {
   display: flex; /* [1] */
   justify-content: center; /* [2] */
   align-items: center;
+  z-index: 1000;
 }
 
 .joystick {
@@ -95,4 +96,5 @@ select {
   user-select: none;
   width: 25%;
   margin: 0 auto;
+  z-index: 1001;
 }
