@@ -71,3 +71,27 @@ select {
   margin-top: 20px;
   padding: 10px;
 }
+
+#wrapper {
+  border: 1px solid black;
+  width: 200px;
+  height: 200px;
+  position: fixed;
+  bottom: 1px;
+  left: 1px;
+  text-align: center;
+  border-radius: 100%;
+  display: flex; /* [1] */
+  justify-content: center; /* [2] */
+  align-items: center;
+}
+
+.joystick {
+  background-color: black;
+  border-radius: 100%;
+  cursor: pointer;
+  height: 25%;
+  user-select: none;
+  width: 25%;
+  margin: 0 auto;
+}
