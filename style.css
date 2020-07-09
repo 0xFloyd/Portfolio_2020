@@ -6,11 +6,11 @@ body {
   font-size: 13px;
   line-height: 24px;
   overscroll-behavior: none;
+  position: fixed;
 }
 
 canvas {
   display: block;
-  position: fixed;
 }
 
 #info {
