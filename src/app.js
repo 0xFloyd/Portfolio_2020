@@ -224,7 +224,7 @@ Ammo().then((Ammo) => {
 
   function createJoystick(parent) {
     document.getElementById("joystick-wrapper").style.visibility = "visible";
-    const maxDiff = 75; //how far drag can go
+    const maxDiff = 50; //how far drag can go
     const stick = document.createElement("div");
     stick.classList.add("joystick");
 
@@ -815,7 +815,7 @@ Ammo().then((Ammo) => {
         preloadOpactiy.style.opacity = 0.9;
       }
     }
-  }, 1000);
+  }, 1500);
 
   //generic temporary transform to begin
   tmpTrans = new Ammo.btTransform();

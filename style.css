@@ -76,8 +76,8 @@ select {
 
 #joystick-wrapper {
   border: 1px solid black;
-  width: 150px;
-  height: 150px;
+  width: 100px;
+  height: 100px;
   position: fixed;
   bottom: 20px;
   left: 20px;
@@ -88,17 +88,19 @@ select {
   justify-content: center; /* [2] */
   align-items: center;
   z-index: 10;
+  opacity: 0.5;
 }
 
 .joystick {
   background-color: black;
   border-radius: 100%;
   cursor: pointer;
-  height: 25%;
+  height: 35%;
   user-select: none;
-  width: 25%;
+  width: 35%;
   margin: 0 auto;
   z-index: 10;
+  opacity: 0.5;
 }
 
 #preload-overlay {
