@@ -782,6 +782,7 @@ Ammo().then((Ammo) => {
     } else {
       console.log("not touch device");
     }
+    return supportsTouch;
   }
 
   let preloadDivs = document.getElementsByClassName("preload");
