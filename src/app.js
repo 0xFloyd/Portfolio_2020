@@ -220,12 +220,11 @@ Ammo().then((Ammo) => {
     }
   }
 
-  const joystick = createJoystick(document.getElementById("wrapper"));
-
   //setInterval(() => console.log(joystick.getPosition()), 1000);
 
   function createJoystick(parent) {
-    const maxDiff = 100; //how far drag can go
+    document.getElementById("joystick-wrapper").style.visibility = "visible";
+    const maxDiff = 75; //how far drag can go
     const stick = document.createElement("div");
     stick.classList.add("joystick");
 
@@ -765,6 +764,57 @@ Ammo().then((Ammo) => {
     camera.position.z = ballObject.position.z + 50;
     camera.lookAt(ballObject.position);
   }
+
+  function isTouchscreenDevice() {
+    let supportsTouch = false;
+    if ("ontouchstart" in window)
+      // iOS & android
+      supportsTouch = true;
+    else if (window.navigator.msPointerEnabled)
+      // Win8
+      supportsTouch = true;
+    else if ("ontouchstart" in document.documentElement)
+      // Controversial way to check touch support
+      supportsTouch = true;
+
+    if (supportsTouch) {
+      console.log("touch device");
+    } else {
+      console.log("not touch device");
+    }
+  }
+
+  let preloadDivs = document.getElementsByClassName("preload");
+  let preloadOpactiy = document.getElementById("preload-overlay");
+  let postloadDivs = document.getElementsByClassName("postload");
+  let startScreenDivs = document.getElementsByClassName("start-screen");
+  let startButton = document.getElementById("start-button");
+
+  startButton.addEventListener("click", () => {
+    for (let i = 0; i < startScreenDivs.length; i++) {
+      startScreenDivs[i].style.visibility = "hidden"; // or
+      startScreenDivs[i].style.display = "none";
+    }
+    if (isTouchscreenDevice()) {
+      createJoystick(document.getElementById("joystick-wrapper"));
+    }
+  });
+
+  var readyStateCheckInterval = setInterval(function () {
+    console.log("readySTateCheckInterval fired");
+    if (document.readyState === "complete") {
+      clearInterval(readyStateCheckInterval);
+      for (let i = 0; i < preloadDivs.length; i++) {
+        preloadDivs[i].style.visibility = "hidden"; // or
+        preloadDivs[i].style.display = "none";
+      }
+      for (let i = 0; i < postloadDivs.length; i++) {
+        postloadDivs[i].style.visibility = "visible"; // or
+        postloadDivs[i].style.display = "block";
+        preloadOpactiy.style.opacity = 0.9;
+      }
+    }
+  }, 1000);
 
   //generic temporary transform to begin
   tmpTrans = new Ammo.btTransform();

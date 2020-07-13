@@ -8,7 +8,17 @@
     <title>My JavaScript App</title>
   </head>
   <body>
-    <div id="wrapper"></div>
+    <div id="joystick-wrapper"></div>
+
+    <div id="preload-overlay" class="start-screen">
+      <button id="start-button" class="postload">start</button>
+      <div class="trinity-rings-spinner preload">
+        <div class="circle preload"></div>
+        <div class="circle preload"></div>
+        <div class="circle preload"></div>
+    </div>
+
+    
     <script type="x-shader/x-vertex" id="vertexShader">
 
       varying vec3 vWorldPosition;
