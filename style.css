@@ -79,8 +79,8 @@ select {
   width: 100px;
   height: 100px;
   position: fixed;
-  bottom: 20px;
-  left: 20px;
+  bottom: 25px;
+  right: 25px;
   text-align: center;
   display: flex;
   border-radius: 100%;
@@ -95,12 +95,12 @@ select {
   background-color: black;
   border-radius: 100%;
   cursor: pointer;
-  height: 35%;
+  height: 45%;
   user-select: none;
-  width: 35%;
+  width: 45%;
   margin: 0 auto;
   z-index: 10;
-  opacity: 0.5;
+  opacity: 0.7;
 }
 
 #preload-overlay {
