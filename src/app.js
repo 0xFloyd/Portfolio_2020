@@ -868,7 +868,7 @@ Ammo().then((Ammo) => {
     }
   });
 
-  /*~~~~~~~~~~~~~~~~~~~~~~~~~                uncomment this and comment debug hide screen for production
+  /*~~~~~~~~~~~~~~~~~~~~~~~~~                uncomment this and comment debug hide screen for production */
 
   var readyStateCheckInterval = setInterval(function () {
     console.log("readySTateCheckInterval fired");
@@ -884,7 +884,7 @@ Ammo().then((Ammo) => {
         preloadOpactiy.style.opacity = 0.9;
       }
     }
-  }, 1500);*/
+  }, 1500);
 
   function debugHideScreen() {
     for (let i = 0; i < preloadDivs.length; i++) {
@@ -897,7 +897,7 @@ Ammo().then((Ammo) => {
       preloadOpactiy.style.opacity = 0;
     }
   }
-  debugHideScreen();
+  //debugHideScreen();
 
   //generic temporary transform to begin
   tmpTrans = new Ammo.btTransform();
