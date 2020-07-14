@@ -144,40 +144,24 @@ Ammo().then((Ammo) => {
 
     switch (keyCode) {
       case 87: //W: FORWARD
+      case 38: //up arrow
         moveDirection.forward = 1;
         break;
 
       case 83: //S: BACK
+      case 40: //down arrow
         moveDirection.back = 1;
         break;
 
       case 65: //A: LEFT
+      case 37: //left arrow
         moveDirection.left = 1;
         break;
 
       case 68: //D: RIGHT
+      case 39: //right arrow
         moveDirection.right = 1;
         break;
-
-      /*
-      case 38: //↑: FORWARD
-        kMoveDirection.forward = 1;
-        break;
-
-      case 40: //↓: BACK
-        kMoveDirection.back = 1;
-        break;
-
-      case 37: //←: LEFT
-        kMoveDirection.left = 1;
-        break;
-
-      case 39: //→: RIGHT
-        kMoveDirection.right = 1;
-        break;
-
-      case 82: //→: RESET
-        break;*/
     }
   }
 
@@ -186,37 +170,24 @@ Ammo().then((Ammo) => {
 
     switch (keyCode) {
       case 87: //FORWARD
+      case 38:
         moveDirection.forward = 0;
         break;
 
       case 83: //BACK
+      case 40:
         moveDirection.back = 0;
         break;
 
       case 65: //LEFT
+      case 37:
         moveDirection.left = 0;
         break;
 
       case 68: //RIGHT
+      case 39:
         moveDirection.right = 0;
         break;
-
-      /*
-      case 38: //↑: FORWARD
-        kMoveDirection.forward = 0;
-        break;
-
-      case 40: //↓: BACK
-        kMoveDirection.back = 0;
-        break;
-
-      case 37: //←: LEFT
-        kMoveDirection.left = 0;
-        break;
-
-      case 39: //→: RIGHT
-        kMoveDirection.right = 0;
-        break; */
     }
   }
 
@@ -538,6 +509,99 @@ Ammo().then((Ammo) => {
     physicsBody.setLinearVelocity(resultantImpulse);
   }
 
+  function createBillboard(x, y, z) {
+    //const billboard = new THREE.Object3D();
+    const billboardPoleScale = { x: 1, y: 10, z: 1 };
+    const billboardSignScale = { x: 30, y: 15, z: 1 };
+    const billboardPole = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(
+        billboardPoleScale.x,
+        billboardPoleScale.y,
+        billboardPoleScale.z
+      ),
+      new THREE.MeshStandardMaterial({
+        color: 0x878787,
+      })
+    );
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load("./src/jsm/grasslight-small.jpg");
+    var borderMaterial = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+    });
+    const loadedTexture = new THREE.MeshBasicMaterial({
+      map: texture,
+    });
+
+    var materials = [
+      borderMaterial, // Left side
+      borderMaterial, // Right side
+      borderMaterial, // Top side   ---> THIS IS THE FRONT
+      borderMaterial, // Bottom side --> THIS IS THE BACK
+      loadedTexture, // Front side
+      borderMaterial, // Back side
+    ];
+    // order to add materials: x+,x-,y+,y-,z+,z-
+    const billboardSign = new THREE.Mesh(
+      new THREE.BoxGeometry(
+        billboardSignScale.x,
+        billboardSignScale.y,
+        billboardSignScale.z
+      ),
+      materials
+    );
+
+    billboardPole.position.x = x;
+    billboardPole.position.y = y;
+    billboardPole.position.z = z;
+
+    billboardSign.position.x = x;
+    billboardSign.position.y = y + 12.5;
+    billboardSign.position.z = z;
+
+    billboardPole.castShadow = true;
+    billboardPole.receiveShadow = true;
+
+    billboardSign.castShadow = true;
+    billboardSign.receiveShadow = true;
+
+    scene.add(billboardPole);
+    scene.add(billboardSign);
+    addRigidPhysics(billboardPole, billboardPoleScale);
+    //addRigidPhysics(billboardSign, billboardSignScale);
+  }
+
+  function addRigidPhysics(item, itemScale) {
+    console.log(item);
+    let pos = { x: item.position.x, y: item.position.y, z: item.position.z };
+    let scale = { x: itemScale.x, y: itemScale.y, z: itemScale.z };
+    let quat = { x: 0, y: 0, z: 0, w: 1 };
+    let mass = 0;
+    var transform = new Ammo.btTransform();
+    transform.setIdentity();
+    transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+    transform.setRotation(
+      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
+    );
+
+    var localInertia = new Ammo.btVector3(0, 0, 0);
+    var motionState = new Ammo.btDefaultMotionState(transform);
+    let colShape = new Ammo.btBoxShape(
+      new Ammo.btVector3(scale.x * 0.5, scale.y * 0.5, scale.z * 0.5)
+    );
+    colShape.setMargin(0.05);
+    colShape.calculateLocalInertia(mass, localInertia);
+    let rbInfo = new Ammo.btRigidBodyConstructionInfo(
+      mass,
+      motionState,
+      colShape,
+      localInertia
+    );
+    let body = new Ammo.btRigidBody(rbInfo);
+    body.setActivationState(STATE.DISABLE_DEACTIVATION);
+    body.setCollisionFlags(FLAGS.CF_KINEMATIC_OBJECT);
+    physicsWorld.addRigidBody(body);
+  }
+
   function createKinematicBox() {
     let pos = { x: 40, y: 0, z: 5 };
     let scale = { x: 10, y: 10, z: 10 };
@@ -760,8 +824,8 @@ Ammo().then((Ammo) => {
       }
     }
     camera.position.x = ballObject.position.x;
-    camera.position.y = ballObject.position.y + 20;
-    camera.position.z = ballObject.position.z + 50;
+    camera.position.y = ballObject.position.y + 15;
+    camera.position.z = ballObject.position.z + 45;
     camera.lookAt(ballObject.position);
   }
 
@@ -801,6 +865,8 @@ Ammo().then((Ammo) => {
     }
   });
 
+  /*~~~~~~~~~~~~~~~~~~~~~~~~~                uncomment this and comment debug hide screen for production
+
   var readyStateCheckInterval = setInterval(function () {
     console.log("readySTateCheckInterval fired");
     if (document.readyState === "complete") {
@@ -815,7 +881,20 @@ Ammo().then((Ammo) => {
         preloadOpactiy.style.opacity = 0.9;
       }
     }
-  }, 1500);
+  }, 1500);*/
+
+  function debugHideScreen() {
+    for (let i = 0; i < preloadDivs.length; i++) {
+      preloadDivs[i].style.visibility = "hidden"; // or
+      preloadDivs[i].style.display = "none";
+    }
+    for (let i = 0; i < postloadDivs.length; i++) {
+      postloadDivs[i].style.visibility = "hidden"; // or
+      postloadDivs[i].style.display = "none";
+      preloadOpactiy.style.opacity = 0;
+    }
+  }
+  debugHideScreen();
 
   //generic temporary transform to begin
   tmpTrans = new Ammo.btTransform();
@@ -832,6 +911,7 @@ Ammo().then((Ammo) => {
     createBallMask();
     createKinematicBox();
     createJointObjects();
+    createBillboard(-50, 0, 10);
 
     //updatePhysics();
     setupEventHandlers();

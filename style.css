@@ -88,7 +88,7 @@ select {
   justify-content: center; /* [2] */
   align-items: center;
   z-index: 10;
-  opacity: 0.5;
+  opacity: 0.2;
 }
 
 .joystick {
@@ -120,6 +120,25 @@ select {
 .postload {
   visibility: hidden;
   display: none;
+}
+
+.start-page-content-div {
+  display: inline-block;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 150px;
+}
+
+#start-button {
+  margin: 0 auto;
+  background-color: #f00;
+  border: none;
+  color: white;
+  border-radius: 5px;
+  padding: 10px;
+  -webkit-appearance: none;
+  -webkit-border-radius: none;
 }
 
 .trinity-rings-spinner,
