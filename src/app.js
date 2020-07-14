@@ -554,9 +554,12 @@ Ammo().then((Ammo) => {
     billboardPole.position.y = y;
     billboardPole.position.z = z;
 
+    billboardPole.rotation.y = Math.PI * 0.22;
+
     billboardSign.position.x = x;
     billboardSign.position.y = y + 12.5;
     billboardSign.position.z = z;
+    billboardSign.rotation.y = Math.PI * 0.2;
 
     billboardPole.castShadow = true;
     billboardPole.receiveShadow = true;
@@ -911,7 +914,9 @@ Ammo().then((Ammo) => {
     createBallMask();
     createKinematicBox();
     createJointObjects();
-    createBillboard(-50, 0, 10);
+    createBillboard(-100, 0, 10);
+    createBillboard(-75, 0, -20);
+    createBillboard(-50, 0, -50);
 
     //updatePhysics();
     setupEventHandlers();
