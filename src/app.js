@@ -75,7 +75,7 @@ Ammo().then((Ammo) => {
     camera.lookAt(scene.position);
 
     //Add hemisphere light
-    let hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.1);
+    let hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.2);
     hemiLight.color.setHSL(0.6, 0.6, 0.6);
     hemiLight.groundColor.setHSL(0.1, 1, 0.4);
     hemiLight.position.set(0, 50, 0);
@@ -90,10 +90,10 @@ Ammo().then((Ammo) => {
 
     dirLight.castShadow = true;
 
-    dirLight.shadow.mapSize.width = 2048;
-    dirLight.shadow.mapSize.height = 2048;
+    dirLight.shadow.mapSize.width = 4096;
+    dirLight.shadow.mapSize.height = 4096;
 
-    let d = 100;
+    let d = 200;
 
     dirLight.shadow.camera.left = -d;
     dirLight.shadow.camera.right = d;
@@ -123,8 +123,8 @@ Ammo().then((Ammo) => {
     stats.begin();
 
     let deltaTime = clock.getDelta();
+
     moveBall();
-    moveKinematic();
     updatePhysics(deltaTime);
 
     renderer.render(scene, camera);
@@ -374,7 +374,7 @@ Ammo().then((Ammo) => {
     let pos = { x: 0, y: 0, z: 0 };
     let radius = 2;
     let quat = { x: 0, y: 0, z: 0, w: 1 };
-    let mass = 15;
+    let mass = 10;
 
     var marble_loader = new THREE.TextureLoader();
     var marbleTexture = marble_loader.load("./src/jsm/marble_skin.png");
@@ -423,20 +423,21 @@ Ammo().then((Ammo) => {
     let localInertia = new Ammo.btVector3(0, 0, 0);
     colShape.calculateLocalInertia(mass, localInertia);
 
-    let rbInfo = new Ammo.btRigidBodyConstructionInfo(
-      mass,
-      motionState,
-      colShape,
-      localInertia
+    let body = new Ammo.btRigidBody(
+      new Ammo.btRigidBodyConstructionInfo(
+        mass,
+        motionState,
+        colShape,
+        localInertia
+      )
     );
-    let body = new Ammo.btRigidBody(rbInfo);
     body.setFriction(4);
     body.setRollingFriction(10);
 
     //set ball friction
 
     //once state is set to disable, dynamic interaction no longer calculated
-    body.setActivationState(STATE.DISABLE_DEACTIVATION);
+    //body.setActivationState(STATE.DISABLE_DEACTIVATION);
 
     physicsWorld.addRigidBody(
       body //collisionGroupRedBall, collisionGroupGreenBall | collisionGroupPlane
@@ -494,12 +495,11 @@ Ammo().then((Ammo) => {
     rigidBodies.push(ball);
   }
 
-  function moveBall() {
+  function moveBall(deltaTime) {
     let scalingFactor = 20;
     let moveX = moveDirection.right - moveDirection.left;
     let moveZ = moveDirection.back - moveDirection.forward;
     let moveY = 0;
-
     // no movement
     if (moveX == 0 && moveY == 0 && moveZ == 0) return;
 
@@ -573,8 +573,67 @@ Ammo().then((Ammo) => {
     //addRigidPhysics(billboardSign, billboardSignScale);
   }
 
+  function createWallX(x, y, z) {
+    //const billboard = new THREE.Object3D();
+    const wallScale = { x: 0, y: 10, z: 200 };
+
+    const wall = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(wallScale.x, wallScale.y, wallScale.z),
+      new THREE.MeshStandardMaterial({
+        color: 0x878787,
+      })
+    );
+
+    var borderMaterial = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+    });
+
+    wall.position.x = x;
+    wall.position.y = y;
+    wall.position.z = z;
+
+    //wall.rotation.y = Math.PI * 0.5;
+
+    wall.castShadow = true;
+    wall.receiveShadow = true;
+
+    scene.add(wall);
+
+    addRigidPhysics(wall, wallScale);
+    //addRigidPhysics(billboardSign, billboardSignScale);
+  }
+
+  function createWallZ(x, y, z) {
+    //const billboard = new THREE.Object3D();
+    const wallScale = { x: 200, y: 10, z: 0 };
+
+    const wall = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(wallScale.x, wallScale.y, wallScale.z),
+      new THREE.MeshStandardMaterial({
+        color: 0x878787,
+      })
+    );
+
+    var borderMaterial = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+    });
+
+    wall.position.x = x;
+    wall.position.y = y;
+    wall.position.z = z;
+
+    //wall.rotation.y = Math.PI * 0.5;
+
+    wall.castShadow = true;
+    wall.receiveShadow = true;
+
+    scene.add(wall);
+
+    addRigidPhysics(wall, wallScale);
+    //addRigidPhysics(billboardSign, billboardSignScale);
+  }
+
   function addRigidPhysics(item, itemScale) {
-    console.log(item);
     let pos = { x: item.position.x, y: item.position.y, z: item.position.z };
     let scale = { x: itemScale.x, y: itemScale.y, z: itemScale.z };
     let quat = { x: 0, y: 0, z: 0, w: 1 };
@@ -605,10 +664,11 @@ Ammo().then((Ammo) => {
     physicsWorld.addRigidBody(body);
   }
 
+  /*
   function createKinematicBox() {
-    let pos = { x: 40, y: 0, z: 5 };
+    let pos = { x: 40, y: -3, z: 5 };
     let scale = { x: 10, y: 10, z: 10 };
-    let quat = { x: 0, y: 0, z: 0, w: 1 };
+    let quat = { x: 90, y: 0, z: 0, w: 1 };
     let mass = 0;
 
     //threeJS Section
@@ -619,6 +679,7 @@ Ammo().then((Ammo) => {
 
     kObject.position.set(pos.x, pos.y, pos.z);
     kObject.scale.set(scale.x, scale.y, scale.z);
+    kObject.rotation.set(quat.x, quat.y, quat.z);
 
     kObject.castShadow = true;
     kObject.receiveShadow = true;
@@ -658,8 +719,9 @@ Ammo().then((Ammo) => {
 
     physicsWorld.addRigidBody(body);
     kObject.userData.physicsBody = body;
-  }
+  }*/
 
+  /*
   function moveKinematic() {
     let scalingFactor = 0.3;
 
@@ -691,7 +753,7 @@ Ammo().then((Ammo) => {
 
       ms.setWorldTransform(tmpTrans);
     }
-  }
+  }*/
 
   function createJointObjects() {
     let pos1 = { x: 0, y: 15, z: 0 };
@@ -868,8 +930,8 @@ Ammo().then((Ammo) => {
     }
   });
 
-  /*~~~~~~~~~~~~~~~~~~~~~~~~~                uncomment this and comment debug hide screen for production */
-
+  /*~~~~~~~~~~~~~~~~~~~~~~~~~                uncomment this and comment debug hide screen for production 
+  debugHideScreen();*/
   var readyStateCheckInterval = setInterval(function () {
     console.log("readySTateCheckInterval fired");
     if (document.readyState === "complete") {
@@ -897,7 +959,6 @@ Ammo().then((Ammo) => {
       preloadOpactiy.style.opacity = 0;
     }
   }
-  //debugHideScreen();
 
   //generic temporary transform to begin
   tmpTrans = new Ammo.btTransform();
@@ -912,8 +973,14 @@ Ammo().then((Ammo) => {
     createBlock();
     createBall();
     createBallMask();
-    createKinematicBox();
+    //createKinematicBox();
     createJointObjects();
+
+    createWallX(100, -2, 0);
+    createWallX(-100, -2, 0);
+    createWallZ(0, -2, 100);
+    createWallZ(0, -2, -100);
+
     createBillboard(-100, 0, 10);
     createBillboard(-75, 0, -20);
     createBillboard(-50, 0, -50);
@@ -924,4 +991,5 @@ Ammo().then((Ammo) => {
   }
 
   start();
+  console.log(ballObject);
 });
