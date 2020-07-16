@@ -495,7 +495,7 @@ Ammo().then((Ammo) => {
     rigidBodies.push(ball);
   }
 
-  function moveBall(deltaTime) {
+  function moveBall() {
     let scalingFactor = 20;
     let moveX = moveDirection.right - moveDirection.left;
     let moveZ = moveDirection.back - moveDirection.forward;
