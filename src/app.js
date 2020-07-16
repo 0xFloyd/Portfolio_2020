@@ -1057,11 +1057,7 @@ Ammo().then((Ammo) => {
     pickPosition.y = -100000;
   }
   window.addEventListener("mousemove", setPickPosition);
-  window.addEventListener(
-    "click",
 
-    launchClickPosition
-  );
   window.addEventListener("mouseout", clearPickPosition);
   window.addEventListener("mouseleave", clearPickPosition);
 
@@ -1095,6 +1091,11 @@ Ammo().then((Ammo) => {
     if (isTouchscreenDevice()) {
       createJoystick(document.getElementById("joystick-wrapper"));
     }
+    window.addEventListener(
+      "click",
+
+      launchClickPosition
+    );
   });
 
   /*~~~~~~~~~~~~~~~~~~~~~~~~~                uncomment this and comment debug hide screen for production 
