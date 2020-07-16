@@ -1056,26 +1056,6 @@ Ammo().then((Ammo) => {
     pickPosition.x = -100000;
     pickPosition.y = -100000;
   }
-  window.addEventListener("mousemove", setPickPosition);
-
-  window.addEventListener("mouseout", clearPickPosition);
-  window.addEventListener("mouseleave", clearPickPosition);
-
-  window.addEventListener(
-    "touchstart",
-    (event) => {
-      // prevent the window from scrolling
-      event.preventDefault();
-      setPickPosition(event.touches[0]);
-    },
-    { passive: false }
-  );
-
-  window.addEventListener("touchmove", (event) => {
-    setPickPosition(event.touches[0]);
-  });
-
-  window.addEventListener("touchend", clearPickPosition);
 
   let preloadDivs = document.getElementsByClassName("preload");
   let preloadOpactiy = document.getElementById("preload-overlay");
@@ -1096,6 +1076,26 @@ Ammo().then((Ammo) => {
 
       launchClickPosition
     );
+    window.addEventListener("mousemove", setPickPosition);
+
+    window.addEventListener("mouseout", clearPickPosition);
+    window.addEventListener("mouseleave", clearPickPosition);
+
+    window.addEventListener(
+      "touchstart",
+      (event) => {
+        // prevent the window from scrolling
+        event.preventDefault();
+        setPickPosition(event.touches[0]);
+      },
+      { passive: false }
+    );
+
+    window.addEventListener("touchmove", (event) => {
+      setPickPosition(event.touches[0]);
+    });
+
+    window.addEventListener("touchend", clearPickPosition);
   });
 
   /*~~~~~~~~~~~~~~~~~~~~~~~~~                uncomment this and comment debug hide screen for production 
