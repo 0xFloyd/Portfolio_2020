@@ -36,6 +36,10 @@ Ammo().then((Ammo) => {
     tmpQuat = new THREE.Quaternion();
   const FLAGS = { CF_KINEMATIC_OBJECT: 2 };
 
+  // list of links
+  var objectsWithLinks = [];
+  var objectsWithoutLinks = [];
+
   //function to create physics world
   function initPhysicsWorld() {
     //algortihms for full (not broadphase) collision detection
@@ -129,6 +133,8 @@ Ammo().then((Ammo) => {
 
     renderer.render(scene, camera);
     stats.end();
+
+    pickHelper.pick(pickPosition, scene, camera, deltaTime);
     // tells browser theres animation, update before the next repaint
     requestAnimationFrame(renderFrame);
   }
@@ -320,6 +326,7 @@ Ammo().then((Ammo) => {
     grid.material.opacity = 0.2;
     grid.material.transparent = true;
     scene.add(grid);
+    objectsWithoutLinks.push(grid.uuid);
 
     //Create Threejs Plane
     let blockPlane = new THREE.Mesh(
@@ -335,6 +342,7 @@ Ammo().then((Ammo) => {
     blockPlane.castShadow = true;
     blockPlane.receiveShadow = true;
     scene.add(blockPlane);
+    objectsWithoutLinks.push(blockPlane.uuid);
 
     //Ammo.js Physics
     let transform = new Ammo.btTransform();
@@ -367,6 +375,28 @@ Ammo().then((Ammo) => {
 
     // add to world
     physicsWorld.addRigidBody(body);
+  }
+
+  function createBox(x, y, z) {
+    const boxScale = { x: 2, y: 2, z: 2 };
+    let quat = { x: 0, y: 0, z: 0, w: 1 };
+    let mass = 0; //mass of zero = infinite mass
+
+    const linkBox = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(boxScale.x, boxScale.y, boxScale.z),
+      new THREE.MeshPhongMaterial({
+        color: 0xff6600,
+      })
+    );
+    linkBox.position.set(x, y, z);
+    //linkBox.scale.set(boxScale.x, boxScale.y, boxScale.z);
+    linkBox.castShadow = true;
+    linkBox.receiveShadow = true;
+    linkBox.userData = { URL: "https://ryanfloyd.io" };
+    scene.add(linkBox);
+    objectsWithLinks.push(linkBox.uuid);
+
+    addRigidPhysics(linkBox, boxScale);
   }
 
   // create ball
@@ -907,12 +937,149 @@ Ammo().then((Ammo) => {
       supportsTouch = true;
 
     if (supportsTouch) {
-      console.log("touch device");
+      //console.log("touch device");
     } else {
-      console.log("not touch device");
+      //console.log("not touch device");
     }
     return supportsTouch;
   }
+
+  class PickHelper {
+    constructor() {
+      this.raycaster = new THREE.Raycaster();
+      this.pickedObject = null;
+      this.pickedObjectSavedColor = 0;
+    }
+    pick(normalizedPosition, scene, camera, time) {
+      // restore the color if there is a picked object
+
+      //("FEACF394-5E1E-40A1-B96D-698D0FEFB1BD");
+      //this.pickedObject.material.color.setHex(this.pickedObjectSavedColor);
+      //this.pickedObject = undefined;
+
+      // cast a ray through the frustum
+      this.raycaster.setFromCamera(normalizedPosition, camera);
+      // get the list of objects the ray intersected
+      const intersectedObjects = this.raycaster.intersectObjects(
+        scene.children
+      );
+      if (intersectedObjects.length) {
+        // pick the first object. It's the closest one
+        this.pickedObject = intersectedObjects[0].object;
+        if (intersectedObjects[0].object.userData.URL)
+          document.body.style.cursor = "pointer";
+        else {
+          document.body.style.cursor = "default";
+        }
+        /*
+        if (this.pickedObject) {
+          if (this.pickedObject.uuid) {
+            if (objectsWithLinks.includes(this.pickedObject.uuid)) {
+              console.log(this.pickedObject.uuid);
+              document.body.style.cursor = "pointer";
+              window.open(this.pickedObject.URL);
+            } else {
+              document.body.style.cursor = "default";
+            }
+          }
+        }*/
+        //("FEACF394-5E1E-40A1-B96D-698D0FEFB1BD");
+        //this.pickedObject.material.color.setHex(this.pickedObjectSavedColor);
+        //this.pickedObject = undefined;
+      }
+      //console.log("picked object: ", this.pickedObject);
+
+      /*
+        for (var i = 0; i < objectsWithLinks.length; i++) {
+          if (objectsWithLinks[i].uuid == this.pickedObject.uuid) {
+            console.log(this.pickedObject);
+          }
+        }
+
+        //console.log(this.pickedObject);
+        /*
+        // save its color
+        this.pickedObjectSavedColor = this.pickedObject.material.color.getHex();
+        // set its emissive color to flashing red/yellow
+        this.pickedObject.material.color.setHex(
+          (time * 8) % 2 > 1 ? 0xffff00 : 0xff0000
+        );*/
+    }
+  }
+
+  const pickPosition = { x: 0, y: 0 };
+  const pickHelper = new PickHelper();
+  clearPickPosition();
+
+  function getCanvasRelativePosition(event) {
+    const rect = renderer.domElement.getBoundingClientRect();
+    return {
+      x: ((event.clientX - rect.left) * renderer.domElement.width) / rect.width,
+      y:
+        ((event.clientY - rect.top) * renderer.domElement.height) / rect.height,
+    };
+  }
+
+  function setPickPosition(event) {
+    const pos = getCanvasRelativePosition(event);
+    pickPosition.x = (pos.x / renderer.domElement.width) * 2 - 1;
+    pickPosition.y = (pos.y / renderer.domElement.height) * -2 + 1; // note we flip Y
+  }
+
+  function launchClickPosition(event) {
+    const pos = getCanvasRelativePosition(event);
+    pickPosition.x = (pos.x / renderer.domElement.width) * 2 - 1;
+    pickPosition.y = (pos.y / renderer.domElement.height) * -2 + 1; // note we flip Y
+
+    // cast a ray through the frustum
+    const myRaycaster = new THREE.Raycaster();
+    myRaycaster.setFromCamera(pickPosition, camera);
+    // get the list of objects the ray intersected
+    const intersectedObjects = myRaycaster.intersectObjects(scene.children);
+    if (intersectedObjects.length) {
+      console.log("set pick position fired");
+      // pick the first object. It's the closest one
+      const pickedObject = intersectedObjects[0].object;
+      if (intersectedObjects[0].object.userData.URL)
+        window.open(intersectedObjects[0].object.userData.URL);
+      else {
+        return;
+      }
+    }
+  }
+
+  function clearPickPosition() {
+    // unlike the mouse which always has a position
+    // if the user stops touching the screen we want
+    // to stop picking. For now we just pick a value
+    // unlikely to pick something
+    pickPosition.x = -100000;
+    pickPosition.y = -100000;
+  }
+  window.addEventListener("mousemove", setPickPosition);
+  window.addEventListener(
+    "click",
+
+    launchClickPosition
+  );
+  window.addEventListener("mouseout", clearPickPosition);
+  window.addEventListener("mouseleave", clearPickPosition);
+
+  window.addEventListener(
+    "touchstart",
+    (event) => {
+      // prevent the window from scrolling
+      event.preventDefault();
+      setPickPosition(event.touches[0]);
+    },
+    { passive: false }
+  );
+
+  window.addEventListener("touchmove", (event) => {
+    setPickPosition(event.touches[0]);
+  });
+
+  window.addEventListener("touchend", clearPickPosition);
 
   let preloadDivs = document.getElementsByClassName("preload");
   let preloadOpactiy = document.getElementById("preload-overlay");
@@ -933,7 +1100,6 @@ Ammo().then((Ammo) => {
   /*~~~~~~~~~~~~~~~~~~~~~~~~~                uncomment this and comment debug hide screen for production 
   debugHideScreen();*/
   var readyStateCheckInterval = setInterval(function () {
-    console.log("readySTateCheckInterval fired");
     if (document.readyState === "complete") {
       clearInterval(readyStateCheckInterval);
       for (let i = 0; i < preloadDivs.length; i++) {
@@ -985,11 +1151,12 @@ Ammo().then((Ammo) => {
     createBillboard(-75, 0, -20);
     createBillboard(-50, 0, -50);
 
+    createBox(-50, 2, -40);
     //updatePhysics();
     setupEventHandlers();
     renderFrame();
+    console.log(objectsWithLinks[0].uuid);
   }
 
   start();
-  console.log(ballObject);
 });
