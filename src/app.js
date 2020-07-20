@@ -96,10 +96,10 @@ Ammo().then((Ammo) => {
 
     dirLight.castShadow = true;
 
-    dirLight.shadow.mapSize.width = 2048;
-    dirLight.shadow.mapSize.height = 2048;
+    dirLight.shadow.mapSize.width = 4096;
+    dirLight.shadow.mapSize.height = 4096;
 
-    let d = 100;
+    let d = 200;
 
     dirLight.shadow.camera.left = -d;
     dirLight.shadow.camera.right = d;
@@ -251,7 +251,7 @@ Ammo().then((Ammo) => {
    
   function createJoystick(parent) {
 
-    const maxDiff = 75; //how far drag can go
+    const maxDiff = 62; //how far drag can go
     const stick = document.createElement("div");
     //stick.classList.add("joystick");
     stick.setAttribute("id", "joystick");

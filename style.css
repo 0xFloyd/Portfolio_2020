@@ -75,8 +75,8 @@ select {
 
 #joystick-wrapper {
   border: 1px solid black;
-  width: 150px;
-  height: 150px;
+  width: 125px;
+  height: 125px;
   position: fixed;
   bottom: 15px;
   left: 15px;
@@ -86,7 +86,7 @@ select {
   justify-content: center; /* [2] */
   align-items: center;
     visibility: hidden;
-    opacity: .7
+    opacity: .15
    
     
 }
@@ -100,7 +100,7 @@ select {
   width: 40%;
   margin: 0 auto;
     visibility: hidden;
-     opacity: .7
+     opacity: 1
 
 }
 
