@@ -650,7 +650,7 @@ Ammo().then((Ammo) => {
     let pos = { x: 0, y: 0, z: 0 };
     let radius = 2;
     let quat = { x: 0, y: 0, z: 0, w: 1 };
-    let mass = 15;
+    let mass = 5;
 
     var marble_loader = new THREE.TextureLoader();
     var marbleTexture = marble_loader.load("./src/jsm/marble_skin.png");
@@ -771,7 +771,7 @@ Ammo().then((Ammo) => {
   }
 
   function moveBall() {
-    let scalingFactor = 20;
+    let scalingFactor = 15;
     let moveX = moveDirection.right - moveDirection.left;
     let moveZ = moveDirection.back - moveDirection.forward;
     let moveY = 0;
