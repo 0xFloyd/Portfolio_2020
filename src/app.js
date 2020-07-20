@@ -216,12 +216,13 @@ Ammo().then((Ammo) => {
     }
   }
 
+/*
   //const joystick = createJoystick(document.getElementById("joystick-wrapper"));
    if (isTouchscreenDevice()) {
       createJoystick(document.getElementById("joystick-wrapper"));
       document.getElementById("joystick-wrapper").style.visibility = "visible";
-     document.getElementById("inner-joystick").style.visibility = "visible";
-    }
+     document.getElementById("joystick").style.visibility = "visible";
+    }*/
 
   //setInterval(() => console.log(joystick.getPosition()), 1000);
 
@@ -243,14 +244,18 @@ Ammo().then((Ammo) => {
     } else {
       console.log("not touch device");
     }
-    //return supportsTouch;
+    return supportsTouch;
   }
 
+  const joystick = createJoystick(document.getElementById("joystick-wrapper"));
+   
   function createJoystick(parent) {
-    const maxDiff = 100; //how far drag can go
+
+    const maxDiff = 75; //how far drag can go
     const stick = document.createElement("div");
-    stick.classList.add("joystick");
-    stick.setAttribute("id", "inner-joystick");
+    //stick.classList.add("joystick");
+    stick.setAttribute("id", "joystick");
+     
     
     stick.addEventListener("mousedown", handleMouseDown);
     document.addEventListener("mousemove", handleMouseMove);
@@ -281,7 +286,7 @@ Ammo().then((Ammo) => {
 
     function handleMouseMove(event) {
       if (dragStart === null) return;
-      event.preventDefault();
+      
 
       //console.log("entered handleMouseMove");
       if (event.changedTouches) {
@@ -354,15 +359,19 @@ Ammo().then((Ammo) => {
       startScreenDivs[i].style.visibility = "hidden"; // or
       startScreenDivs[i].style.display = "none";
     }
-    if (isTouchscreenDevice()) {
-      createJoystick(document.getElementById("joystick-wrapper"));
-      
-    }
+   
     startButton.removeEventListener("click", startButtonEventListener)
     document.addEventListener("click", launchClickPosition);
   } 
 
   startButton.addEventListener("click", startButtonEventListener) 
+
+  if (isTouchscreenDevice()) {
+      document.getElementById("joystick-wrapper").style.visibility = "visible";
+     document.getElementById("joystick").style.visibility = "visible";
+     console.log("is touch screen device fired")
+      
+    }
 
   var readyStateCheckInterval = setInterval(function () {
     if (document.readyState === "complete") {

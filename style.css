@@ -73,33 +73,36 @@ select {
 }
 
 #joystick-wrapper {
-  border: 3px solid black;
-  width: 200px;
-  height: 200px;
+  border: 1px solid black;
+  width: 150px;
+  height: 150px;
   position: fixed;
-  bottom: 1px;
-  left: 1px;
+  bottom: 15px;
+  left: 15px;
   text-align: center;
   border-radius: 100%;
   display: flex; /* [1] */
   justify-content: center; /* [2] */
   align-items: center;
     visibility: hidden;
+    opacity: .7
+   
+    
 }
 
-.joystick {
+#joystick {
   background-color: black;
   border-radius: 100%;
   cursor: pointer;
-  height: 25%;
+  height: 40%;
   user-select: none;
-  width: 25%;
+  width: 40%;
   margin: 0 auto;
+    visibility: hidden;
+     opacity: .7
+
 }
 
-#inner-joystick {
-   visibility: hidden;
-}
 
 #preload-overlay {
   height: 100%;
