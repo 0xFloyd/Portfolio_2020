@@ -36,6 +36,12 @@ Ammo().then((Ammo) => {
     tmpQuat = new THREE.Quaternion();
   const FLAGS = { CF_KINEMATIC_OBJECT: 2 };
 
+  
+  // list of hyperlink objects
+  var objectsWithLinks = [];
+  var objectsWithoutLinks = [];
+
+
   //function to create physics world
   function initPhysicsWorld() {
     //algortihms for full (not broadphase) collision detection
@@ -142,23 +148,26 @@ Ammo().then((Ammo) => {
   function handleKeyDown(event) {
     let keyCode = event.keyCode;
 
-    switch (keyCode) {
+   switch (keyCode) {
       case 87: //W: FORWARD
+      case 38: //up arrow
         moveDirection.forward = 1;
         break;
 
       case 83: //S: BACK
+      case 40: //down arrow
         moveDirection.back = 1;
         break;
 
       case 65: //A: LEFT
+      case 37: //left arrow
         moveDirection.left = 1;
         break;
 
       case 68: //D: RIGHT
+      case 39: //right arrow
         moveDirection.right = 1;
         break;
-
       /*
       case 38: //↑: FORWARD
         kMoveDirection.forward = 1;
@@ -184,51 +193,65 @@ Ammo().then((Ammo) => {
   function handleKeyUp(event) {
     let keyCode = event.keyCode;
 
-    switch (keyCode) {
+     switch (keyCode) {
       case 87: //FORWARD
+      case 38:
         moveDirection.forward = 0;
         break;
 
       case 83: //BACK
+      case 40:
         moveDirection.back = 0;
         break;
 
       case 65: //LEFT
+      case 37:
         moveDirection.left = 0;
         break;
 
       case 68: //RIGHT
+      case 39:
         moveDirection.right = 0;
         break;
-
-      /*
-      case 38: //↑: FORWARD
-        kMoveDirection.forward = 0;
-        break;
-
-      case 40: //↓: BACK
-        kMoveDirection.back = 0;
-        break;
-
-      case 37: //←: LEFT
-        kMoveDirection.left = 0;
-        break;
-
-      case 39: //→: RIGHT
-        kMoveDirection.right = 0;
-        break; */
     }
   }
 
-  const joystick = createJoystick(document.getElementById("wrapper"));
+  //const joystick = createJoystick(document.getElementById("joystick-wrapper"));
+   if (isTouchscreenDevice()) {
+      createJoystick(document.getElementById("joystick-wrapper"));
+      document.getElementById("joystick-wrapper").style.visibility = "visible";
+     document.getElementById("inner-joystick").style.visibility = "visible";
+    }
 
   //setInterval(() => console.log(joystick.getPosition()), 1000);
+
+   function isTouchscreenDevice() {
+     
+    let supportsTouch = false;
+    if ("ontouchstart" in window)
+      // iOS & android
+      supportsTouch = true;
+    else if (window.navigator.msPointerEnabled)
+      // Win8
+      supportsTouch = true;
+    else if ("ontouchstart" in document.documentElement)
+      // Controversial way to check touch support
+      supportsTouch = true;
+
+    if (supportsTouch) {
+      console.log("touch device");
+    } else {
+      console.log("not touch device");
+    }
+    //return supportsTouch;
+  }
 
   function createJoystick(parent) {
     const maxDiff = 100; //how far drag can go
     const stick = document.createElement("div");
     stick.classList.add("joystick");
-
+    stick.setAttribute("id", "inner-joystick");
+    
     stick.addEventListener("mousedown", handleMouseDown);
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
@@ -320,6 +343,43 @@ Ammo().then((Ammo) => {
     }
   }
 
+   let preloadDivs = document.getElementsByClassName("preload");
+  let preloadOpactiy = document.getElementById("preload-overlay");
+  let postloadDivs = document.getElementsByClassName("postload");
+  let startScreenDivs = document.getElementsByClassName("start-screen");
+  let startButton = document.getElementById("start-button");
+
+  function startButtonEventListener() {
+    for (let i = 0; i < startScreenDivs.length; i++) {
+      startScreenDivs[i].style.visibility = "hidden"; // or
+      startScreenDivs[i].style.display = "none";
+    }
+    if (isTouchscreenDevice()) {
+      createJoystick(document.getElementById("joystick-wrapper"));
+      
+    }
+    startButton.removeEventListener("click", startButtonEventListener)
+    document.addEventListener("click", launchClickPosition);
+  } 
+
+  startButton.addEventListener("click", startButtonEventListener) 
+
+  var readyStateCheckInterval = setInterval(function () {
+    if (document.readyState === "complete") {
+      clearInterval(readyStateCheckInterval);
+      for (let i = 0; i < preloadDivs.length; i++) {
+        preloadDivs[i].style.visibility = "hidden"; // or
+        preloadDivs[i].style.display = "none";
+      }
+      for (let i = 0; i < postloadDivs.length; i++) {
+        postloadDivs[i].style.visibility = "visible"; // or
+        postloadDivs[i].style.display = "block";
+        preloadOpactiy.style.opacity = 0.9;
+      }
+    }
+  }, 1500);
+
+
   //create flat plane
   function createBlock() {
     // block properties
@@ -396,6 +456,183 @@ Ammo().then((Ammo) => {
     body.setRollingFriction(10);
 
     // add to world
+    physicsWorld.addRigidBody(body);
+  }
+
+  function createBox(x, y, z) {
+    const boxScale = { x: 2, y: 2, z: 2 };
+    let quat = { x: 0, y: 0, z: 0, w: 1 };
+    let mass = 0; //mass of zero = infinite mass
+
+    const linkBox = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(boxScale.x, boxScale.y, boxScale.z),
+      new THREE.MeshPhongMaterial({
+        color: 0xff6600,
+      })
+    );
+    linkBox.position.set(x, y, z);
+    //linkBox.scale.set(boxScale.x, boxScale.y, boxScale.z);
+    linkBox.castShadow = true;
+    linkBox.receiveShadow = true;
+    linkBox.userData = { URL: "https://ryanfloyd.io" };
+    scene.add(linkBox);
+    objectsWithLinks.push(linkBox.uuid);
+
+    addRigidPhysics(linkBox, boxScale);
+  }
+
+  function createBillboard(x, y, z) {
+    //const billboard = new THREE.Object3D();
+    const billboardPoleScale = { x: 1, y: 10, z: 1 };
+    const billboardSignScale = { x: 30, y: 15, z: 1 };
+    const billboardPole = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(
+        billboardPoleScale.x,
+        billboardPoleScale.y,
+        billboardPoleScale.z
+      ),
+      new THREE.MeshStandardMaterial({
+        color: 0x878787,
+      })
+    );
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load("./src/jsm/grasslight-small.jpg");
+    var borderMaterial = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+    });
+    const loadedTexture = new THREE.MeshBasicMaterial({
+      map: texture,
+    });
+
+    var materials = [
+      borderMaterial, // Left side
+      borderMaterial, // Right side
+      borderMaterial, // Top side   ---> THIS IS THE FRONT
+      borderMaterial, // Bottom side --> THIS IS THE BACK
+      loadedTexture, // Front side
+      borderMaterial, // Back side
+    ];
+    // order to add materials: x+,x-,y+,y-,z+,z-
+    const billboardSign = new THREE.Mesh(
+      new THREE.BoxGeometry(
+        billboardSignScale.x,
+        billboardSignScale.y,
+        billboardSignScale.z
+      ),
+      materials
+    );
+
+    billboardPole.position.x = x;
+    billboardPole.position.y = y;
+    billboardPole.position.z = z;
+
+    billboardPole.rotation.y = Math.PI * 0.22;
+
+    billboardSign.position.x = x;
+    billboardSign.position.y = y + 12.5;
+    billboardSign.position.z = z;
+    billboardSign.rotation.y = Math.PI * 0.2;
+
+    billboardPole.castShadow = true;
+    billboardPole.receiveShadow = true;
+
+    billboardSign.castShadow = true;
+    billboardSign.receiveShadow = true;
+
+    scene.add(billboardPole);
+    scene.add(billboardSign);
+    addRigidPhysics(billboardPole, billboardPoleScale);
+    //addRigidPhysics(billboardSign, billboardSignScale);
+  }
+
+  function createWallX(x, y, z) {
+    //const billboard = new THREE.Object3D();
+    const wallScale = { x: 0, y: 10, z: 200 };
+
+    const wall = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(wallScale.x, wallScale.y, wallScale.z),
+      new THREE.MeshStandardMaterial({
+        color: 0x878787,
+      })
+    );
+
+    var borderMaterial = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+    });
+
+    wall.position.x = x;
+    wall.position.y = y;
+    wall.position.z = z;
+
+    //wall.rotation.y = Math.PI * 0.5;
+
+    wall.castShadow = true;
+    wall.receiveShadow = true;
+
+    scene.add(wall);
+
+    addRigidPhysics(wall, wallScale);
+    //addRigidPhysics(billboardSign, billboardSignScale);
+  }
+
+  function createWallZ(x, y, z) {
+    //const billboard = new THREE.Object3D();
+    const wallScale = { x: 200, y: 10, z: 0 };
+
+    const wall = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(wallScale.x, wallScale.y, wallScale.z),
+      new THREE.MeshStandardMaterial({
+        color: 0x878787,
+      })
+    );
+
+    var borderMaterial = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+    });
+
+    wall.position.x = x;
+    wall.position.y = y;
+    wall.position.z = z;
+
+    //wall.rotation.y = Math.PI * 0.5;
+
+    wall.castShadow = true;
+    wall.receiveShadow = true;
+
+    scene.add(wall);
+
+    addRigidPhysics(wall, wallScale);
+    //addRigidPhysics(billboardSign, billboardSignScale);
+  }
+
+  function addRigidPhysics(item, itemScale) {
+    let pos = { x: item.position.x, y: item.position.y, z: item.position.z };
+    let scale = { x: itemScale.x, y: itemScale.y, z: itemScale.z };
+    let quat = { x: 0, y: 0, z: 0, w: 1 };
+    let mass = 0;
+    var transform = new Ammo.btTransform();
+    transform.setIdentity();
+    transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+    transform.setRotation(
+      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
+    );
+
+    var localInertia = new Ammo.btVector3(0, 0, 0);
+    var motionState = new Ammo.btDefaultMotionState(transform);
+    let colShape = new Ammo.btBoxShape(
+      new Ammo.btVector3(scale.x * 0.5, scale.y * 0.5, scale.z * 0.5)
+    );
+    colShape.setMargin(0.05);
+    colShape.calculateLocalInertia(mass, localInertia);
+    let rbInfo = new Ammo.btRigidBodyConstructionInfo(
+      mass,
+      motionState,
+      colShape,
+      localInertia
+    );
+    let body = new Ammo.btRigidBody(rbInfo);
+    body.setActivationState(STATE.DISABLE_DEACTIVATION);
+    body.setCollisionFlags(FLAGS.CF_KINEMATIC_OBJECT);
     physicsWorld.addRigidBody(body);
   }
 
@@ -766,6 +1003,40 @@ Ammo().then((Ammo) => {
     camera.lookAt(ballObject.position);
   }
 
+  //start link events 
+const pickPosition = { x: 0, y: 0 };
+
+  function getCanvasRelativePosition(event) {
+    const rect = renderer.domElement.getBoundingClientRect();
+    return {
+      x: ((event.clientX - rect.left) * renderer.domElement.width) / rect.width,
+      y:
+        ((event.clientY - rect.top) * renderer.domElement.height) / rect.height,
+    };
+  }
+
+   function launchClickPosition(event) {
+    const pos = getCanvasRelativePosition(event);
+    pickPosition.x = (pos.x / renderer.domElement.width) * 2 - 1;
+    pickPosition.y = (pos.y / renderer.domElement.height) * -2 + 1; // note we flip Y
+
+    // cast a ray through the frustum
+    const myRaycaster = new THREE.Raycaster();
+    myRaycaster.setFromCamera(pickPosition, camera);
+    // get the list of objects the ray intersected
+    const intersectedObjects = myRaycaster.intersectObjects(scene.children);
+    if (intersectedObjects.length) {
+      console.log("set pick position fired");
+      // pick the first object. It's the closest one
+      const pickedObject = intersectedObjects[0].object;
+      if (intersectedObjects[0].object.userData.URL)
+        window.open(intersectedObjects[0].object.userData.URL);
+      else {
+        return;
+      }
+    }
+  }
+
   //generic temporary transform to begin
   tmpTrans = new Ammo.btTransform();
   ammoTmpPos = new Ammo.btVector3();
@@ -781,6 +1052,17 @@ Ammo().then((Ammo) => {
     createBallMask();
     createKinematicBox();
     createJointObjects();
+
+    createWallX(100, -2, 0);
+    createWallX(-100, -2, 0);
+    createWallZ(0, -2, 100);
+    createWallZ(0, -2, -100);
+
+    createBillboard(-100, 0, 10);
+    createBillboard(-75, 0, -20);
+    createBillboard(-50, 0, -50);
+
+    createBox(-50, 2, -40);
 
     //updatePhysics();
     setupEventHandlers();
