@@ -43,7 +43,7 @@ Ammo().then((Ammo) => {
   //billboardTextures
 
   let billboardTextures = {};
-  billboardTextures.bagHolderBets = "./src/jsm/terpsolutions.png";
+  billboardTextures.bagHolderBets = "./src/jsm/terpSolutions.png";
   billboardTextures.grassImage = "./src/jsm/grasslight-small.jpg";
 
   //text
