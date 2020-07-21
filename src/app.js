@@ -40,6 +40,16 @@ Ammo().then((Ammo) => {
   var objectsWithLinks = [];
   var objectsWithoutLinks = [];
 
+  //billboardTextures
+
+  let billboardTextures = {};
+  billboardTextures.bagHolderBets = "./src/jsm/terpsolutions.png";
+  billboardTextures.grassImage = "./src/jsm/grasslight-small.jpg";
+
+  //text
+  let inputText = {};
+  inputText.terpSolutionsText = "./src/jsm/terp-solutions-text.png";
+
   //function to create physics world
   function initPhysicsWorld() {
     //algortihms for full (not broadphase) collision detection
@@ -408,29 +418,9 @@ Ammo().then((Ammo) => {
     });*/
 
     var grid = new THREE.GridHelper(200, 20, 0x000000, 0x000000);
-    grid.material.opacity = 0.05;
+    grid.material.opacity = 0.075;
     grid.material.transparent = true;
     scene.add(grid);
-
-    // word text
-    var activitiesGeometry = new THREE.PlaneBufferGeometry(20, 20);
-    const loader = new THREE.TextureLoader();
-    var activitiesTexture = loader.load("./src/jsm/activities.png");
-    activitiesTexture.magFilter = THREE.NearestFilter;
-    activitiesTexture.minFilter = THREE.LinearFilter;
-    var activitiesMaterial = new THREE.MeshBasicMaterial({
-      wireframe: false,
-      color: 0x000000,
-      alphaMap: activitiesTexture,
-      transparent: true,
-    });
-    let activitiesText = new THREE.Mesh(activitiesGeometry, activitiesMaterial);
-    activitiesText.position.x = 0;
-    activitiesText.position.y = 0.1;
-    activitiesText.rotation.x = -Math.PI * 0.5;
-    activitiesText.matrixAutoUpdate = false;
-    activitiesText.updateMatrix();
-    scene.add(activitiesText);
 
     //Create Threejs Plane
     let blockPlane = new THREE.Mesh(
@@ -480,6 +470,28 @@ Ammo().then((Ammo) => {
     physicsWorld.addRigidBody(body);
   }
 
+  function createTextOnPlane(inputText) {
+    // word text
+    var activitiesGeometry = new THREE.PlaneBufferGeometry(20, 20);
+    const loader = new THREE.TextureLoader();
+    var activitiesTexture = loader.load(inputText);
+    activitiesTexture.magFilter = THREE.NearestFilter;
+    activitiesTexture.minFilter = THREE.LinearFilter;
+    var activitiesMaterial = new THREE.MeshBasicMaterial({
+      wireframe: false,
+      color: 0x000000,
+      alphaMap: activitiesTexture,
+      transparent: true,
+    });
+    let activitiesText = new THREE.Mesh(activitiesGeometry, activitiesMaterial);
+    activitiesText.position.x = 0;
+    activitiesText.position.y = 1;
+    activitiesText.rotation.x = -Math.PI * 0.5;
+    activitiesText.matrixAutoUpdate = false;
+    activitiesText.updateMatrix();
+    scene.add(activitiesText);
+  }
+
   function createBox(x, y, z) {
     const boxScale = { x: 2, y: 2, z: 2 };
     let quat = { x: 0, y: 0, z: 0, w: 1 };
@@ -502,7 +514,12 @@ Ammo().then((Ammo) => {
     addRigidPhysics(linkBox, boxScale);
   }
 
-  function createBillboard(x, y, z) {
+  function createBillboard(
+    x,
+    y,
+    z,
+    textureImage = billboardTextures.grassImage
+  ) {
     //const billboard = new THREE.Object3D();
     const billboardPoleScale = { x: 1, y: 10, z: 1 };
     const billboardSignScale = { x: 30, y: 15, z: 1 };
@@ -516,8 +533,12 @@ Ammo().then((Ammo) => {
         color: 0x878787,
       })
     );
+
+    /* default texture loading */
     const loader = new THREE.TextureLoader();
-    const texture = loader.load("./src/jsm/grasslight-small.jpg");
+    const texture = loader.load(textureImage);
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearFilter;
     var borderMaterial = new THREE.MeshBasicMaterial({
       color: 0x000000,
     });
@@ -547,12 +568,13 @@ Ammo().then((Ammo) => {
     billboardPole.position.y = y;
     billboardPole.position.z = z;
 
-    billboardPole.rotation.y = Math.PI * 0.22;
-
     billboardSign.position.x = x;
     billboardSign.position.y = y + 12.5;
     billboardSign.position.z = z;
-    billboardSign.rotation.y = Math.PI * 0.2;
+
+    /* Rotate Billboard */
+    //billboardPole.rotation.y = Math.PI * 0.22;
+    //billboardSign.rotation.y = Math.PI * 0.2;
 
     billboardPole.castShadow = true;
     billboardPole.receiveShadow = true;
@@ -886,8 +908,8 @@ Ammo().then((Ammo) => {
   }
 
   function createJointObjects() {
-    let pos1 = { x: 0, y: 15, z: 0 };
-    let pos2 = { x: 0, y: 10, z: 0 };
+    let pos1 = { x: 50, y: 15, z: 0 };
+    let pos2 = { x: 50, y: 10, z: 0 };
 
     let radius = 2;
     let scale = { x: 5, y: 2, z: 2 };
@@ -1079,11 +1101,13 @@ Ammo().then((Ammo) => {
     createWallZ(0, -2, 100);
     createWallZ(0, -2, -100);
 
-    createBillboard(-100, 0, 10);
-    createBillboard(-75, 0, -20);
-    createBillboard(-50, 0, -50);
+    createBillboard(-75, 0, -90, billboardTextures.bagHolderBets);
+    createBillboard(-25, 0, -90);
+    createBillboard(25, 0, -90);
+    createBillboard(75, 0, -90);
 
     createBox(-50, 2, -40);
+    createTextOnPlane(inputText.terpSolutionsText);
 
     //updatePhysics();
     setupEventHandlers();
