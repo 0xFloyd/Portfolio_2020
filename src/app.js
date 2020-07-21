@@ -36,11 +36,9 @@ Ammo().then((Ammo) => {
     tmpQuat = new THREE.Quaternion();
   const FLAGS = { CF_KINEMATIC_OBJECT: 2 };
 
-  
   // list of hyperlink objects
   var objectsWithLinks = [];
   var objectsWithoutLinks = [];
-
 
   //function to create physics world
   function initPhysicsWorld() {
@@ -148,7 +146,7 @@ Ammo().then((Ammo) => {
   function handleKeyDown(event) {
     let keyCode = event.keyCode;
 
-   switch (keyCode) {
+    switch (keyCode) {
       case 87: //W: FORWARD
       case 38: //up arrow
         moveDirection.forward = 1;
@@ -193,7 +191,7 @@ Ammo().then((Ammo) => {
   function handleKeyUp(event) {
     let keyCode = event.keyCode;
 
-     switch (keyCode) {
+    switch (keyCode) {
       case 87: //FORWARD
       case 38:
         moveDirection.forward = 0;
@@ -216,7 +214,7 @@ Ammo().then((Ammo) => {
     }
   }
 
-/*
+  /*
   //const joystick = createJoystick(document.getElementById("joystick-wrapper"));
    if (isTouchscreenDevice()) {
       createJoystick(document.getElementById("joystick-wrapper"));
@@ -226,8 +224,7 @@ Ammo().then((Ammo) => {
 
   //setInterval(() => console.log(joystick.getPosition()), 1000);
 
-   function isTouchscreenDevice() {
-     
+  function isTouchscreenDevice() {
     let supportsTouch = false;
     if ("ontouchstart" in window)
       // iOS & android
@@ -248,15 +245,13 @@ Ammo().then((Ammo) => {
   }
 
   const joystick = createJoystick(document.getElementById("joystick-wrapper"));
-   
-  function createJoystick(parent) {
 
+  function createJoystick(parent) {
     const maxDiff = 62; //how far drag can go
     const stick = document.createElement("div");
     //stick.classList.add("joystick");
     stick.setAttribute("id", "joystick");
-     
-    
+
     stick.addEventListener("mousedown", handleMouseDown);
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
@@ -286,7 +281,6 @@ Ammo().then((Ammo) => {
 
     function handleMouseMove(event) {
       if (dragStart === null) return;
-      
 
       //console.log("entered handleMouseMove");
       if (event.changedTouches) {
@@ -348,7 +342,7 @@ Ammo().then((Ammo) => {
     }
   }
 
-   let preloadDivs = document.getElementsByClassName("preload");
+  let preloadDivs = document.getElementsByClassName("preload");
   let preloadOpactiy = document.getElementById("preload-overlay");
   let postloadDivs = document.getElementsByClassName("postload");
   let startScreenDivs = document.getElementsByClassName("start-screen");
@@ -359,19 +353,18 @@ Ammo().then((Ammo) => {
       startScreenDivs[i].style.visibility = "hidden"; // or
       startScreenDivs[i].style.display = "none";
     }
-   
-    startButton.removeEventListener("click", startButtonEventListener)
-    document.addEventListener("click", launchClickPosition);
-  } 
 
-  startButton.addEventListener("click", startButtonEventListener) 
+    startButton.removeEventListener("click", startButtonEventListener);
+    document.addEventListener("click", launchClickPosition);
+  }
+
+  startButton.addEventListener("click", startButtonEventListener);
 
   if (isTouchscreenDevice()) {
-      document.getElementById("joystick-wrapper").style.visibility = "visible";
-     document.getElementById("joystick").style.visibility = "visible";
-     console.log("is touch screen device fired")
-      
-    }
+    document.getElementById("joystick-wrapper").style.visibility = "visible";
+    document.getElementById("joystick").style.visibility = "visible";
+    console.log("is touch screen device fired");
+  }
 
   var readyStateCheckInterval = setInterval(function () {
     if (document.readyState === "complete") {
@@ -387,7 +380,6 @@ Ammo().then((Ammo) => {
       }
     }
   }, 1500);
-
 
   //create flat plane
   function createBlock() {
@@ -416,9 +408,29 @@ Ammo().then((Ammo) => {
     });*/
 
     var grid = new THREE.GridHelper(200, 20, 0x000000, 0x000000);
-    grid.material.opacity = 0.2;
+    grid.material.opacity = 0.05;
     grid.material.transparent = true;
     scene.add(grid);
+
+    // word text
+    var activitiesGeometry = new THREE.PlaneBufferGeometry(20, 20);
+    const loader = new THREE.TextureLoader();
+    var activitiesTexture = loader.load("./src/jsm/activities.png");
+    activitiesTexture.magFilter = THREE.NearestFilter;
+    activitiesTexture.minFilter = THREE.LinearFilter;
+    var activitiesMaterial = new THREE.MeshBasicMaterial({
+      wireframe: false,
+      color: 0x000000,
+      alphaMap: activitiesTexture,
+      transparent: true,
+    });
+    let activitiesText = new THREE.Mesh(activitiesGeometry, activitiesMaterial);
+    activitiesText.position.x = 0;
+    activitiesText.position.y = 0.1;
+    activitiesText.rotation.x = -Math.PI * 0.5;
+    activitiesText.matrixAutoUpdate = false;
+    activitiesText.updateMatrix();
+    scene.add(activitiesText);
 
     //Create Threejs Plane
     let blockPlane = new THREE.Mesh(
@@ -1012,8 +1024,8 @@ Ammo().then((Ammo) => {
     camera.lookAt(ballObject.position);
   }
 
-  //start link events 
-const pickPosition = { x: 0, y: 0 };
+  //start link events
+  const pickPosition = { x: 0, y: 0 };
 
   function getCanvasRelativePosition(event) {
     const rect = renderer.domElement.getBoundingClientRect();
@@ -1024,7 +1036,7 @@ const pickPosition = { x: 0, y: 0 };
     };
   }
 
-   function launchClickPosition(event) {
+  function launchClickPosition(event) {
     const pos = getCanvasRelativePosition(event);
     pickPosition.x = (pos.x / renderer.domElement.width) * 2 - 1;
     pickPosition.y = (pos.y / renderer.domElement.height) * -2 + 1; // note we flip Y
