@@ -105,7 +105,7 @@ Ammo().then((Ammo) => {
     //Add directional light
     let dirLight = new THREE.DirectionalLight(0xffffff, 1);
     dirLight.color.setHSL(0.1, 1, 0.95);
-    dirLight.position.set(-1, 1.75, 1);
+    dirLight.position.set(-1, 2, 1);
     dirLight.position.multiplyScalar(100);
     scene.add(dirLight);
 
@@ -506,7 +506,7 @@ Ammo().then((Ammo) => {
   }
 
   function createBox(x, y, z) {
-    const boxScale = { x: 2, y: 2, z: 2 };
+    const boxScale = { x: 46, y: 3, z: 2 };
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 0; //mass of zero = infinite mass
 
@@ -520,8 +520,8 @@ Ammo().then((Ammo) => {
     //linkBox.scale.set(boxScale.x, boxScale.y, boxScale.z);
     linkBox.castShadow = true;
     linkBox.receiveShadow = true;
-    linkBox.userData = { URL: "https://ryanfloyd.io" };
-    scene.add(linkBox);
+    //linkBox.userData = { URL: "https://ryanfloyd.io" };
+    //scene.add(linkBox);
     objectsWithLinks.push(linkBox.uuid);
 
     addRigidPhysics(linkBox, boxScale);
@@ -577,6 +577,8 @@ Ammo().then((Ammo) => {
       text = new THREE.Mesh(textGeo, textMaterials);
       text.position.z = -20;
       text.position.y = 0.1;
+      text.receiveShadow = true;
+      text.castShadow = true;
       scene.add(text);
     }); //end load function
   }
@@ -633,6 +635,8 @@ Ammo().then((Ammo) => {
       text.position.z = -20;
       text.position.y = 0.1;
       text.position.x = 24;
+      text.receiveShadow = true;
+      text.castShadow = true;
       scene.add(text);
     }); //end load function
   }
@@ -1238,7 +1242,7 @@ Ammo().then((Ammo) => {
     createBillboard(25, 0, -75);
     createBillboard(75, 0, -75);
 
-    //createBox(-50, 2, -40, URL.ryanfloyd);
+    createBox(11.2, 1, -20);
     createTextOnPlane(-75, 0.1, -60, inputText.terpSolutionsText);
     //createTextOnPlane(20, 0.1, inputText.testText);
     loadRyanText();
