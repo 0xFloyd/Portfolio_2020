@@ -43,7 +43,7 @@ Ammo().then((Ammo) => {
   //billboardTextures
 
   let billboardTextures = {};
-  billboardTextures.bagHolderBets = "./src/jsm/terpSolutions.png";
+  billboardTextures.terpSolutionsTexture = "./src/jsm/terpSolutions.png";
   billboardTextures.grassImage = "./src/jsm/grasslight-small.jpg";
 
   //text
@@ -1236,7 +1236,7 @@ Ammo().then((Ammo) => {
       -25,
       0,
       -75,
-      billboardTextures.bagHolderBets,
+      billboardTextures.terpSolutionsTexture,
       URL.terpsolutions
     );
 
@@ -1244,7 +1244,7 @@ Ammo().then((Ammo) => {
     createBillboard(75, 0, -75);
 
     createBox(11.2, 1, -20);
-    createTextOnPlane(-75, 0.1, -60, inputText.terpSolutionsText);
+    createTextOnPlane(-25, 0.1, -60, inputText.terpSolutionsText);
     //createTextOnPlane(20, 0.1, inputText.testText);
     loadRyanText();
     loadEngineerText();
