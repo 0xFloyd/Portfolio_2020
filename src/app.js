@@ -49,6 +49,13 @@ Ammo().then((Ammo) => {
   //text
   let inputText = {};
   inputText.terpSolutionsText = "./src/jsm/terp-solutions-text.png";
+  inputText.testText = "./src/jsm/test-text.png";
+
+  //URLs
+
+  let URL = {};
+  URL.terpsolutions = "https://terpsolutions.com/";
+  URL.ryanfloyd = "https://ryanfloyd.io";
 
   //function to create physics world
   function initPhysicsWorld() {
@@ -366,6 +373,7 @@ Ammo().then((Ammo) => {
 
     startButton.removeEventListener("click", startButtonEventListener);
     document.addEventListener("click", launchClickPosition);
+    createBallMask();
   }
 
   startButton.addEventListener("click", startButtonEventListener);
@@ -470,7 +478,7 @@ Ammo().then((Ammo) => {
     physicsWorld.addRigidBody(body);
   }
 
-  function createTextOnPlane(inputText) {
+  function createTextOnPlane(x, y, z, inputText) {
     // word text
     var activitiesGeometry = new THREE.PlaneBufferGeometry(20, 20);
     const loader = new THREE.TextureLoader();
@@ -483,12 +491,17 @@ Ammo().then((Ammo) => {
       alphaMap: activitiesTexture,
       transparent: true,
     });
+
+    activitiesMaterial.depthWrite = true;
+    activitiesMaterial.depthTest = true;
     let activitiesText = new THREE.Mesh(activitiesGeometry, activitiesMaterial);
-    activitiesText.position.x = 0;
-    activitiesText.position.y = 1;
+    activitiesText.position.x = x;
+    activitiesText.position.y = y;
+    activitiesText.position.z = z;
     activitiesText.rotation.x = -Math.PI * 0.5;
     activitiesText.matrixAutoUpdate = false;
     activitiesText.updateMatrix();
+    activitiesText.renderOrder = 1;
     scene.add(activitiesText);
   }
 
@@ -514,11 +527,122 @@ Ammo().then((Ammo) => {
     addRigidPhysics(linkBox, boxScale);
   }
 
+  function loadRyanText() {
+    var text_loader = new THREE.FontLoader();
+
+    text_loader.load("./src/jsm/Roboto_Regular.json", function (font) {
+      var xMid, text;
+
+      var color = 0x00ff08;
+
+      var textMaterials = [
+        new THREE.MeshPhongMaterial({ color: color, flatShading: true }), // front
+        new THREE.MeshPhongMaterial({ color: color }), // side
+      ];
+
+      var matLite = new THREE.MeshBasicMaterial({
+        color: color,
+        transparent: true,
+        opacity: 1,
+        side: THREE.DoubleSide,
+      });
+
+      /*
+      var message = "Ryan Floyd";
+
+      var shapes = font.generateShapes(message, 1);
+      */
+
+      var geometry = new THREE.TextGeometry("RYAN FLOYD", {
+        font: font,
+        size: 3,
+        height: 0.5,
+        curveSegments: 20,
+        bevelEnabled: true,
+        bevelThickness: 0.5,
+        bevelSize: 0.1,
+      });
+
+      geometry.computeBoundingBox();
+      geometry.computeVertexNormals();
+
+      xMid = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+
+      geometry.translate(xMid, 0, 0);
+
+      var textGeo = new THREE.BufferGeometry().fromGeometry(geometry);
+
+      // make shape ( N.B. edge view not visible )
+
+      text = new THREE.Mesh(textGeo, textMaterials);
+      text.position.z = -20;
+      text.position.y = 0.1;
+      scene.add(text);
+    }); //end load function
+  }
+
+  function loadEngineerText() {
+    var text_loader = new THREE.FontLoader();
+
+    text_loader.load("./src/jsm/Roboto_Regular.json", function (font) {
+      var xMid, text;
+
+      var color = 0x00ff08;
+
+      var textMaterials = [
+        new THREE.MeshPhongMaterial({ color: color, flatShading: true }), // front
+        new THREE.MeshPhongMaterial({ color: color }), // side
+      ];
+
+      var matLite = new THREE.MeshBasicMaterial({
+        color: color,
+        transparent: true,
+        opacity: 1,
+        side: THREE.DoubleSide,
+      });
+
+      /*
+      var message = "Ryan Floyd";
+
+      var shapes = font.generateShapes(message, 1);
+      */
+
+      var geometry = new THREE.TextGeometry("SOFTWARE ENGINEER", {
+        font: font,
+        size: 1.5,
+        height: 0.5,
+        curveSegments: 20,
+        bevelEnabled: true,
+        bevelThickness: 0.25,
+        bevelSize: 0.1,
+      });
+
+      geometry.computeBoundingBox();
+      geometry.computeVertexNormals();
+
+      xMid = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+
+      geometry.translate(xMid, 0, 0);
+
+      var textGeo = new THREE.BufferGeometry().fromGeometry(geometry);
+
+      // make shape ( N.B. edge view not visible )
+
+      text = new THREE.Mesh(textGeo, textMaterials);
+      console.log(text.scale);
+      text.position.z = -20;
+      text.position.y = 0.1;
+      text.position.x = 24;
+      scene.add(text);
+    }); //end load function
+  }
+
   function createBillboard(
     x,
     y,
     z,
-    textureImage = billboardTextures.grassImage
+    textureImage = billboardTextures.grassImage,
+    urlLink
   ) {
     //const billboard = new THREE.Object3D();
     const billboardPoleScale = { x: 1, y: 10, z: 1 };
@@ -581,6 +705,8 @@ Ammo().then((Ammo) => {
 
     billboardSign.castShadow = true;
     billboardSign.receiveShadow = true;
+
+    billboardSign.userData = { URL: urlLink };
 
     scene.add(billboardPole);
     scene.add(billboardSign);
@@ -759,7 +885,7 @@ Ammo().then((Ammo) => {
   }
 
   function createBallMask() {
-    let pos = { x: 1, y: 30, z: 0 };
+    let pos = { x: 20, y: 30, z: 0 };
     let radius = 2;
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 15;
@@ -767,7 +893,7 @@ Ammo().then((Ammo) => {
     //ThreeJS create ball
     let ball = new THREE.Mesh(
       new THREE.SphereBufferGeometry(2, 32, 32),
-      new THREE.MeshPhongMaterial({ color: 0x00ff08 })
+      new THREE.MeshPhongMaterial({ color: 0x0000ff })
     );
     ball.position.set(pos.x, pos.y, pos.z);
     ball.castShadow = true;
@@ -820,7 +946,7 @@ Ammo().then((Ammo) => {
   }
 
   function createKinematicBox() {
-    let pos = { x: 40, y: 0, z: 5 };
+    let pos = { x: 70, y: 0, z: 5 };
     let scale = { x: 10, y: 10, z: 10 };
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 0;
@@ -908,8 +1034,8 @@ Ammo().then((Ammo) => {
   }
 
   function createJointObjects() {
-    let pos1 = { x: 50, y: 15, z: 0 };
-    let pos2 = { x: 50, y: 10, z: 0 };
+    let pos1 = { x: 70, y: 15, z: 0 };
+    let pos2 = { x: 70, y: 10, z: 0 };
 
     let radius = 2;
     let scale = { x: 5, y: 2, z: 2 };
@@ -1092,7 +1218,7 @@ Ammo().then((Ammo) => {
 
     createBlock();
     createBall();
-    createBallMask();
+    //createBallMask();
     createKinematicBox();
     createJointObjects();
 
@@ -1101,13 +1227,22 @@ Ammo().then((Ammo) => {
     createWallZ(0, -2, 100);
     createWallZ(0, -2, -100);
 
-    createBillboard(-75, 0, -90, billboardTextures.bagHolderBets);
-    createBillboard(-25, 0, -90);
-    createBillboard(25, 0, -90);
-    createBillboard(75, 0, -90);
+    createBillboard(
+      -75,
+      0,
+      -75,
+      billboardTextures.bagHolderBets,
+      URL.terpsolutions
+    );
+    createBillboard(-25, 0, -75);
+    createBillboard(25, 0, -75);
+    createBillboard(75, 0, -75);
 
-    createBox(-50, 2, -40);
-    createTextOnPlane(inputText.terpSolutionsText);
+    //createBox(-50, 2, -40, URL.ryanfloyd);
+    createTextOnPlane(-75, 0.1, -60, inputText.terpSolutionsText);
+    //createTextOnPlane(20, 0.1, inputText.testText);
+    loadRyanText();
+    loadEngineerText();
 
     //updatePhysics();
     setupEventHandlers();
