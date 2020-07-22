@@ -1231,14 +1231,15 @@ Ammo().then((Ammo) => {
     createWallZ(0, -2, 100);
     createWallZ(0, -2, -100);
 
+    createBillboard(-75, 0, -75);
     createBillboard(
-      -75,
+      -25,
       0,
       -75,
       billboardTextures.bagHolderBets,
       URL.terpsolutions
     );
-    createBillboard(-25, 0, -75);
+
     createBillboard(25, 0, -75);
     createBillboard(75, 0, -75);
 
