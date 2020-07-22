@@ -85,10 +85,8 @@ select {
   display: flex; /* [1] */
   justify-content: center; /* [2] */
   align-items: center;
-    visibility: hidden;
-    opacity: .15
-   
-    
+  visibility: hidden;
+  opacity: 0.15;
 }
 
 #joystick {
@@ -99,11 +97,9 @@ select {
   user-select: none;
   width: 40%;
   margin: 0 auto;
-    visibility: hidden;
-     opacity: 1
-
+  visibility: hidden;
+  opacity: 1;
 }
-
 
 #preload-overlay {
   height: 100%;
@@ -116,7 +112,7 @@ select {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  opacity: .9;
+  opacity: 0.9;
 }
 
 .postload {
@@ -134,13 +130,19 @@ select {
 
 #start-button {
   margin: 0 auto;
+  font-size: 25px;
   background-color: #f00;
   border: none;
   color: white;
   border-radius: 5px;
-  padding: 10px;
+  padding: 20px 40px 20px 40px;
   -webkit-appearance: none;
   -webkit-border-radius: none;
+}
+
+#static-site-link {
+  text-decoration: underline;
+  color: white;
 }
 
 .trinity-rings-spinner,
