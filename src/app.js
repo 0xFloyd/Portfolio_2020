@@ -147,13 +147,17 @@ Ammo().then((Ammo) => {
     stats.begin();
 
     let deltaTime = clock.getDelta();
-    if (document.hasFocus()) {
+    if (!isTouchscreenDevice())
+      if (document.hasFocus()) {
+        moveBall();
+      } else {
+        moveDirection.forward = 0;
+        moveDirection.back = 0;
+        moveDirection.left = 0;
+        moveDirection.right = 0;
+      }
+    else {
       moveBall();
-    } else {
-      moveDirection.forward = 0;
-      moveDirection.back = 0;
-      moveDirection.left = 0;
-      moveDirection.right = 0;
     }
 
     moveKinematic();
@@ -858,7 +862,7 @@ Ammo().then((Ammo) => {
 
   // create ball
   function createBall() {
-    let pos = { x: 0, y: 0, z: 95 };
+    let pos = { x: 0, y: 0, z: 0 };
     let radius = 2;
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 5;
