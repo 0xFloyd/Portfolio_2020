@@ -9,3 +9,6 @@ https://forum.babylonjs.com/t/use-wasm-version-of-ammo-js/2728/6
 
 //texture loading
 https://stackoverflow.com/questions/16344865/how-to-make-a-loading-screen-while-using-three-js-and-jsonloader
+
+increase FPS lensflare
+https://www.html5gamedevs.com/topic/17829-skybox-huge-impact-on-performance-on-mobile-browsers/page/2/

@@ -1353,14 +1353,17 @@ Ammo().then((Ammo) => {
     var textureLoader = new THREE.TextureLoader(manager);
 
     var textureFlare0 = textureLoader.load("./src/jsm/lensflare0.png");
-    var textureFlare3 = textureLoader.load("./src/jsm/lensflare3.png");
+    //var textureFlare3 = textureLoader.load("./src/jsm/lensflare3.png");
 
-    addLight(0.55, 0.9, 0.5, 200, 50, -500);
-    addLight(0.08, 0.8, 0.5, 200, 50, -500);
-    addLight(0.995, 0.5, 0.9, 200, 50, -500);
+    textureFlare0.disableLighting = true;
+    //textureFlare3.disableLighting = true;
+
+    addLight(0.55, 0.9, 0.5, 100, 50, -500);
+    addLight(0.08, 0.8, 0.5, 100, 50, -500);
+    addLight(0.995, 0.5, 0.9, 100, 50, -500);
 
     function addLight(h, s, l, x, y, z) {
-      var light = new THREE.PointLight(0xffffff, 0.5, 2000);
+      var light = new THREE.PointLight(0xffffff, 0, 2);
       light.color.setHSL(h, s, l);
       light.position.set(x, y, z);
       scene.add(light);
@@ -1374,6 +1377,7 @@ Ammo().then((Ammo) => {
       //lensflare.addElement(new LensflareElement(textureFlare3, 70, 0.7));
       //lensflare.addElement(new LensflareElement(textureFlare3, 120, 0.9));
       //lensflare.addElement(new LensflareElement(textureFlare3, 70, 1));
+      lensflare.disableLighting = true;
       light.add(lensflare);
     }
   }
@@ -1389,7 +1393,7 @@ Ammo().then((Ammo) => {
       geometry.vertices.push(vertex);
     }
 
-    var material = new THREE.PointsMaterial({ size: 1 });
+    var material = new THREE.PointsMaterial({ size: 3 });
     particleSystemObject = new THREE.Points(geometry, material);
 
     scene.add(particleSystemObject);
@@ -1467,7 +1471,6 @@ Ammo().then((Ammo) => {
 
     //skyBoxTest();
     //skyBoxSphere();
-    lensFlare();
 
     createBlock();
     createBall();
@@ -1505,6 +1508,8 @@ Ammo().then((Ammo) => {
     //rectangleLight();
     //semiCircleDome();
     islandGenerator();
+
+    lensFlare();
 
     //updatePhysics();
     setupEventHandlers();
