@@ -151,8 +151,8 @@ select {
 }
 
 .trinity-rings-spinner {
-  height: 250px;
-  width: 250px;
+  height: 500px;
+  width: 500px;
   padding: 3px;
   position: relative;
   display: flex;
@@ -170,22 +170,25 @@ select {
 }
 
 .trinity-rings-spinner .circle:nth-child(1) {
-  height: 250px;
-  width: 250px;
+  height: 350px;
+  width: 350px;
   animation: trinity-rings-spinner-circle1-animation 1.5s infinite linear;
   border-width: 10px;
+  opacity: 0.9;
 }
 .trinity-rings-spinner .circle:nth-child(2) {
-  height: calc(250px * 0.65);
-  width: calc(250px * 0.65);
+  height: calc(350px * 0.65);
+  width: calc(350px * 0.65);
   animation: trinity-rings-spinner-circle2-animation 1.5s infinite linear;
   border-width: 8px;
+  opacity: 0.7;
 }
 .trinity-rings-spinner .circle:nth-child(3) {
-  height: calc(250px * 0.2);
-  width: calc(250px * 0.2);
+  height: calc(350px * 0.45);
+  width: calc(350px * 0.45);
   animation: trinity-rings-spinner-circle3-animation 1.5s infinite linear;
   border-width: 6px;
+  opacity: 0.5;
 }
 
 @keyframes trinity-rings-spinner-circle1-animation {
@@ -211,4 +214,28 @@ select {
   100% {
     transform: rotateZ(-360deg) rotateX(360deg);
   }
+}
+
+.loading-text-div {
+  box-sizing: border-box;
+  position: absolute;
+  font-size: 26px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  color: #8eff0a;
+}
+
+@keyframes blink {
+  50% {
+    color: transparent;
+  }
+}
+.loader__dot {
+  animation: 1s blink infinite;
+}
+.loader__dot:nth-child(2) {
+  animation-delay: 250ms;
+}
+.loader__dot:nth-child(3) {
+  animation-delay: 500ms;
 }

@@ -6,3 +6,6 @@ https://github.com/brunosimon/folio-2019/blob/master/src/javascript/World/Contro
 
 wasm version to load faster
 https://forum.babylonjs.com/t/use-wasm-version-of-ammo-js/2728/6
+
+//texture loading
+https://stackoverflow.com/questions/16344865/how-to-make-a-loading-screen-while-using-three-js-and-jsonloader

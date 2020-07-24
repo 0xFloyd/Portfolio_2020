@@ -1,17 +1,20 @@
 import * as THREE from "three";
 import Stats from "stats.js";
 import { OrbitControls } from "./OrbitControls";
+import { GLTFLoader } from "./GLTFLoader";
 import { THREEx } from "./THREEx.KeyboardState";
 import TWEEN, { Tween } from "@tweenjs/tween.js";
 //import Ammo from "ammo.js";
 import * as Ammo from "./builds/ammo";
+//import { text } from "express";
 //import { TWEEN } from "@tweenjs/tween.js";
-
+import { Lensflare, LensflareElement } from "./jsm/Lensflare";
 // start Ammo Engine
 Ammo().then((Ammo) => {
   //threejs variable declaration
-  var clock, scene, camera, renderer, stats;
+  var clock, scene, camera, renderer, stats, particleSystemObject;
 
+  var particleDirection = true;
   //Ammo.js variable declaration
   var rigidBodies = [],
     tmpTrans,
@@ -83,7 +86,7 @@ Ammo().then((Ammo) => {
 
     // init new Three.js scene
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xbfd1e5);
+    scene.background = new THREE.Color(0x000000);
 
     // camera
     camera = new THREE.PerspectiveCamera(
@@ -103,9 +106,9 @@ Ammo().then((Ammo) => {
     scene.add(hemiLight);
 
     //Add directional light
-    let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    let dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
     dirLight.color.setHSL(0.1, 1, 0.95);
-    dirLight.position.set(-1, 2, 1);
+    dirLight.position.set(20, 100, -20);
     dirLight.position.multiplyScalar(100);
     scene.add(dirLight);
 
@@ -144,9 +147,19 @@ Ammo().then((Ammo) => {
     stats.begin();
 
     let deltaTime = clock.getDelta();
-    moveBall();
+    if (document.hasFocus()) {
+      moveBall();
+    } else {
+      moveDirection.forward = 0;
+      moveDirection.back = 0;
+      moveDirection.left = 0;
+      moveDirection.right = 0;
+    }
+
     moveKinematic();
     updatePhysics(deltaTime);
+
+    moveParticles();
 
     renderer.render(scene, camera);
     stats.end();
@@ -230,6 +243,39 @@ Ammo().then((Ammo) => {
         break;
     }
   }
+
+  //document loading
+  var manager = new THREE.LoadingManager();
+
+  manager.onStart = function (item, loaded, total) {
+    console.log("Loading started");
+  };
+
+  manager.onLoad = function () {
+    var readyStateCheckInterval = setInterval(function () {
+      if (document.readyState === "complete") {
+        clearInterval(readyStateCheckInterval);
+        for (let i = 0; i < preloadDivs.length; i++) {
+          preloadDivs[i].style.visibility = "hidden"; // or
+          preloadDivs[i].style.display = "none";
+        }
+        for (let i = 0; i < postloadDivs.length; i++) {
+          postloadDivs[i].style.visibility = "visible"; // or
+          postloadDivs[i].style.display = "block";
+          preloadOpactiy.style.opacity = 0.9;
+        }
+      }
+    }, 1000);
+    console.log("Loading complete");
+  };
+
+  manager.onProgress = function (item, loaded, total) {
+    //console.log(item, loaded, total);
+  };
+
+  manager.onError = function (url) {
+    console.log("Error loading");
+  };
 
   /*
   //const joystick = createJoystick(document.getElementById("joystick-wrapper"));
@@ -365,6 +411,7 @@ Ammo().then((Ammo) => {
   let startScreenDivs = document.getElementsByClassName("start-screen");
   let startButton = document.getElementById("start-button");
 
+  //loading page section
   function startButtonEventListener() {
     for (let i = 0; i < startScreenDivs.length; i++) {
       startScreenDivs[i].style.visibility = "hidden"; // or
@@ -381,8 +428,9 @@ Ammo().then((Ammo) => {
   if (isTouchscreenDevice()) {
     document.getElementById("joystick-wrapper").style.visibility = "visible";
     document.getElementById("joystick").style.visibility = "visible";
-    console.log("is touch screen device fired");
   }
+
+  /*
 
   var readyStateCheckInterval = setInterval(function () {
     if (document.readyState === "complete") {
@@ -397,7 +445,7 @@ Ammo().then((Ammo) => {
         preloadOpactiy.style.opacity = 0.9;
       }
     }
-  }, 1500);
+  }, 1500);*/
 
   //create flat plane
   function createBlock() {
@@ -481,7 +529,7 @@ Ammo().then((Ammo) => {
   function createTextOnPlane(x, y, z, inputText) {
     // word text
     var activitiesGeometry = new THREE.PlaneBufferGeometry(20, 20);
-    const loader = new THREE.TextureLoader();
+    const loader = new THREE.TextureLoader(manager);
     var activitiesTexture = loader.load(inputText);
     activitiesTexture.magFilter = THREE.NearestFilter;
     activitiesTexture.minFilter = THREE.LinearFilter;
@@ -631,7 +679,6 @@ Ammo().then((Ammo) => {
       // make shape ( N.B. edge view not visible )
 
       text = new THREE.Mesh(textGeo, textMaterials);
-      console.log(text.scale);
       text.position.z = -20;
       text.position.y = 0.1;
       text.position.x = 24;
@@ -663,7 +710,7 @@ Ammo().then((Ammo) => {
     );
 
     /* default texture loading */
-    const loader = new THREE.TextureLoader();
+    const loader = new THREE.TextureLoader(manager);
     const texture = loader.load(textureImage);
     texture.magFilter = THREE.LinearFilter;
     texture.minFilter = THREE.LinearFilter;
@@ -701,8 +748,8 @@ Ammo().then((Ammo) => {
     billboardSign.position.z = z;
 
     /* Rotate Billboard */
-    //billboardPole.rotation.y = Math.PI * 0.22;
-    //billboardSign.rotation.y = Math.PI * 0.2;
+    billboardPole.rotation.y = Math.PI * 0.22;
+    billboardSign.rotation.y = Math.PI * 0.2;
 
     billboardPole.castShadow = true;
     billboardPole.receiveShadow = true;
@@ -811,12 +858,12 @@ Ammo().then((Ammo) => {
 
   // create ball
   function createBall() {
-    let pos = { x: 0, y: 0, z: 0 };
+    let pos = { x: 0, y: 0, z: 95 };
     let radius = 2;
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 5;
 
-    var marble_loader = new THREE.TextureLoader();
+    var marble_loader = new THREE.TextureLoader(manager);
     var marbleTexture = marble_loader.load("./src/jsm/marble_skin.png");
     marbleTexture.wrapS = marbleTexture.wrapT = THREE.RepeatWrapping;
     marbleTexture.repeat.set(1, 1);
@@ -1170,8 +1217,9 @@ Ammo().then((Ammo) => {
         objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());
       }
     }
+
     camera.position.x = ballObject.position.x;
-    camera.position.y = ballObject.position.y + 20;
+    camera.position.y = ballObject.position.y + 15;
     camera.position.z = ballObject.position.z + 50;
     camera.lookAt(ballObject.position);
   }
@@ -1199,7 +1247,6 @@ Ammo().then((Ammo) => {
     // get the list of objects the ray intersected
     const intersectedObjects = myRaycaster.intersectObjects(scene.children);
     if (intersectedObjects.length) {
-      console.log("set pick position fired");
       // pick the first object. It's the closest one
       const pickedObject = intersectedObjects[0].object;
       if (intersectedObjects[0].object.userData.URL)
@@ -1208,6 +1255,200 @@ Ammo().then((Ammo) => {
         return;
       }
     }
+  }
+
+  function createTriangle(x, z) {
+    var geom = new THREE.Geometry();
+    var v1 = new THREE.Vector3(4, 0, 0);
+    var v2 = new THREE.Vector3(5, 0, 0);
+    var v3 = new THREE.Vector3(4.5, 1, 0);
+
+    geom.vertices.push(v1);
+    geom.vertices.push(v2);
+    geom.vertices.push(v3);
+
+    geom.faces.push(new THREE.Face3(0, 1, 2));
+    geom.computeFaceNormals();
+
+    var mesh = new THREE.Mesh(
+      geom,
+      new THREE.MeshBasicMaterial({ color: 0x9c9c9c })
+    );
+    mesh.rotation.x = -Math.PI * 0.5;
+    mesh.rotation.z = Math.PI * 0.5;
+    mesh.position.y = 0.1;
+    mesh.position.x = x;
+    mesh.position.z = z;
+    scene.add(mesh);
+  }
+
+  function createAllTriangles() {
+    createTriangle(-13, 5);
+  }
+
+  function skyBoxTest() {
+    let materialArray = [];
+    let texture1 = new THREE.TextureLoader().load(
+      "./src/jsm/dispair-ridge_front.png"
+    );
+    let texture2 = new THREE.TextureLoader().load(
+      "./src/jsm/dispair-ridge_back.png"
+    );
+    let texture3 = new THREE.TextureLoader().load(
+      "./src/jsm/dispair-ridge_up.png"
+    );
+    let texture4 = new THREE.TextureLoader().load(
+      "./src/jsm/dispair-ridge_down.png"
+    );
+    let texture5 = new THREE.TextureLoader().load(
+      "./src/jsm/dispair-ridge_right.png"
+    );
+    let texture6 = new THREE.TextureLoader().load(
+      "./src/jsm/dispair-ridge_left.png"
+    );
+
+    materialArray.push(new THREE.MeshBasicMaterial({ map: texture1 }));
+    materialArray.push(new THREE.MeshBasicMaterial({ map: texture2 }));
+    materialArray.push(new THREE.MeshBasicMaterial({ map: texture3 }));
+    materialArray.push(new THREE.MeshBasicMaterial({ map: texture4 }));
+    materialArray.push(new THREE.MeshBasicMaterial({ map: texture5 }));
+    materialArray.push(new THREE.MeshBasicMaterial({ map: texture6 }));
+
+    for (let i = 0; i < 6; i++) {
+      materialArray[i].side = THREE.BackSide;
+      materialArray[i].map.minFilter = THREE.LinearMipMapLinearFilter;
+      //materialArray[i].map.magFilter = THREE.LinearFilter;
+      materialArray[i].map.anisotropy = renderer.getMaxAnisotropy();
+    }
+
+    let skyBoxGeo = new THREE.BoxGeometry(500, 500, 500);
+    let skyBox = new THREE.Mesh(skyBoxGeo, materialArray);
+    //skyBox.scale.set(3, 3, 3);
+    //skyBox.position.y = -200;
+    scene.add(skyBox);
+  }
+
+  function skyBoxSphere() {
+    var geometry = new THREE.SphereGeometry(100, 25, 25);
+
+    var material = new THREE.MeshLambertMaterial({
+      map: galaxyTexture,
+    });
+
+    material.map.minFilter = THREE.LinearFilter;
+
+    var skyBox = new THREE.Mesh(geometry, material);
+
+    skyBox.material.side = THREE.DoubleSide;
+    //skyBox.position.z = 0;
+
+    scene.add(skyBox);
+  }
+
+  function lensFlare() {
+    var textureLoader = new THREE.TextureLoader(manager);
+
+    var textureFlare0 = textureLoader.load("./src/jsm/lensflare0.png");
+    var textureFlare3 = textureLoader.load("./src/jsm/lensflare3.png");
+
+    addLight(0.55, 0.9, 0.5, 200, 50, -500);
+    addLight(0.08, 0.8, 0.5, 200, 50, -500);
+    addLight(0.995, 0.5, 0.9, 200, 50, -500);
+
+    function addLight(h, s, l, x, y, z) {
+      var light = new THREE.PointLight(0xffffff, 0.5, 2000);
+      light.color.setHSL(h, s, l);
+      light.position.set(x, y, z);
+      scene.add(light);
+
+      var lensflare = new Lensflare();
+      lensflare.addElement(
+        new LensflareElement(textureFlare0, 700, 0, light.color)
+      );
+
+      //lensflare.addElement(new LensflareElement(textureFlare3, 60, 0.6));
+      //lensflare.addElement(new LensflareElement(textureFlare3, 70, 0.7));
+      //lensflare.addElement(new LensflareElement(textureFlare3, 120, 0.9));
+      //lensflare.addElement(new LensflareElement(textureFlare3, 70, 1));
+      light.add(lensflare);
+    }
+  }
+
+  function addParticles() {
+    var geometry = new THREE.Geometry();
+
+    for (let i = 0; i < 3000; i++) {
+      var vertex = new THREE.Vector3();
+      vertex.x = getRandomArbitrary(-1000, 1000);
+      vertex.y = getRandomArbitrary(-1000, 1000);
+      vertex.z = getRandomArbitrary(-1000, -500);
+      geometry.vertices.push(vertex);
+    }
+
+    var material = new THREE.PointsMaterial({ size: 1 });
+    particleSystemObject = new THREE.Points(geometry, material);
+
+    scene.add(particleSystemObject);
+  }
+
+  function getRandomArbitrary(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  function moveParticles() {
+    particleSystemObject.rotation.z += 0.0003;
+  }
+
+  function semiCircleDome() {
+    var sphere = new THREE.SphereBufferGeometry(
+      100,
+      16,
+      6,
+      0,
+      2 * Math.PI,
+      0,
+      0.5 * Math.PI
+    );
+    let ball = new THREE.Mesh(
+      sphere,
+      new THREE.MeshPhongMaterial({
+        color: 0x000000,
+        opacity: 0.1,
+        transparent: true,
+      })
+    );
+    ball.material.side = THREE.DoubleSide;
+    ball.position.y = 0;
+    scene.add(ball);
+  }
+
+  function islandGenerator() {
+    var loader = new GLTFLoader();
+    loader.load(
+      "./src/jsm/floating_island.glb",
+      function (gltf) {
+        scene.add(gltf.scene);
+
+        gltf.scene.position.y = -25;
+        gltf.scene.scale.y = 100;
+        gltf.scene.scale.x = 100;
+        gltf.scene.scale.z = 100;
+      },
+      undefined,
+      function (error) {
+        console.error("island loading error");
+      }
+    );
+  }
+
+  function rectangleLight() {
+    const color = 0xffffff;
+    const intensity = 1;
+    const light = new THREE.SpotLight(color, intensity);
+    light.position.set(-50, -50, 100);
+    light.target.position.set(0, 0, 0);
+    scene.add(light);
+    scene.add(light.target);
   }
 
   //generic temporary transform to begin
@@ -1220,6 +1461,10 @@ Ammo().then((Ammo) => {
     initPhysicsWorld();
     initGraphics();
 
+    //skyBoxTest();
+    //skyBoxSphere();
+    lensFlare();
+
     createBlock();
     createBall();
     //createBallMask();
@@ -1231,23 +1476,31 @@ Ammo().then((Ammo) => {
     createWallZ(0, -2, 100);
     createWallZ(0, -2, -100);
 
-    createBillboard(-75, 0, -75);
+    createBillboard(-95, 0, 20);
     createBillboard(
-      -25,
+      -85,
       0,
-      -75,
+      -30,
       billboardTextures.terpSolutionsTexture,
       URL.terpsolutions
     );
 
-    createBillboard(25, 0, -75);
-    createBillboard(75, 0, -75);
+    createBillboard(-75, 0, -80);
+    createBillboard(-6, 0, -90);
 
     createBox(11.2, 1, -20);
     createTextOnPlane(-25, 0.1, -60, inputText.terpSolutionsText);
     //createTextOnPlane(20, 0.1, inputText.testText);
+
+    createAllTriangles();
+
     loadRyanText();
     loadEngineerText();
+
+    addParticles();
+    //rectangleLight();
+    //semiCircleDome();
+    islandGenerator();
 
     //updatePhysics();
     setupEventHandlers();
