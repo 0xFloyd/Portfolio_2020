@@ -1363,14 +1363,15 @@ Ammo().then((Ammo) => {
     addLight(0.995, 0.5, 0.9, 100, 50, -500);
 
     function addLight(h, s, l, x, y, z) {
-      var light = new THREE.PointLight(0xffffff, 0, 2);
+      var light = new THREE.PointLight(0xffffff, 0, 0);
       light.color.setHSL(h, s, l);
       light.position.set(x, y, z);
+
       scene.add(light);
 
       var lensflare = new Lensflare();
       lensflare.addElement(
-        new LensflareElement(textureFlare0, 700, 0, light.color)
+        new LensflareElement(textureFlare0, 250, 0, light.color)
       );
 
       //lensflare.addElement(new LensflareElement(textureFlare3, 60, 0.6));
