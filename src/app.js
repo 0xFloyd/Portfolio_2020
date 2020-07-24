@@ -1363,7 +1363,7 @@ Ammo().then((Ammo) => {
     addLight(0.995, 0.5, 0.9, 10, 20, -100);
 
     function addLight(h, s, l, x, y, z) {
-      var light = new THREE.PointLight(0xffffff, 0, 0);
+      var light = new THREE.DirectionalLight(0xffffff, 0, 0);
       light.color.setHSL(h, s, l);
       light.position.set(x, y, z);
 
@@ -1460,6 +1460,88 @@ Ammo().then((Ammo) => {
     scene.add(light.target);
   }
 
+  function glowingOrb() {
+    var sphereGeo = new THREE.SphereGeometry(10, 32, 16);
+
+    //var moonTexture = THREE.ImageUtils.loadTexture( 'images/moon.jpg' );
+    var moonMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    var moon = new THREE.Mesh(sphereGeo, moonMaterial);
+    scene.add(moon);
+
+    // create custom material from the shader code above
+    //   that is within specially labeled script tags
+    var customMaterial = new THREE.ShaderMaterial({
+      uniforms: {},
+      vertexShader: [
+        "precision highp float;",
+
+        "uniform vec3 screenPosition;",
+        "uniform vec2 scale;",
+
+        "uniform sampler2D occlusionMap;",
+
+        "attribute vec3 position;",
+        "attribute vec2 uv;",
+
+        "varying vec2 vUV;",
+        "varying float vVisibility;",
+
+        "void main() {",
+
+        "	vUV = uv;",
+
+        "	vec2 pos = position.xy;",
+
+        "	vec4 visibility = texture2D( occlusionMap, vec2( 0.1, 0.1 ) );",
+        "	visibility += texture2D( occlusionMap, vec2( 0.5, 0.1 ) );",
+        "	visibility += texture2D( occlusionMap, vec2( 0.9, 0.1 ) );",
+        "	visibility += texture2D( occlusionMap, vec2( 0.9, 0.5 ) );",
+        "	visibility += texture2D( occlusionMap, vec2( 0.9, 0.9 ) );",
+        "	visibility += texture2D( occlusionMap, vec2( 0.5, 0.9 ) );",
+        "	visibility += texture2D( occlusionMap, vec2( 0.1, 0.9 ) );",
+        "	visibility += texture2D( occlusionMap, vec2( 0.1, 0.5 ) );",
+        "	visibility += texture2D( occlusionMap, vec2( 0.5, 0.5 ) );",
+
+        "	vVisibility =        visibility.r / 9.0;",
+        "	vVisibility *= 1.0 - visibility.g / 9.0;",
+        "	vVisibility *=       visibility.b / 9.0;",
+
+        "	gl_Position = vec4( ( pos * scale + screenPosition.xy ).xy, screenPosition.z, 1.0 );",
+
+        "}",
+      ].join("\n"),
+
+      fragmentShader: [
+        "precision highp float;",
+
+        "uniform sampler2D map;",
+        "uniform vec3 color;",
+
+        "varying vec2 vUV;",
+        "varying float vVisibility;",
+
+        "void main() {",
+
+        "	vec4 texture = texture2D( map, vUV );",
+        "	texture.a *= vVisibility;",
+        "	gl_FragColor = texture;",
+        "	gl_FragColor.rgb *= color;",
+
+        "}",
+      ].join("\n"),
+      side: THREE.BackSide,
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+    });
+
+    var ballGeometry = new THREE.SphereGeometry(120, 32, 16);
+    var ball = new THREE.Mesh(ballGeometry, customMaterial);
+    ball.position.x = 0;
+    ball.position.y = 10;
+    ball.position.z = -100;
+    scene.add(ball);
+  }
+
   //generic temporary transform to begin
   tmpTrans = new Ammo.btTransform();
   ammoTmpPos = new Ammo.btVector3();
@@ -1509,8 +1591,9 @@ Ammo().then((Ammo) => {
     //rectangleLight();
     //semiCircleDome();
     islandGenerator();
+    //glowingOrb();
 
-    lensFlare();
+    //lensFlare();
 
     //updatePhysics();
     setupEventHandlers();
