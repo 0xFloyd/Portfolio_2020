@@ -1358,9 +1358,9 @@ Ammo().then((Ammo) => {
     textureFlare0.disableLighting = true;
     //textureFlare3.disableLighting = true;
 
-    addLight(0.55, 0.9, 0.5, 100, 50, -500);
-    addLight(0.08, 0.8, 0.5, 100, 50, -500);
-    addLight(0.995, 0.5, 0.9, 100, 50, -500);
+    addLight(0.55, 0.9, 0.5, 10, 20, -100);
+    addLight(0.08, 0.8, 0.5, 10, 20, -100);
+    addLight(0.995, 0.5, 0.9, 10, 20, -100);
 
     function addLight(h, s, l, x, y, z) {
       var light = new THREE.PointLight(0xffffff, 0, 0);
@@ -1371,7 +1371,7 @@ Ammo().then((Ammo) => {
 
       var lensflare = new Lensflare();
       lensflare.addElement(
-        new LensflareElement(textureFlare0, 250, 0, light.color)
+        new LensflareElement(textureFlare0, 200, 0, light.color)
       );
 
       //lensflare.addElement(new LensflareElement(textureFlare3, 60, 0.6));
@@ -1497,7 +1497,7 @@ Ammo().then((Ammo) => {
     createBillboard(-6, 0, -90);
 
     createBox(11.2, 1, -20);
-    createTextOnPlane(-25, 0.1, -60, inputText.terpSolutionsText);
+    createTextOnPlane(-75, 0.1, -15, inputText.terpSolutionsText);
     //createTextOnPlane(20, 0.1, inputText.testText);
 
     createAllTriangles();
