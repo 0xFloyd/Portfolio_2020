@@ -74,7 +74,7 @@ select {
 }
 
 #joystick-wrapper {
-  border: 1px solid black;
+  border: 1px solid rgba(0, 0, 0, 0.15);
   width: 125px;
   height: 125px;
   position: fixed;
@@ -86,11 +86,11 @@ select {
   justify-content: center; /* [2] */
   align-items: center;
   visibility: hidden;
-  opacity: 0.15;
+  opacity: 1;
 }
 
 #joystick {
-  background-color: black;
+  background-color: rgba(0, 0, 0, 0.15);
   border-radius: 100%;
   cursor: pointer;
   height: 40%;
@@ -99,6 +99,7 @@ select {
   margin: 0 auto;
   visibility: hidden;
   opacity: 1;
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 #preload-overlay {
@@ -118,6 +119,14 @@ select {
 .postload {
   visibility: hidden;
   display: none;
+}
+
+.bottom-webgl-text {
+  padding: 30px;
+}
+
+.joystick-directions-text {
+  padding: 0px 15px 0px 15px;
 }
 
 .start-page-content-div {

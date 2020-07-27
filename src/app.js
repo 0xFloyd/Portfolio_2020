@@ -48,17 +48,25 @@ Ammo().then((Ammo) => {
   let billboardTextures = {};
   billboardTextures.terpSolutionsTexture = "./src/jsm/terpSolutions.png";
   billboardTextures.grassImage = "./src/jsm/grasslight-small.jpg";
+  billboardTextures.bagHolderBetsTexture =
+    "./src/jsm/Bagholdersbetsbillboard.png";
+  billboardTextures.homeSweetHomeTexture =
+    "./src/jsm/home-sweet-home-portrait.png";
 
   //text
   let inputText = {};
   inputText.terpSolutionsText = "./src/jsm/terp-solutions-text.png";
   inputText.testText = "./src/jsm/test-text.png";
+  inputText.bagholderBetsText = "./src/jsm/bagholderbets-text.png";
+  inputText.homeSweetHomeText = "./src/jsm/home-sweet-home-text.png";
 
   //URLs
 
   let URL = {};
   URL.terpsolutions = "https://terpsolutions.com/";
   URL.ryanfloyd = "https://ryanfloyd.io";
+  URL.bagholderBets = "https://www.bagholderbets.com/welcome";
+  URL.homeSweetHomeURL = "https://home-sweet-home-ip.herokuapp.com/";
 
   //function to create physics world
   function initPhysicsWorld() {
@@ -135,6 +143,7 @@ Ammo().then((Ammo) => {
 
     stats = new Stats();
     document.body.appendChild(stats.dom);
+    stats.dom.style.opacity = 0.5;
 
     renderer.gammaInput = true;
     renderer.gammaOutput = true;
@@ -303,11 +312,6 @@ Ammo().then((Ammo) => {
       // Controversial way to check touch support
       supportsTouch = true;
 
-    if (supportsTouch) {
-      console.log("touch device");
-    } else {
-      console.log("not touch device");
-    }
     return supportsTouch;
   }
 
@@ -530,9 +534,9 @@ Ammo().then((Ammo) => {
     physicsWorld.addRigidBody(body);
   }
 
-  function createTextOnPlane(x, y, z, inputText) {
+  function createTextOnPlane(x, y, z, inputText, size1, size2) {
     // word text
-    var activitiesGeometry = new THREE.PlaneBufferGeometry(20, 20);
+    var activitiesGeometry = new THREE.PlaneBufferGeometry(size1, size2);
     const loader = new THREE.TextureLoader(manager);
     var activitiesTexture = loader.load(inputText);
     activitiesTexture.magFilter = THREE.NearestFilter;
@@ -697,7 +701,8 @@ Ammo().then((Ammo) => {
     y,
     z,
     textureImage = billboardTextures.grassImage,
-    urlLink
+    urlLink,
+    rotation = 0
   ) {
     //const billboard = new THREE.Object3D();
     const billboardPoleScale = { x: 1, y: 10, z: 1 };
@@ -718,6 +723,7 @@ Ammo().then((Ammo) => {
     const texture = loader.load(textureImage);
     texture.magFilter = THREE.LinearFilter;
     texture.minFilter = THREE.LinearFilter;
+    texture.encoding = THREE.sRGBEncoding;
     var borderMaterial = new THREE.MeshBasicMaterial({
       color: 0x000000,
     });
@@ -752,8 +758,8 @@ Ammo().then((Ammo) => {
     billboardSign.position.z = z;
 
     /* Rotate Billboard */
-    billboardPole.rotation.y = Math.PI * 0.22;
-    billboardSign.rotation.y = Math.PI * 0.2;
+    billboardPole.rotation.y = rotation;
+    billboardSign.rotation.y = rotation;
 
     billboardPole.castShadow = true;
     billboardPole.receiveShadow = true;
@@ -767,6 +773,85 @@ Ammo().then((Ammo) => {
     scene.add(billboardSign);
     addRigidPhysics(billboardPole, billboardPoleScale);
     //addRigidPhysics(billboardSign, billboardSignScale);
+  }
+
+  function createBillboardRotated(
+    x,
+    y,
+    z,
+    textureImage = billboardTextures.grassImage,
+    urlLink,
+    rotation = 0
+  ) {
+    //const billboard = new THREE.Object3D();
+    const billboardPoleScale = { x: 1, y: 5, z: 1 };
+    const billboardSignScale = { x: 15, y: 20, z: 1 };
+    const billboardPole = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(
+        billboardPoleScale.x,
+        billboardPoleScale.y,
+        billboardPoleScale.z
+      ),
+      new THREE.MeshStandardMaterial({
+        color: 0x878787,
+      })
+    );
+
+    /* default texture loading */
+    const loader = new THREE.TextureLoader(manager);
+    const texture = loader.load(textureImage);
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearFilter;
+    texture.encoding = THREE.sRGBEncoding;
+    var borderMaterial = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+    });
+    const loadedTexture = new THREE.MeshBasicMaterial({
+      map: texture,
+    });
+
+    var materials = [
+      borderMaterial, // Left side
+      borderMaterial, // Right side
+      borderMaterial, // Top side   ---> THIS IS THE FRONT
+      borderMaterial, // Bottom side --> THIS IS THE BACK
+      loadedTexture, // Front side
+      borderMaterial, // Back side
+    ];
+    // order to add materials: x+,x-,y+,y-,z+,z-
+    const billboardSign = new THREE.Mesh(
+      new THREE.BoxGeometry(
+        billboardSignScale.x,
+        billboardSignScale.y,
+        billboardSignScale.z
+      ),
+      materials
+    );
+
+    billboardPole.position.x = x;
+    billboardPole.position.y = y;
+    billboardPole.position.z = z;
+
+    billboardSign.position.x = x;
+    billboardSign.position.y = y + 12.5;
+    billboardSign.position.z = z;
+
+    /* Rotate Billboard */
+    billboardPole.rotation.y = rotation;
+    billboardSign.rotation.y = rotation;
+
+    billboardPole.castShadow = true;
+    billboardPole.receiveShadow = true;
+
+    billboardSign.castShadow = true;
+    billboardSign.receiveShadow = true;
+
+    billboardSign.userData = { URL: urlLink };
+
+    scene.add(billboardPole);
+    scene.add(billboardSign);
+    addRigidPhysics(billboardPole, billboardPoleScale);
+    addRigidPhysics(billboardSign, billboardSignScale);
   }
 
   function createWallX(x, y, z) {
@@ -1566,21 +1651,36 @@ Ammo().then((Ammo) => {
     createWallZ(0, -2, 100);
     createWallZ(0, -2, -100);
 
-    createBillboard(-95, 0, 20);
+    //createBillboard(-95, 0, 50);
     createBillboard(
-      -85,
+      -95,
       0,
       -30,
       billboardTextures.terpSolutionsTexture,
-      URL.terpsolutions
+      URL.terpsolutions,
+      Math.PI * 0.22
     );
 
-    createBillboard(-75, 0, -80);
-    createBillboard(-6, 0, -90);
+    createBillboard(
+      -75,
+      0,
+      -80,
+      billboardTextures.bagHolderBetsTexture,
+      URL.bagholderBets,
+      Math.PI * 0.22
+    );
+    createBillboardRotated(
+      -40,
+      0,
+      -90,
+      billboardTextures.homeSweetHomeTexture,
+      URL.homeSweetHomeURL
+    );
 
     createBox(11.2, 1, -20);
-    createTextOnPlane(-75, 0.1, -15, inputText.terpSolutionsText);
-    //createTextOnPlane(20, 0.1, inputText.testText);
+    createTextOnPlane(-85, 0.1, -15, inputText.terpSolutionsText, 20, 20);
+    createTextOnPlane(-68, 0.1, -57, inputText.bagholderBetsText, 20, 40);
+    createTextOnPlane(-40, 0.1, -65, inputText.homeSweetHomeText, 20, 40);
 
     createAllTriangles();
 
