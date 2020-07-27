@@ -503,7 +503,7 @@ Ammo().then((Ammo) => {
       new THREE.MeshPhongMaterial({
         color: 0xffffff,
         transparent: true,
-        opacity: 0.6,
+
         depthWrite: false,
       })
     );
