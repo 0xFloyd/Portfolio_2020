@@ -12,7 +12,7 @@ import { Lensflare, LensflareElement } from "./jsm/Lensflare";
 // start Ammo Engine
 Ammo().then((Ammo) => {
   //threejs variable declaration
-  var clock, scene, camera, renderer, stats, particleSystemObject;
+  var clock, scene, camera, renderer, controls, stats, particleSystemObject;
 
   var particleDirection = true;
   //Ammo.js variable declaration
@@ -53,10 +53,17 @@ Ammo().then((Ammo) => {
   billboardTextures.homeSweetHomeTexture =
     "./src/jsm/home-sweet-home-portrait.png";
 
+  //box textures
+  let boxTexture = {};
+  boxTexture.Github = "./src/jsm/githubLogo.png";
+  boxTexture.LinkedIn = "./src/jsm/linkedInLogo.png";
+  boxTexture.mail = "./src/jsm/envelope.png";
+  boxTexture.globe = "./src/jsm/globe.png";
+
   //text
   let inputText = {};
   inputText.terpSolutionsText = "./src/jsm/terp-solutions-text.png";
-  inputText.testText = "./src/jsm/test-text.png";
+  inputText.activities = "./src/jsm/activities_text.png";
   inputText.bagholderBetsText = "./src/jsm/bagholderbets-text.png";
   inputText.homeSweetHomeText = "./src/jsm/home-sweet-home-text.png";
 
@@ -67,6 +74,9 @@ Ammo().then((Ammo) => {
   URL.ryanfloyd = "https://ryanfloyd.io";
   URL.bagholderBets = "https://www.bagholderbets.com/welcome";
   URL.homeSweetHomeURL = "https://home-sweet-home-ip.herokuapp.com/";
+  URL.gitHub = "https://github.com/MrRyanFloyd";
+  URL.LinkedIn = "https://www.linkedin.com/in/ryan-floyd/";
+  URL.email = "mailto:arfloyd7@gmail.com";
 
   //function to create physics world
   function initPhysicsWorld() {
@@ -104,7 +114,7 @@ Ammo().then((Ammo) => {
       5000
     );
     camera.position.set(0, 30, 70);
-    camera.lookAt(scene.position);
+    //camera.lookAt(scene.position);
 
     //Add hemisphere light
     let hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.1);
@@ -116,7 +126,7 @@ Ammo().then((Ammo) => {
     //Add directional light
     let dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
     dirLight.color.setHSL(0.1, 1, 0.95);
-    dirLight.position.set(20, 100, -20);
+    dirLight.position.set(-20, 100, 50);
     dirLight.position.multiplyScalar(100);
     scene.add(dirLight);
 
@@ -176,6 +186,7 @@ Ammo().then((Ammo) => {
 
     renderer.render(scene, camera);
     stats.end();
+
     // tells browser theres animation, update before the next repaint
     requestAnimationFrame(renderFrame);
   }
@@ -481,8 +492,8 @@ Ammo().then((Ammo) => {
       normalScale: new THREE.Vector2(0.15, 0.15),
     });*/
 
-    var grid = new THREE.GridHelper(200, 20, 0x000000, 0x000000);
-    grid.material.opacity = 0.075;
+    var grid = new THREE.GridHelper(200, 20, 0xffffff, 0xffffff);
+    grid.material.opacity = 0.33;
     grid.material.transparent = true;
     scene.add(grid);
 
@@ -492,6 +503,7 @@ Ammo().then((Ammo) => {
       new THREE.MeshPhongMaterial({
         color: 0xffffff,
         transparent: true,
+        opacity: 0.6,
         depthWrite: false,
       })
     );
@@ -534,6 +546,61 @@ Ammo().then((Ammo) => {
     physicsWorld.addRigidBody(body);
   }
 
+  function createBox(
+    x,
+    y,
+    z,
+    scaleX,
+    scaleY,
+    scaleZ,
+    boxTexture,
+    URLLink,
+    color = 0x000000
+  ) {
+    const boxScale = { x: scaleX, y: scaleY, z: scaleZ };
+    let quat = { x: 0, y: 0, z: 0, w: 1 };
+    let mass = 0; //mass of zero = infinite mass
+
+    const loader = new THREE.TextureLoader(manager);
+    const texture = loader.load(boxTexture);
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearFilter;
+    texture.encoding = THREE.sRGBEncoding;
+    const loadedTexture = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      color: 0xffffff,
+    });
+
+    var borderMaterial = new THREE.MeshBasicMaterial({
+      color: color,
+    });
+    borderMaterial.color.convertSRGBToLinear();
+
+    var materials = [
+      borderMaterial, // Left side
+      borderMaterial, // Right side
+      borderMaterial, // Top side   ---> THIS IS THE FRONT
+      borderMaterial, // Bottom side --> THIS IS THE BACK
+      loadedTexture, // Front side
+      borderMaterial, // Back side
+    ];
+
+    const linkBox = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(boxScale.x, boxScale.y, boxScale.z),
+      materials
+    );
+    linkBox.position.set(x, y, z);
+    linkBox.renderOrder = 1;
+    linkBox.castShadow = true;
+    linkBox.receiveShadow = true;
+    linkBox.userData = { URL: URLLink };
+    scene.add(linkBox);
+    objectsWithLinks.push(linkBox.uuid);
+
+    addRigidPhysics(linkBox, boxScale);
+  }
+
   function createTextOnPlane(x, y, z, inputText, size1, size2) {
     // word text
     var activitiesGeometry = new THREE.PlaneBufferGeometry(size1, size2);
@@ -561,7 +628,7 @@ Ammo().then((Ammo) => {
     scene.add(activitiesText);
   }
 
-  function createBox(x, y, z) {
+  function ryanFloydWords(x, y, z) {
     const boxScale = { x: 46, y: 3, z: 2 };
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 0; //mass of zero = infinite mass
@@ -1307,10 +1374,14 @@ Ammo().then((Ammo) => {
       }
     }
 
+    camera.position.y = ballObject.position.y + 20;
     camera.position.x = ballObject.position.x;
-    camera.position.y = ballObject.position.y + 15;
+
     camera.position.z = ballObject.position.z + 50;
     camera.lookAt(ballObject.position);
+    //
+
+    //controls.update();
   }
 
   //start link events
@@ -1523,10 +1594,10 @@ Ammo().then((Ammo) => {
       function (gltf) {
         scene.add(gltf.scene);
 
-        gltf.scene.position.y = -25;
-        gltf.scene.scale.y = 100;
-        gltf.scene.scale.x = 100;
-        gltf.scene.scale.z = 100;
+        gltf.scene.position.y = -37.5;
+        gltf.scene.scale.y = 150;
+        gltf.scene.scale.x = 150;
+        gltf.scene.scale.z = 150;
       },
       undefined,
       function (error) {
@@ -1627,6 +1698,43 @@ Ammo().then((Ammo) => {
     scene.add(ball);
   }
 
+  function floatingLabel(x, y, z, inputMessage) {
+    var text_loader = new THREE.FontLoader();
+
+    text_loader.load("./src/jsm/Roboto_Regular.json", function (font) {
+      var xMid, text;
+
+      var color = 0xffffff;
+
+      var matLite = new THREE.MeshBasicMaterial({
+        color: color,
+        transparent: true,
+        opacity: 1,
+        side: THREE.DoubleSide,
+      });
+
+      var message = inputMessage;
+
+      var shapes = font.generateShapes(message, 1);
+
+      var geometry = new THREE.ShapeBufferGeometry(shapes);
+
+      geometry.computeBoundingBox();
+
+      xMid = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+
+      geometry.translate(xMid, 0, 0);
+
+      // make shape ( N.B. edge view not visible )
+
+      text = new THREE.Mesh(geometry, matLite);
+      text.position.z = z;
+      text.position.y = y;
+      text.position.x = x;
+      scene.add(text);
+    });
+  }
+
   //generic temporary transform to begin
   tmpTrans = new Ammo.btTransform();
   ammoTmpPos = new Ammo.btVector3();
@@ -1655,32 +1763,44 @@ Ammo().then((Ammo) => {
     createBillboard(
       -95,
       0,
-      -30,
+      -80,
       billboardTextures.terpSolutionsTexture,
       URL.terpsolutions,
       Math.PI * 0.22
     );
 
     createBillboard(
-      -75,
+      -60,
       0,
-      -80,
+      -85,
       billboardTextures.bagHolderBetsTexture,
       URL.bagholderBets,
       Math.PI * 0.22
     );
     createBillboardRotated(
-      -40,
+      -30,
       0,
-      -90,
+      -85,
       billboardTextures.homeSweetHomeTexture,
-      URL.homeSweetHomeURL
+      URL.homeSweetHomeURL,
+      Math.PI * 0.15
     );
 
-    createBox(11.2, 1, -20);
-    createTextOnPlane(-85, 0.1, -15, inputText.terpSolutionsText, 20, 20);
-    createTextOnPlane(-68, 0.1, -57, inputText.bagholderBetsText, 20, 40);
-    createTextOnPlane(-40, 0.1, -65, inputText.homeSweetHomeText, 20, 40);
+    ryanFloydWords(11.2, 1, -20);
+    createTextOnPlane(-83, 0.1, -70, inputText.terpSolutionsText, 20, 20);
+    createTextOnPlane(-52, 0.1, -63, inputText.bagholderBetsText, 20, 40);
+    createTextOnPlane(-22, 0.1, -61, inputText.homeSweetHomeText, 20, 40);
+    createTextOnPlane(-50, 0.1, 0, inputText.activities, 30, 45);
+
+    createBox(-2, 2, -60, 4, 4, 1, boxTexture.Github, URL.gitHub);
+    createBox(14, 2, -60, 4, 4, 1, boxTexture.mail, URL.email, 0xffffff);
+    createBox(6, 2, -60, 4, 4, 1, boxTexture.LinkedIn, URL.LinkedIn, 0x0077b5);
+    createBox(22, 2, -60, 4, 4, 1, boxTexture.globe, URL.ryanfloyd, 0xffffff);
+
+    floatingLabel(-2.125, 4.5, -60, "Github");
+    floatingLabel(6.125, 4.5, -60, "LinkedIn");
+    floatingLabel(13.875, 4.5, -60, "Email");
+    floatingLabel(22, 4.5, -60, "Website");
 
     createAllTriangles();
 
@@ -1690,7 +1810,7 @@ Ammo().then((Ammo) => {
     addParticles();
     //rectangleLight();
     //semiCircleDome();
-    islandGenerator();
+    //islandGenerator();
     //glowingOrb();
 
     //lensFlare();
