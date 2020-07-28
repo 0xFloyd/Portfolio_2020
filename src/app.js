@@ -1369,6 +1369,10 @@ Ammo().then((Ammo) => {
         objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());
       }
     }
+    if (ballObject.position.y < -50) {
+      scene.remove(ballObject);
+      createBall();
+    }
 
     camera.position.y = ballObject.position.y + 20;
     camera.position.x = ballObject.position.x;
