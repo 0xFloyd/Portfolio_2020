@@ -11,6 +11,7 @@ body {
 
 canvas {
   display: block;
+  overscroll-behavior: none;
 }
 
 #info {
@@ -74,7 +75,7 @@ select {
 }
 
 #joystick-wrapper {
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   width: 125px;
   height: 125px;
   position: fixed;
@@ -90,16 +91,19 @@ select {
 }
 
 #joystick {
-  background-color: rgba(0, 0, 0, 0.15);
+  background-color: rgba(0, 0, 0, 0.25);
   border-radius: 100%;
   cursor: pointer;
-  height: 40%;
+  height: 45%;
   user-select: none;
-  width: 40%;
+  width: 45%;
   margin: 0 auto;
   visibility: hidden;
   opacity: 1;
   border: 1px solid rgba(255, 255, 255, 0.5);
+  -webkit-user-select: none; /* Chrome/Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+ */
 }
 
 #preload-overlay {

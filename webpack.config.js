@@ -25,6 +25,8 @@ module.exports = {
     compress: true,
     watchContentBase: true,
     port: 8080,
+    host: "0.0.0.0", //your ip address
+    disableHostCheck: true, //coment these out for prod
   },
   node: {
     fs: "empty",

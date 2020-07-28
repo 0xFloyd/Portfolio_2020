@@ -76,7 +76,7 @@ Ammo().then((Ammo) => {
   URL.homeSweetHomeURL = "https://home-sweet-home-ip.herokuapp.com/";
   URL.gitHub = "https://github.com/MrRyanFloyd";
   URL.LinkedIn = "https://www.linkedin.com/in/ryan-floyd/";
-  URL.email = "mailto:arfloyd7@gmail.com";
+  URL.email = "https://mailto:arfloyd7@gmail.com";
 
   //function to create physics world
   function initPhysicsWorld() {
@@ -126,7 +126,7 @@ Ammo().then((Ammo) => {
     //Add directional light
     let dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
     dirLight.color.setHSL(0.1, 1, 0.95);
-    dirLight.position.set(-20, 100, 50);
+    dirLight.position.set(-10, 100, 50);
     dirLight.position.multiplyScalar(100);
     scene.add(dirLight);
 
@@ -142,13 +142,14 @@ Ammo().then((Ammo) => {
     dirLight.shadow.camera.top = d;
     dirLight.shadow.camera.bottom = -d;
 
-    dirLight.shadow.camera.far = 13500;
+    dirLight.shadow.camera.far = 15000;
 
     //Setup the renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setClearColor(0xbfd1e5);
+    //renderer.setClearColor(0xbfd1e5);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
+    //renderer.shadowMap.type = THREE.BasicShadowMap;
     document.body.appendChild(renderer.domElement);
 
     stats = new Stats();
@@ -179,7 +180,6 @@ Ammo().then((Ammo) => {
       moveBall();
     }
 
-    moveKinematic();
     updatePhysics(deltaTime);
 
     moveParticles();
@@ -345,6 +345,7 @@ Ammo().then((Ammo) => {
     let currentPos = { x: 0, y: 0 };
 
     function handleMouseDown(event) {
+      event.preventDefault();
       stick.style.transition = "0s";
 
       if (event.changedTouches) {
@@ -469,8 +470,8 @@ Ammo().then((Ammo) => {
   //create flat plane
   function createBlock() {
     // block properties
-    let pos = { x: 0, y: -2.5, z: 0 };
-    let scale = { x: 200, y: 5, z: 200 };
+    let pos = { x: 0, y: -0.25, z: 0 };
+    let scale = { x: 200, y: 0.5, z: 200 };
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 0; //mass of zero = infinite mass
 
@@ -493,8 +494,9 @@ Ammo().then((Ammo) => {
     });*/
 
     var grid = new THREE.GridHelper(200, 20, 0xffffff, 0xffffff);
-    grid.material.opacity = 0.33;
+    grid.material.opacity = 0.15;
     grid.material.transparent = true;
+    grid.position.y = 0.1;
     scene.add(grid);
 
     //Create Threejs Plane
@@ -503,13 +505,12 @@ Ammo().then((Ammo) => {
       new THREE.MeshPhongMaterial({
         color: 0xffffff,
         transparent: true,
-
-        depthWrite: false,
+        opacity: 0.5,
       })
     );
     blockPlane.position.set(pos.x, pos.y, pos.z);
     blockPlane.scale.set(scale.x, scale.y, scale.z);
-    blockPlane.castShadow = true;
+    //blockPlane.castShadow = true;
     blockPlane.receiveShadow = true;
     scene.add(blockPlane);
 
@@ -610,7 +611,7 @@ Ammo().then((Ammo) => {
     activitiesTexture.minFilter = THREE.LinearFilter;
     var activitiesMaterial = new THREE.MeshBasicMaterial({
       wireframe: false,
-      color: 0x000000,
+      color: 0xffffff,
       alphaMap: activitiesTexture,
       transparent: true,
     });
@@ -659,7 +660,7 @@ Ammo().then((Ammo) => {
       var color = 0x00ff08;
 
       var textMaterials = [
-        new THREE.MeshPhongMaterial({ color: color, flatShading: true }), // front
+        new THREE.MeshPhongMaterial({ color: color }), // front
         new THREE.MeshPhongMaterial({ color: color }), // side
       ];
 
@@ -667,7 +668,6 @@ Ammo().then((Ammo) => {
         color: color,
         transparent: true,
         opacity: 1,
-        side: THREE.DoubleSide,
       });
 
       /*
@@ -680,10 +680,12 @@ Ammo().then((Ammo) => {
         font: font,
         size: 3,
         height: 0.5,
-        curveSegments: 20,
+        curveSegments: 12,
         bevelEnabled: true,
-        bevelThickness: 0.5,
-        bevelSize: 0.1,
+        bevelThickness: 0.1,
+        bevelSize: 0.11,
+        bevelOffset: 0,
+        bevelSegments: 1,
       });
 
       geometry.computeBoundingBox();
@@ -697,7 +699,7 @@ Ammo().then((Ammo) => {
 
       // make shape ( N.B. edge view not visible )
 
-      text = new THREE.Mesh(textGeo, textMaterials);
+      text = new THREE.Mesh(geometry, textMaterials);
       text.position.z = -20;
       text.position.y = 0.1;
       text.receiveShadow = true;
@@ -772,7 +774,7 @@ Ammo().then((Ammo) => {
     rotation = 0
   ) {
     //const billboard = new THREE.Object3D();
-    const billboardPoleScale = { x: 1, y: 10, z: 1 };
+    const billboardPoleScale = { x: 1, y: 5, z: 1 };
     const billboardSignScale = { x: 30, y: 15, z: 1 };
     const billboardPole = new THREE.Mesh(
       new THREE.BoxBufferGeometry(
@@ -821,7 +823,7 @@ Ammo().then((Ammo) => {
     billboardPole.position.z = z;
 
     billboardSign.position.x = x;
-    billboardSign.position.y = y + 12.5;
+    billboardSign.position.y = y + 10;
     billboardSign.position.z = z;
 
     /* Rotate Billboard */
@@ -851,7 +853,7 @@ Ammo().then((Ammo) => {
     rotation = 0
   ) {
     //const billboard = new THREE.Object3D();
-    const billboardPoleScale = { x: 1, y: 5, z: 1 };
+    const billboardPoleScale = { x: 1, y: 2.5, z: 1 };
     const billboardSignScale = { x: 15, y: 20, z: 1 };
     const billboardPole = new THREE.Mesh(
       new THREE.BoxBufferGeometry(
@@ -900,7 +902,7 @@ Ammo().then((Ammo) => {
     billboardPole.position.z = z;
 
     billboardSign.position.x = x;
-    billboardSign.position.y = y + 12.5;
+    billboardSign.position.y = y + 11.25;
     billboardSign.position.z = z;
 
     /* Rotate Billboard */
@@ -923,18 +925,16 @@ Ammo().then((Ammo) => {
 
   function createWallX(x, y, z) {
     //const billboard = new THREE.Object3D();
-    const wallScale = { x: 0, y: 10, z: 200 };
+    const wallScale = { x: 0.125, y: 4, z: 200 };
 
     const wall = new THREE.Mesh(
       new THREE.BoxBufferGeometry(wallScale.x, wallScale.y, wallScale.z),
       new THREE.MeshStandardMaterial({
-        color: 0x878787,
+        color: 0xffffff,
+        opacity: 0.75,
+        transparent: true,
       })
     );
-
-    var borderMaterial = new THREE.MeshBasicMaterial({
-      color: 0x000000,
-    });
 
     wall.position.x = x;
     wall.position.y = y;
@@ -942,7 +942,7 @@ Ammo().then((Ammo) => {
 
     //wall.rotation.y = Math.PI * 0.5;
 
-    wall.castShadow = true;
+    //wall.castShadow = true;
     wall.receiveShadow = true;
 
     scene.add(wall);
@@ -953,18 +953,16 @@ Ammo().then((Ammo) => {
 
   function createWallZ(x, y, z) {
     //const billboard = new THREE.Object3D();
-    const wallScale = { x: 200, y: 10, z: 0 };
+    const wallScale = { x: 200, y: 4, z: 0.125 };
 
     const wall = new THREE.Mesh(
       new THREE.BoxBufferGeometry(wallScale.x, wallScale.y, wallScale.z),
       new THREE.MeshStandardMaterial({
-        color: 0x878787,
+        color: 0xffffff,
+        opacity: 0.75,
+        transparent: true,
       })
     );
-
-    var borderMaterial = new THREE.MeshBasicMaterial({
-      color: 0x000000,
-    });
 
     wall.position.x = x;
     wall.position.y = y;
@@ -972,13 +970,11 @@ Ammo().then((Ammo) => {
 
     //wall.rotation.y = Math.PI * 0.5;
 
-    wall.castShadow = true;
     wall.receiveShadow = true;
 
     scene.add(wall);
 
     addRigidPhysics(wall, wallScale);
-    //addRigidPhysics(billboardSign, billboardSignScale);
   }
 
   function addRigidPhysics(item, itemScale) {
@@ -1544,9 +1540,9 @@ Ammo().then((Ammo) => {
 
     for (let i = 0; i < 3000; i++) {
       var vertex = new THREE.Vector3();
-      vertex.x = getRandomArbitrary(-1000, 1000);
-      vertex.y = getRandomArbitrary(-1000, 1000);
-      vertex.z = getRandomArbitrary(-1000, -500);
+      vertex.x = getRandomArbitrary(-1100, 1100);
+      vertex.y = getRandomArbitrary(-1100, 1100);
+      vertex.z = getRandomArbitrary(-1100, -500);
       geometry.vertices.push(vertex);
     }
 
@@ -1751,18 +1747,18 @@ Ammo().then((Ammo) => {
     createBlock();
     createBall();
     //createBallMask();
-    createKinematicBox();
-    createJointObjects();
+    //createKinematicBox();
+    //createJointObjects();
 
-    createWallX(100, -2, 0);
-    createWallX(-100, -2, 0);
-    createWallZ(0, -2, 100);
-    createWallZ(0, -2, -100);
+    createWallX(100, 1.75, 0);
+    createWallX(-100, 1.75, 0);
+    createWallZ(0, 1.75, 100);
+    createWallZ(0, 1.75, -100);
 
     //createBillboard(-95, 0, 50);
     createBillboard(
       -95,
-      0,
+      2.5,
       -80,
       billboardTextures.terpSolutionsTexture,
       URL.terpsolutions,
@@ -1771,7 +1767,7 @@ Ammo().then((Ammo) => {
 
     createBillboard(
       -60,
-      0,
+      2.5,
       -85,
       billboardTextures.bagHolderBetsTexture,
       URL.bagholderBets,
@@ -1779,7 +1775,7 @@ Ammo().then((Ammo) => {
     );
     createBillboardRotated(
       -30,
-      0,
+      1.25,
       -85,
       billboardTextures.homeSweetHomeTexture,
       URL.homeSweetHomeURL,
@@ -1790,7 +1786,7 @@ Ammo().then((Ammo) => {
     createTextOnPlane(-83, 0.1, -70, inputText.terpSolutionsText, 20, 20);
     createTextOnPlane(-52, 0.1, -63, inputText.bagholderBetsText, 20, 40);
     createTextOnPlane(-22, 0.1, -61, inputText.homeSweetHomeText, 20, 40);
-    createTextOnPlane(-50, 0.1, 0, inputText.activities, 30, 45);
+    createTextOnPlane(-48, 0.1, 0, inputText.activities, 26.67, 40);
 
     createBox(-2, 2, -60, 4, 4, 1, boxTexture.Github, URL.gitHub);
     createBox(14, 2, -60, 4, 4, 1, boxTexture.mail, URL.email, 0xffffff);
@@ -1802,7 +1798,7 @@ Ammo().then((Ammo) => {
     floatingLabel(13.875, 4.5, -60, "Email");
     floatingLabel(22, 4.5, -60, "Website");
 
-    createAllTriangles();
+    //createAllTriangles();
 
     loadRyanText();
     loadEngineerText();

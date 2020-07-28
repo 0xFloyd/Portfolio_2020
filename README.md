@@ -12,3 +12,6 @@ https://stackoverflow.com/questions/16344865/how-to-make-a-loading-screen-while-
 
 increase FPS lensflare
 https://www.html5gamedevs.com/topic/17829-skybox-huge-impact-on-performance-on-mobile-browsers/page/2/
+
+//hovering object
+https://threejs.org/examples/?q=shadow#webgl_shadowmap_pointlight
