@@ -15,3 +15,6 @@ https://www.html5gamedevs.com/topic/17829-skybox-huge-impact-on-performance-on-m
 
 //hovering object
 https://threejs.org/examples/?q=shadow#webgl_shadowmap_pointlight
+
+//detect if two objects overlap - for floating text when ball rolls over it
+https://discourse.threejs.org/t/resolved-how-to-detect-if-two-objects-overlap/3789/4

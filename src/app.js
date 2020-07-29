@@ -43,6 +43,9 @@ Ammo().then((Ammo) => {
   var objectsWithLinks = [];
   var objectsWithoutLinks = [];
 
+  //text Meshes to hover
+  var textMeshes = [];
+
   //billboardTextures
 
   let billboardTextures = {};
@@ -59,6 +62,8 @@ Ammo().then((Ammo) => {
   boxTexture.LinkedIn = "./src/jsm/linkedInLogo.png";
   boxTexture.mail = "./src/jsm/envelope.png";
   boxTexture.globe = "./src/jsm/globe.png";
+  boxTexture.reactIcon = "./src/jsm/react.png";
+  boxTexture.allSkills = "./src/jsm/allSkills.png";
 
   //text
   let inputText = {};
@@ -67,8 +72,11 @@ Ammo().then((Ammo) => {
   inputText.bagholderBetsText = "./src/jsm/bagholderbets-text.png";
   inputText.homeSweetHomeText = "./src/jsm/home-sweet-home-text.png";
 
-  //URLs
+  //SVG
+  let SVG = {};
+  SVG.reactLogo = "./src/jsm/react-svg.svg";
 
+  //URLs
   let URL = {};
   URL.terpsolutions = "https://terpsolutions.com/";
   URL.ryanfloyd = "https://ryanfloyd.io";
@@ -77,6 +85,9 @@ Ammo().then((Ammo) => {
   URL.gitHub = "https://github.com/MrRyanFloyd";
   URL.LinkedIn = "https://www.linkedin.com/in/ryan-floyd/";
   URL.email = "https://mailto:arfloyd7@gmail.com";
+  URL.githubBagholder = "https://github.com/MrRyanFloyd/bagholder-bets";
+  URL.githubHomeSweetHome =
+    "https://github.com/MrRyanFloyd/home-sweet-127.0.0.1";
 
   //function to create physics world
   function initPhysicsWorld() {
@@ -441,6 +452,10 @@ Ammo().then((Ammo) => {
     startButton.removeEventListener("click", startButtonEventListener);
     document.addEventListener("click", launchClickPosition);
     createBallMask();
+    for (let i = 0; i < 9; i++) {
+      var box = new THREE.BoxHelper(textMeshes[i], 0xffffff);
+      //scene.add(box);
+    }
   }
 
   startButton.addEventListener("click", startButtonEventListener);
@@ -556,7 +571,8 @@ Ammo().then((Ammo) => {
     scaleZ,
     boxTexture,
     URLLink,
-    color = 0x000000
+    color = 0x000000,
+    email = null
   ) {
     const boxScale = { x: scaleX, y: scaleY, z: scaleZ };
     let quat = { x: 0, y: 0, z: 0, w: 1 };
@@ -595,7 +611,7 @@ Ammo().then((Ammo) => {
     linkBox.renderOrder = 1;
     linkBox.castShadow = true;
     linkBox.receiveShadow = true;
-    linkBox.userData = { URL: URLLink };
+    linkBox.userData = { URL: URLLink, email: email };
     scene.add(linkBox);
     objectsWithLinks.push(linkBox.uuid);
 
@@ -626,7 +642,48 @@ Ammo().then((Ammo) => {
     activitiesText.matrixAutoUpdate = false;
     activitiesText.updateMatrix();
     activitiesText.renderOrder = 1;
+    textMeshes.push(activitiesText);
     scene.add(activitiesText);
+  }
+
+  function simpleText(x, y, z, inputText, fontSize) {
+    var text_loader = new THREE.FontLoader();
+
+    text_loader.load("./src/jsm/Roboto_Regular.json", function (font) {
+      var xMid, text;
+
+      var color = 0xffffff;
+
+      var matLite = new THREE.MeshBasicMaterial({
+        color: color,
+        transparent: true,
+        opacity: 1,
+        side: THREE.DoubleSide,
+      });
+
+      var message = inputText;
+
+      var shapes = font.generateShapes(message, fontSize);
+
+      var geometry = new THREE.ShapeBufferGeometry(shapes);
+
+      geometry.computeBoundingBox();
+
+      xMid = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+
+      geometry.translate(xMid, 0, 0);
+
+      // make shape ( N.B. edge view not visible )
+
+      text = new THREE.Mesh(geometry, matLite);
+      text.position.z = z;
+      text.position.y = y;
+      text.position.x = x;
+      text.rotation.x = -Math.PI * 0.5;
+
+      textMeshes.push(text);
+      scene.add(text);
+    });
   }
 
   function ryanFloydWords(x, y, z) {
@@ -1004,7 +1061,7 @@ Ammo().then((Ammo) => {
     );
     let body = new Ammo.btRigidBody(rbInfo);
     body.setActivationState(STATE.DISABLE_DEACTIVATION);
-    body.setCollisionFlags(FLAGS.CF_KINEMATIC_OBJECT);
+    body.setCollisionFlags(2);
     physicsWorld.addRigidBody(body);
   }
 
@@ -1374,7 +1431,7 @@ Ammo().then((Ammo) => {
       createBall();
     }
 
-    camera.position.y = ballObject.position.y + 20;
+    camera.position.y = ballObject.position.y + 30;
     camera.position.x = ballObject.position.x;
 
     camera.position.z = ballObject.position.z + 50;
@@ -1413,6 +1470,25 @@ Ammo().then((Ammo) => {
         window.open(intersectedObjects[0].object.userData.URL);
       else {
         return;
+      }
+
+      if (intersectedObjects[0].object.userData.email) {
+        console.log("email click worked");
+        var divElement = document.getElementById("tooltip");
+        divElement.setAttribute("style", "display: block");
+
+        var tootipWidth = divElement.offsetWidth;
+        var tootipHeight = divElement.offsetHeight;
+        divElement.setAttribute(
+          "style",
+          `left: ${pickPosition.x - tootipWidth / 2}px`,
+          `top: ${pickPosition.y - tootipHeight - 5}px`
+        );
+        divElement.innerText = intersectedObjects[0].object.userData.email;
+
+        setTimeout(function () {
+          divElement.setAttribute("style", "opacity: 1.0");
+        }, 5000);
       }
     }
   }
@@ -1735,6 +1811,107 @@ Ammo().then((Ammo) => {
     });
   }
 
+  function createSkillIcon(boxTexture) {
+    let pos = { x: 2, y: 2, z: 2 };
+    let boxScale = { x: 4, y: 4, z: 0 };
+    let quat = { x: 0, y: 0, z: 0, w: 1 };
+    let mass = 15;
+
+    const loader = new THREE.TextureLoader(manager);
+    const texture = loader.load(boxTexture);
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearFilter;
+    texture.encoding = THREE.sRGBEncoding;
+    const loadedTexture = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      color: 0xffffff,
+      opacity: 1,
+    });
+
+    const linkBox = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(boxScale.x, boxScale.y, boxScale.z),
+      loadedTexture
+    );
+
+    linkBox.position.set(pos.x, pos.y, pos.z);
+    linkBox.renderOrder = 1;
+    linkBox.castShadow = true;
+    linkBox.receiveShadow = true;
+    scene.add(linkBox);
+
+    //Ammojs Section
+    /*do we need these?
+    linkBox.userData.physicsBody = body;
+    rigidBodies.push(linkBox);*/
+
+    ////////////////////////////////////////////
+    var transform = new Ammo.btTransform();
+    transform.setIdentity();
+    transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+    transform.setRotation(
+      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
+    );
+
+    var localInertia = new Ammo.btVector3(0, 0, 0);
+    var motionState = new Ammo.btDefaultMotionState(transform);
+    let colShape = new Ammo.btBoxShape(
+      new Ammo.btVector3(boxScale.x * 0.5, boxScale.y * 0.5, boxScale.z * 0.5)
+    );
+    colShape.setMargin(0.05);
+    colShape.calculateLocalInertia(mass, localInertia);
+    let rbInfo = new Ammo.btRigidBodyConstructionInfo(
+      mass,
+      motionState,
+      colShape,
+      localInertia
+    );
+    let body = new Ammo.btRigidBody(rbInfo);
+
+    physicsWorld.addRigidBody(body);
+
+    linkBox.userData.physicsBody = body;
+    rigidBodies.push(linkBox);
+  }
+
+  function allSkillsSection(boxTexture) {
+    const boxScale = { x: 40, y: 0.1, z: 40 };
+    let quat = { x: 0, y: 0, z: 0, w: 1 };
+    let mass = 0; //mass of zero = infinite mass
+
+    var geometry = new THREE.PlaneBufferGeometry(40, 40);
+
+    const loader = new THREE.TextureLoader(manager);
+    const texture = loader.load(boxTexture);
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearFilter;
+    texture.encoding = THREE.sRGBEncoding;
+    const loadedTexture = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+    });
+    loadedTexture.depthWrite = true;
+    loadedTexture.depthTest = true;
+
+    const linkBox = new THREE.Mesh(geometry, loadedTexture);
+    linkBox.position.set(70, 0.1, 10);
+    linkBox.renderOrder = 1;
+    linkBox.rotation.x = -Math.PI * 0.5;
+    linkBox.receiveShadow = true;
+    scene.add(linkBox);
+  }
+
+  function computeTextOverlap() {
+    let currentPosition = ballObject.position.clone();
+
+    /*
+    for (let i=0; i < textMeshes.length; i++) {
+      if (textMeshes[i]) {
+
+      }
+    }*/
+  }
+
   //generic temporary transform to begin
   tmpTrans = new Ammo.btTransform();
   ammoTmpPos = new Ammo.btVector3();
@@ -1777,6 +1954,8 @@ Ammo().then((Ammo) => {
       URL.bagholderBets,
       Math.PI * 0.22
     );
+    createBox(-52, 2, -85, 4, 4, 1, boxTexture.Github, URL.githubBagholder);
+
     createBillboardRotated(
       -30,
       1.25,
@@ -1785,27 +1964,46 @@ Ammo().then((Ammo) => {
       URL.homeSweetHomeURL,
       Math.PI * 0.15
     );
+    createBox(-22, 2, -83, 4, 4, 1, boxTexture.Github, URL.githubHomeSweetHome);
 
     ryanFloydWords(11.2, 1, -20);
     createTextOnPlane(-83, 0.1, -70, inputText.terpSolutionsText, 20, 20);
     createTextOnPlane(-52, 0.1, -63, inputText.bagholderBetsText, 20, 40);
     createTextOnPlane(-22, 0.1, -61, inputText.homeSweetHomeText, 20, 40);
-    createTextOnPlane(-48, 0.1, 0, inputText.activities, 26.67, 40);
+    createTextOnPlane(-52, 0.1, 28, inputText.activities, 30, 60);
 
-    createBox(-2, 2, -60, 4, 4, 1, boxTexture.Github, URL.gitHub);
-    createBox(14, 2, -60, 4, 4, 1, boxTexture.mail, URL.email, 0xffffff);
-    createBox(6, 2, -60, 4, 4, 1, boxTexture.LinkedIn, URL.LinkedIn, 0x0077b5);
-    createBox(22, 2, -60, 4, 4, 1, boxTexture.globe, URL.ryanfloyd, 0xffffff);
+    createBox(13, 2, -70, 4, 4, 1, boxTexture.Github, URL.gitHub);
+    createBox(21, 2, -70, 4, 4, 1, boxTexture.LinkedIn, URL.LinkedIn, 0x0077b5);
+    createBox(37, 2, -70, 4, 4, 1, boxTexture.globe, URL.ryanfloyd, 0xffffff);
 
-    floatingLabel(-2.125, 4.5, -60, "Github");
-    floatingLabel(6.125, 4.5, -60, "LinkedIn");
-    floatingLabel(13.875, 4.5, -60, "Email");
-    floatingLabel(22, 4.5, -60, "Website");
+    createBox(
+      29,
+      2,
+      -70,
+      4,
+      4,
+      1,
+      boxTexture.mail,
+      "mailto:arfloyd7@gmail.com",
+      0xffffff
+    );
+
+    floatingLabel(13.125, 4.5, -70, "Github");
+    floatingLabel(21.125, 4.5, -70, "LinkedIn");
+    floatingLabel(28.875, 4.5, -70, "Email");
+    floatingLabel(37, 4.5, -70, "Website");
 
     //createAllTriangles();
 
+    //createSkillIcon(boxTexture.reactIcon);
+    allSkillsSection(boxTexture.allSkills);
+
     loadRyanText();
     loadEngineerText();
+    simpleText(24, 0.01, -60, "Click boxes to visit", 1.5);
+    simpleText(70, 0.01, -15, "SKILLS", 3);
+    simpleText(-55, 0.01, -40, "PROJECTS", 3);
+    simpleText(-55, 0.01, 0, "TIMELINE", 3);
 
     addParticles();
     //rectangleLight();
@@ -1818,7 +2016,33 @@ Ammo().then((Ammo) => {
     //updatePhysics();
     setupEventHandlers();
     renderFrame();
+    //console.log(textMeshes);
   }
 
   start();
 });
+
+/* 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Test code 
+
+Tween test 
+ this.angle.items = {
+            default: new THREE.Vector3(1.135, - 1.45, 1.15),
+            projects: new THREE.Vector3(0.38, - 1.4, 1.63)
+        }
+
+        // Value
+        this.angle.value = new THREE.Vector3()
+        this.angle.value.copy(this.angle.items.default)
+
+        // Set method
+        this.angle.set = (_name) =>
+        {
+            const angle = this.angle.items[_name]
+            if(typeof angle !== 'undefined')
+            {
+                TweenLite.to(this.angle.value, 2, { ...angle, ease: Power1.easeInOut })
+            }
+        }
+*/
