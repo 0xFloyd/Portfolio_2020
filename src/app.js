@@ -673,8 +673,6 @@ Ammo().then((Ammo) => {
     activitiesTexture.magFilter = THREE.NearestFilter;
     activitiesTexture.minFilter = THREE.LinearFilter;
     var activitiesMaterial = new THREE.MeshBasicMaterial({
-      wireframe: false,
-      color: 0xffffff,
       alphaMap: activitiesTexture,
       transparent: true,
     });
@@ -1530,13 +1528,18 @@ Ammo().then((Ammo) => {
   //start link events
   const pickPosition = { x: 0, y: 0 };
 
+  //allSkillsSection(70, 0.01, 10, 40, 40, boxTexture.allSkills);
   function rotateCamera(ballPosition) {
     if (
       (ballPosition.position.x < -35 &&
         ballPosition.position.x > -70 &&
         ballPosition.position.z > 0 &&
         ballPosition.position.z < 55) ||
-      (ballPosition.position.x < -15 && ballPosition.position.z < -50)
+      (ballPosition.position.x < -15 && ballPosition.position.z < -50) ||
+      (ballPosition.position.x < 90 &&
+        ballPosition.position.x > 50 &&
+        ballPosition.position.z > -10 &&
+        ballPosition.position.z < 30)
     ) {
       camera.position.x = ballPosition.position.x;
       camera.position.y = ballPosition.position.y + 50;
@@ -1979,12 +1982,12 @@ Ammo().then((Ammo) => {
     rigidBodies.push(linkBox);
   }
 
-  function allSkillsSection(boxTexture) {
-    const boxScale = { x: 40, y: 0.1, z: 40 };
+  function allSkillsSection(x, y, z, xScale, zScale, boxTexture) {
+    const boxScale = { x: xScale, y: 0.1, z: zScale };
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 0; //mass of zero = infinite mass
 
-    var geometry = new THREE.PlaneBufferGeometry(40, 40);
+    var geometry = new THREE.PlaneBufferGeometry(xScale, zScale);
 
     const loader = new THREE.TextureLoader(manager);
     const texture = loader.load(boxTexture);
@@ -1999,7 +2002,7 @@ Ammo().then((Ammo) => {
     loadedTexture.depthTest = true;
 
     const linkBox = new THREE.Mesh(geometry, loadedTexture);
-    linkBox.position.set(70, 0.1, 10);
+    linkBox.position.set(x, y, z);
     linkBox.renderOrder = 1;
     linkBox.rotation.x = -Math.PI * 0.5;
     linkBox.receiveShadow = true;
@@ -2078,7 +2081,6 @@ Ammo().then((Ammo) => {
     createTextOnPlane(-83, 0.01, -70, inputText.terpSolutionsText, 20, 20);
     createTextOnPlane(-52, 0.01, -63, inputText.bagholderBetsText, 20, 40);
     createTextOnPlane(-22, 0.01, -61, inputText.homeSweetHomeText, 20, 40);
-    createTextOnPlane(-52, 0.01, 28, inputText.activities, 30, 60);
 
     createBox(13, 2, -70, 4, 4, 1, boxTexture.Github, URL.gitHub);
     createBox(21, 2, -70, 4, 4, 1, boxTexture.LinkedIn, URL.LinkedIn, 0x0077b5);
@@ -2104,14 +2106,15 @@ Ammo().then((Ammo) => {
     //createAllTriangles();
 
     //createSkillIcon(boxTexture.reactIcon);
-    allSkillsSection(boxTexture.allSkills);
+    allSkillsSection(70, 0.01, 10, 40, 40, boxTexture.allSkills);
+    allSkillsSection(-54, 0.01, 28, 30, 60, inputText.activities);
 
     loadRyanText();
     loadEngineerText();
     simpleText(24, 0.01, -60, "Click boxes to visit", 1.5);
     simpleText(70, 0.01, -15, "SKILLS", 3);
     simpleText(-55, 0.01, -40, "PROJECTS", 3);
-    simpleText(-55, 0.01, 0, "TIMELINE", 3);
+    simpleText(-54, 0.01, 0, "TIMELINE", 3);
 
     addParticles();
     //rectangleLight();
