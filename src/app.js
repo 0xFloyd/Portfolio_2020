@@ -45,9 +45,17 @@ Ammo().then((Ammo) => {
 
   //text Meshes to hover
   var textMeshes = [];
+  var boxAroundMesh;
+
+  //holds computed Box3's
+  var boxArrayTest = [];
+  var ballObjectBox3; //box3 for the marble
+  var ballComputeBoundingSphere;
+  var ballComputeBoundingBox;
+  var ballWireMesh;
+  var interceptFlag = false;
 
   //billboardTextures
-
   let billboardTextures = {};
   billboardTextures.terpSolutionsTexture = "./src/jsm/terpSolutions.png";
   billboardTextures.grassImage = "./src/jsm/grasslight-small.jpg";
@@ -88,6 +96,10 @@ Ammo().then((Ammo) => {
   URL.githubBagholder = "https://github.com/MrRyanFloyd/bagholder-bets";
   URL.githubHomeSweetHome =
     "https://github.com/MrRyanFloyd/home-sweet-127.0.0.1";
+
+  //start button pressed, person has entered 3d environment
+  var startButtonPressed = false;
+  var callOnceFlag = true; //boolean to only call on first render
 
   //function to create physics world
   function initPhysicsWorld() {
@@ -200,6 +212,31 @@ Ammo().then((Ammo) => {
 
     // tells browser theres animation, update before the next repaint
     requestAnimationFrame(renderFrame);
+  }
+
+  function tweenCameraTest() {
+    var from = {
+      x: camera.position.x,
+      y: camera.position.y,
+      z: camera.position.z,
+    };
+
+    var to = {
+      x: camera.position.x,
+      y: camera.position.y + 1,
+      z: camera.position.z + 2,
+    };
+    var tween = new TWEEN.Tween(from)
+      .to(to, 3000)
+      .easing(TWEEN.Easing.Linear.None)
+      .onUpdate(function () {
+        //camera.lookAt(ballObject.position);
+      })
+      .onComplete(function () {
+        //camera.lookAt(ballObject.position);
+        camera.position.y = 50;
+      })
+      .start();
   }
 
   // create keyboard control event listeners
@@ -452,10 +489,20 @@ Ammo().then((Ammo) => {
     startButton.removeEventListener("click", startButtonEventListener);
     document.addEventListener("click", launchClickPosition);
     createBallMask();
-    for (let i = 0; i < 9; i++) {
-      var box = new THREE.BoxHelper(textMeshes[i], 0xffffff);
-      //scene.add(box);
-    }
+
+    //adds white visual helper boxes around text
+    /*
+    for (let i = 0; i < textMeshes.length; i++) {
+      boxAroundMesh = new THREE.BoxHelper(textMeshes[i], 0xffffff);
+      scene.add(boxAroundMesh);
+      var box = new THREE.Box3();
+      box
+        .copy(textMeshes[i].geometry.boundingBox)
+        .applyMatrix4(textMeshes[i].matrixWorld);
+      boxArrayTest.push(box);
+    }*/
+
+    startButtonPressed = true;
   }
 
   startButton.addEventListener("click", startButtonEventListener);
@@ -511,7 +558,7 @@ Ammo().then((Ammo) => {
     var grid = new THREE.GridHelper(200, 20, 0xffffff, 0xffffff);
     grid.material.opacity = 0.15;
     grid.material.transparent = true;
-    grid.position.y = 0.1;
+    grid.position.y = 0.005;
     scene.add(grid);
 
     //Create Threejs Plane
@@ -639,8 +686,8 @@ Ammo().then((Ammo) => {
     activitiesText.position.y = y;
     activitiesText.position.z = z;
     activitiesText.rotation.x = -Math.PI * 0.5;
-    activitiesText.matrixAutoUpdate = false;
-    activitiesText.updateMatrix();
+    //activitiesText.matrixAutoUpdate = false;
+    //activitiesText.updateMatrix();
     activitiesText.renderOrder = 1;
     textMeshes.push(activitiesText);
     scene.add(activitiesText);
@@ -1097,6 +1144,9 @@ Ammo().then((Ammo) => {
       new THREE.MeshLambertMaterial({ map: marbleTexture })
     ));
 
+    ballComputeBoundingSphere = ball.geometry.computeBoundingSphere();
+    ballComputeBoundingBox = ball.geometry.computeBoundingBox();
+
     ball.position.set(pos.x, pos.y, pos.z);
 
     ball.castShadow = true;
@@ -1142,6 +1192,22 @@ Ammo().then((Ammo) => {
     ballObject.userData.physicsBody = body;
 
     rigidBodies.push(ball);
+
+    // currently testing 7/29/20: mesh surrounding ball
+    /* sets orange box underneath ball to show position 
+    const wireMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff6600,
+      wireframe: true,
+    });
+
+    let wireMeshTemp = (ballWireMesh = new THREE.Mesh(
+      new THREE.PlaneBufferGeometry(4, 4),
+      wireMaterial
+    ));
+    wireMeshTemp.position.y = 0.01;
+    wireMeshTemp.rotation.x = -Math.PI * 0.5;
+    //mesh.position.copy(ballObject.geometry.boundingSphere.center);
+    scene.add(wireMeshTemp);*/
   }
 
   function createBallMask() {
@@ -1409,6 +1475,19 @@ Ammo().then((Ammo) => {
     physicsWorld.addConstraint(p2p, false);
   }
 
+  function setupTween(position, target, duration) {
+    TWEEN.removeAll(); // remove previous tweens if needed
+
+    new TWEEN.Tween(position)
+      .to(target, duration)
+      .easing(TWEEN.Easing.Bounce.InOut)
+      .onUpdate(function () {
+        // copy incoming position into capera position
+        camera.position.copy(position);
+      })
+      .start();
+  }
+
   function updatePhysics(deltaTime) {
     // Step world
     physicsWorld.stepSimulation(deltaTime, 10);
@@ -1431,18 +1510,45 @@ Ammo().then((Ammo) => {
       createBall();
     }
 
-    camera.position.y = ballObject.position.y + 30;
-    camera.position.x = ballObject.position.x;
+    /* deprecated function for checking ball position to raise text 
+    if (startButtonPressed) {
+      checkForBallInsidePlane();
+    } */
 
-    camera.position.z = ballObject.position.z + 50;
-    camera.lookAt(ballObject.position);
-    //
+    //(x = -52), (z = 28);
+    rotateCamera(ballObject);
+
+    /* sets position for wire mesh under ball. currently disabled 8/3/20
+    ballWireMesh.position.x = ballObject.position.x;
+    ballWireMesh.position.z = ballObject.position.z;
+    //ballWireMesh.position.set(ballObject.position);
+    */
 
     //controls.update();
   }
 
   //start link events
   const pickPosition = { x: 0, y: 0 };
+
+  function rotateCamera(ballPosition) {
+    if (
+      (ballPosition.position.x < -35 &&
+        ballPosition.position.x > -70 &&
+        ballPosition.position.z > 0 &&
+        ballPosition.position.z < 55) ||
+      (ballPosition.position.x < -15 && ballPosition.position.z < -50)
+    ) {
+      camera.position.x = ballPosition.position.x;
+      camera.position.y = ballPosition.position.y + 50;
+      camera.position.z = ballPosition.position.z + 40;
+      camera.lookAt(ballPosition.position);
+    } else {
+      camera.position.x = ballPosition.position.x;
+      camera.position.y = ballPosition.position.y + 30;
+      camera.position.z = ballPosition.position.z + 60;
+      camera.lookAt(ballPosition.position);
+    }
+  }
 
   function getCanvasRelativePosition(event) {
     const rect = renderer.domElement.getBoundingClientRect();
@@ -1473,7 +1579,6 @@ Ammo().then((Ammo) => {
       }
 
       if (intersectedObjects[0].object.userData.email) {
-        console.log("email click worked");
         var divElement = document.getElementById("tooltip");
         divElement.setAttribute("style", "display: block");
 
@@ -1901,13 +2006,16 @@ Ammo().then((Ammo) => {
     scene.add(linkBox);
   }
 
-  function computeTextOverlap() {
-    let currentPosition = ballObject.position.clone();
-
+  function checkForBallInsidePlane() {
+    // raises text in the air if ball is inside text section
     /*
-    for (let i=0; i < textMeshes.length; i++) {
-      if (textMeshes[i]) {
+    var boxMesh = new THREE.Box3().setFromObject(ballWireMesh);
+    for (let i = 0; i < textMeshes.length; i++) {
+      var currentBox = new THREE.Box3().setFromObject(textMeshes[i]);
 
+      if (currentBox.containsBox(boxMesh)) {
+        textMeshes[i].position.y = 5;
+        textMeshes[i].updateMatrix();
       }
     }*/
   }
@@ -1967,10 +2075,10 @@ Ammo().then((Ammo) => {
     createBox(-22, 2, -83, 4, 4, 1, boxTexture.Github, URL.githubHomeSweetHome);
 
     ryanFloydWords(11.2, 1, -20);
-    createTextOnPlane(-83, 0.1, -70, inputText.terpSolutionsText, 20, 20);
-    createTextOnPlane(-52, 0.1, -63, inputText.bagholderBetsText, 20, 40);
-    createTextOnPlane(-22, 0.1, -61, inputText.homeSweetHomeText, 20, 40);
-    createTextOnPlane(-52, 0.1, 28, inputText.activities, 30, 60);
+    createTextOnPlane(-83, 0.01, -70, inputText.terpSolutionsText, 20, 20);
+    createTextOnPlane(-52, 0.01, -63, inputText.bagholderBetsText, 20, 40);
+    createTextOnPlane(-22, 0.01, -61, inputText.homeSweetHomeText, 20, 40);
+    createTextOnPlane(-52, 0.01, 28, inputText.activities, 30, 60);
 
     createBox(13, 2, -70, 4, 4, 1, boxTexture.Github, URL.gitHub);
     createBox(21, 2, -70, 4, 4, 1, boxTexture.LinkedIn, URL.LinkedIn, 0x0077b5);
@@ -2016,6 +2124,7 @@ Ammo().then((Ammo) => {
     //updatePhysics();
     setupEventHandlers();
     renderFrame();
+
     //console.log(textMeshes);
   }
 
