@@ -1528,7 +1528,6 @@ Ammo().then((Ammo) => {
   //start link events
   const pickPosition = { x: 0, y: 0 };
 
-  //allSkillsSection(70, 0.01, 10, 40, 40, boxTexture.allSkills);
   function rotateCamera(ballPosition) {
     if (
       (ballPosition.position.x < -35 &&
