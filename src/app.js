@@ -1,14 +1,17 @@
 import * as THREE from "three";
+import { WEBGL } from "./WebGL";
 import Stats from "stats.js";
 import { OrbitControls } from "./OrbitControls";
 import { GLTFLoader } from "./GLTFLoader";
 import { THREEx } from "./THREEx.KeyboardState";
+//import { Reflector } from "./Reflector.js";
 import TWEEN, { Tween } from "@tweenjs/tween.js";
 //import Ammo from "ammo.js";
 import * as Ammo from "./builds/ammo";
 //import { text } from "express";
 //import { TWEEN } from "@tweenjs/tween.js";
 import { Lensflare, LensflareElement } from "./jsm/Lensflare";
+
 // start Ammo Engine
 Ammo().then((Ammo) => {
   //threejs variable declaration
@@ -55,6 +58,9 @@ Ammo().then((Ammo) => {
   var ballWireMesh;
   var interceptFlag = false;
 
+  //lens flare object
+  var lensFlareObject;
+
   //billboardTextures
   let billboardTextures = {};
   billboardTextures.terpSolutionsTexture = "./src/jsm/terpSolutions.png";
@@ -72,6 +78,7 @@ Ammo().then((Ammo) => {
   boxTexture.globe = "./src/jsm/globe.png";
   boxTexture.reactIcon = "./src/jsm/react.png";
   boxTexture.allSkills = "./src/jsm/allSkills.png";
+  boxTexture.lensFlareMain = "./src/jsm/lensflare0.png";
 
   //text
   let inputText = {};
@@ -533,7 +540,7 @@ Ammo().then((Ammo) => {
   function createBlock() {
     // block properties
     let pos = { x: 0, y: -0.25, z: 0 };
-    let scale = { x: 200, y: 0.5, z: 200 };
+    let scale = { x: 175, y: 0.5, z: 175 };
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 0; //mass of zero = infinite mass
 
@@ -555,7 +562,7 @@ Ammo().then((Ammo) => {
       normalScale: new THREE.Vector2(0.15, 0.15),
     });*/
 
-    var grid = new THREE.GridHelper(200, 20, 0xffffff, 0xffffff);
+    var grid = new THREE.GridHelper(175, 20, 0xffffff, 0xffffff);
     grid.material.opacity = 0.15;
     grid.material.transparent = true;
     grid.position.y = 0.005;
@@ -602,7 +609,7 @@ Ammo().then((Ammo) => {
       localInertia
     );
     let body = new Ammo.btRigidBody(rigidBodyStruct);
-    body.setFriction(4);
+    body.setFriction(10);
     body.setRollingFriction(10);
 
     // add to world
@@ -1027,7 +1034,7 @@ Ammo().then((Ammo) => {
 
   function createWallX(x, y, z) {
     //const billboard = new THREE.Object3D();
-    const wallScale = { x: 0.125, y: 4, z: 200 };
+    const wallScale = { x: 0.125, y: 4, z: 175 };
 
     const wall = new THREE.Mesh(
       new THREE.BoxBufferGeometry(wallScale.x, wallScale.y, wallScale.z),
@@ -1055,7 +1062,7 @@ Ammo().then((Ammo) => {
 
   function createWallZ(x, y, z) {
     //const billboard = new THREE.Object3D();
-    const wallScale = { x: 200, y: 4, z: 0.125 };
+    const wallScale = { x: 175, y: 4, z: 0.125 };
 
     const wall = new THREE.Mesh(
       new THREE.BoxBufferGeometry(wallScale.x, wallScale.y, wallScale.z),
@@ -1077,6 +1084,114 @@ Ammo().then((Ammo) => {
     scene.add(wall);
 
     addRigidPhysics(wall, wallScale);
+  }
+
+  function myWallV2() {
+    var pos = new THREE.Vector3();
+    var quat = new THREE.Quaternion();
+    var brickMass = 0.1;
+    var brickLength = 3;
+    var brickDepth = 3;
+    var brickHeight = 1.5;
+    var numberOfBricksAcross = 6;
+    var numberOfRowsHigh = 6;
+
+    pos.set(70, brickHeight * 0.5, -60);
+    quat.set(0, 0, 0, 1);
+
+    for (var j = 0; j < numberOfRowsHigh; j++) {
+      var oddRow = j % 2 == 1;
+
+      pos.x = 60;
+
+      if (oddRow) {
+        pos.x += 0.25 * brickLength;
+      }
+
+      var currentRow = oddRow ? numberOfBricksAcross + 1 : numberOfBricksAcross;
+      for (let i = 0; i < currentRow; i++) {
+        var brickLengthCurrent = brickLength;
+        var brickMassCurrent = brickMass;
+        if (oddRow && (i == 0 || i == currentRow - 1)) {
+          //first or last brick
+          brickLengthCurrent *= 0.5;
+          brickMassCurrent *= 0.5;
+        }
+        var brick = createParalellepiped(
+          brickLengthCurrent,
+          brickHeight,
+          brickDepth,
+          brickMassCurrent,
+          pos,
+          quat,
+          new THREE.MeshLambertMaterial({
+            color: 0xffffff,
+          })
+        );
+        brick.castShadow = true;
+        brick.receiveShadow = true;
+
+        if (oddRow && (i == 0 || i == currentRow - 2)) {
+          //first or last brick
+          pos.x += brickLength * 0.25;
+        } else {
+          pos.x += brickLength;
+        }
+      }
+      pos.y += brickHeight - 0.001;
+    }
+  }
+
+  function createParalellepiped(sx, sy, sz, mass, pos, quat, material) {
+    var threeObject = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(sx, sy, sz, 1, 1, 1),
+      material
+    );
+    var shape = new Ammo.btBoxShape(
+      new Ammo.btVector3(sx * 0.5, sy * 0.5, sz * 0.5)
+    );
+    shape.setMargin(0.05);
+
+    createRigidBody(threeObject, shape, mass, pos, quat);
+
+    return threeObject;
+  }
+
+  function createRigidBody(threeObject, physicsShape, mass, pos, quat) {
+    threeObject.position.copy(pos);
+    threeObject.quaternion.copy(quat);
+
+    var transform = new Ammo.btTransform();
+    transform.setIdentity();
+    transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+    transform.setRotation(
+      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
+    );
+    var motionState = new Ammo.btDefaultMotionState(transform);
+
+    var localInertia = new Ammo.btVector3(0, 0, 0);
+    physicsShape.calculateLocalInertia(mass, localInertia);
+
+    var rbInfo = new Ammo.btRigidBodyConstructionInfo(
+      mass,
+      motionState,
+      physicsShape,
+      localInertia
+    );
+    var body = new Ammo.btRigidBody(rbInfo);
+
+    threeObject.userData.physicsBody = body;
+
+    scene.add(threeObject);
+
+    if (mass > 0) {
+      rigidBodies.push(threeObject);
+
+      // Disable deactivation
+      body.setActivationState(4);
+    }
+
+    physicsWorld.addRigidBody(body);
   }
 
   function addRigidPhysics(item, itemScale) {
@@ -1112,13 +1227,13 @@ Ammo().then((Ammo) => {
 
   // create ball
   function createBall() {
-    let pos = { x: 0, y: 0, z: 0 };
+    let pos = { x: 8.75, y: 0, z: 0 };
     let radius = 2;
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 5;
 
     var marble_loader = new THREE.TextureLoader(manager);
-    var marbleTexture = marble_loader.load("./src/jsm/marble_skin.png");
+    var marbleTexture = marble_loader.load("./src/jsm/earth.jpg");
     marbleTexture.wrapS = marbleTexture.wrapT = THREE.RepeatWrapping;
     marbleTexture.repeat.set(1, 1);
     marbleTexture.anisotropy = 1;
@@ -1174,7 +1289,7 @@ Ammo().then((Ammo) => {
       localInertia
     );
     let body = new Ammo.btRigidBody(rbInfo);
-    body.setFriction(4);
+    //body.setFriction(4);
     body.setRollingFriction(10);
 
     //set ball friction
@@ -1190,6 +1305,7 @@ Ammo().then((Ammo) => {
     ballObject.userData.physicsBody = body;
 
     rigidBodies.push(ball);
+    rigidBodies.push(ballObject);
 
     // currently testing 7/29/20: mesh surrounding ball
     /* sets orange box underneath ball to show position 
@@ -1212,13 +1328,21 @@ Ammo().then((Ammo) => {
     let pos = { x: 20, y: 30, z: 0 };
     let radius = 2;
     let quat = { x: 0, y: 0, z: 0, w: 1 };
-    let mass = 15;
+    let mass = 10;
 
-    //ThreeJS create ball
+    var texture_loader = new THREE.TextureLoader(manager);
+    var beachTexture = texture_loader.load("./src/jsm/BeachBallColor.jpg");
+    beachTexture.wrapS = beachTexture.wrapT = THREE.RepeatWrapping;
+    beachTexture.repeat.set(1, 1);
+    beachTexture.anisotropy = 1;
+    beachTexture.encoding = THREE.sRGBEncoding;
+
+    //threeJS Section
     let ball = new THREE.Mesh(
-      new THREE.SphereBufferGeometry(2, 32, 32),
-      new THREE.MeshPhongMaterial({ color: 0x0000ff })
+      new THREE.SphereGeometry(radius, 32, 32),
+      new THREE.MeshLambertMaterial({ map: beachTexture })
     );
+
     ball.position.set(pos.x, pos.y, pos.z);
     ball.castShadow = true;
     ball.receiveShadow = true;
@@ -1247,11 +1371,30 @@ Ammo().then((Ammo) => {
     );
     let body = new Ammo.btRigidBody(rbInfo);
 
-    body.setRollingFriction(10);
+    body.setRollingFriction(1);
     physicsWorld.addRigidBody(body);
 
     ball.userData.physicsBody = body;
     rigidBodies.push(ball);
+  }
+
+  //causes low FPS
+  function createMirror(x, y, z, rotation) {
+    // reflectors/mirrors
+
+    var geometry = new THREE.CircleBufferGeometry(10, 10);
+    var groundMirror = new Reflector(geometry, {
+      clipBias: 0.003,
+      textureWidth: window.innerWidth * window.devicePixelRatio,
+      textureHeight: window.innerHeight * window.devicePixelRatio,
+      color: 0xf1f1f1,
+    });
+    groundMirror.position.y = y;
+    groundMirror.position.x = x;
+    groundMirror.position.z = z;
+    groundMirror.rotateX(rotation);
+    //groundMirror.rotateX(Math.PI / 8);
+    scene.add(groundMirror);
   }
 
   function moveBall() {
@@ -1260,6 +1403,23 @@ Ammo().then((Ammo) => {
     let moveZ = moveDirection.back - moveDirection.forward;
     let moveY = 0;
 
+    if (ballObject.position.y < 2.01) {
+      moveX = moveDirection.right - moveDirection.left;
+      moveZ = moveDirection.back - moveDirection.forward;
+      moveY = 0;
+    } else {
+      moveX = moveDirection.right - moveDirection.left;
+      moveZ = moveDirection.back - moveDirection.forward;
+      moveY = -0.25;
+    }
+
+    /*
+    if (ballObject.position.y > 2.25) {
+      moveY = -0.5;
+    } else {
+      moveY = 0;
+    }*/
+
     // no movement
     if (moveX == 0 && moveY == 0 && moveZ == 0) return;
 
@@ -1267,6 +1427,48 @@ Ammo().then((Ammo) => {
     resultantImpulse.op_mul(scalingFactor);
     let physicsBody = ballObject.userData.physicsBody;
     physicsBody.setLinearVelocity(resultantImpulse);
+    return moveX, moveZ;
+  }
+
+  function createRamp(pos, quat, w, l, h, mass, friction) {
+    var material = new THREE.MeshPhongMaterial({ color: 0x999999 });
+    var shape = new THREE.BoxGeometry(w, l, h, 1, 1, 1);
+    var geometry = new Ammo.btBoxShape(
+      new Ammo.btVector3(w * 0.5, l * 0.5, h * 0.5)
+    );
+
+    if (!mass) mass = 0;
+    if (!friction) friction = 1;
+
+    var mesh = new THREE.Mesh(shape, material);
+    mesh.position.copy(pos);
+    mesh.quaternion.copy(quat);
+    scene.add(mesh);
+
+    var transform = new Ammo.btTransform();
+    transform.setIdentity();
+    transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+    transform.setRotation(
+      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
+    );
+    var motionState = new Ammo.btDefaultMotionState(transform);
+
+    var localInertia = new Ammo.btVector3(0, 0, 0);
+    geometry.calculateLocalInertia(mass, localInertia);
+
+    var rbInfo = new Ammo.btRigidBodyConstructionInfo(
+      mass,
+      motionState,
+      geometry,
+      localInertia
+    );
+    var body = new Ammo.btRigidBody(rbInfo);
+
+    body.setFriction(friction);
+    //body.setRestitution(.9);
+    //body.setDamping(0.2, 0.2);
+
+    physicsWorld.addRigidBody(body);
   }
 
   function createKinematicBox() {
@@ -1286,7 +1488,8 @@ Ammo().then((Ammo) => {
 
     kObject.castShadow = true;
     kObject.receiveShadow = true;
-
+    kObject.rotation.x = 20;
+    //mesh.rotation.z = Math.PI * 0.5;
     scene.add(kObject);
 
     //Ammojs Section
@@ -1296,6 +1499,7 @@ Ammo().then((Ammo) => {
     transform.setRotation(
       new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
     );
+
     let motionState = new Ammo.btDefaultMotionState(transform);
 
     let colShape = new Ammo.btBoxShape(
@@ -1530,15 +1734,15 @@ Ammo().then((Ammo) => {
 
   function rotateCamera(ballPosition) {
     if (
-      (ballPosition.position.x < -35 &&
+      (ballPosition.position.x < 77 &&
+        ballPosition.position.x > 42 &&
+        ballPosition.position.z > -15 &&
+        ballPosition.position.z < 40) ||
+      (ballPosition.position.x < -2 && ballPosition.position.z < -39) ||
+      (ballPosition.position.x < -30 &&
         ballPosition.position.x > -70 &&
         ballPosition.position.z > 0 &&
-        ballPosition.position.z < 55) ||
-      (ballPosition.position.x < -15 && ballPosition.position.z < -50) ||
-      (ballPosition.position.x < 90 &&
-        ballPosition.position.x > 50 &&
-        ballPosition.position.z > -10 &&
-        ballPosition.position.z < 30)
+        ballPosition.position.z < 40)
     ) {
       camera.position.x = ballPosition.position.x;
       camera.position.y = ballPosition.position.y + 50;
@@ -1745,6 +1949,14 @@ Ammo().then((Ammo) => {
 
   function moveParticles() {
     particleSystemObject.rotation.z += 0.0003;
+    lensFlareObject.rotation.z += 0.0002;
+    if (lensFlareObject.position.x < 750) {
+      lensFlareObject.position.x += 0.025;
+      lensFlareObject.position.y -= 0.001;
+    } else {
+      lensFlareObject.position.x = -750;
+      lensFlareObject.position.y = -50;
+    }
   }
 
   function semiCircleDome() {
@@ -2008,6 +2220,34 @@ Ammo().then((Ammo) => {
     scene.add(linkBox);
   }
 
+  function createLensFlare(x, y, z, xScale, zScale, boxTexture) {
+    const boxScale = { x: xScale, y: 0.1, z: zScale };
+    let quat = { x: 0, y: 0, z: 0, w: 1 };
+    let mass = 0; //mass of zero = infinite mass
+
+    var geometry = new THREE.PlaneBufferGeometry(xScale, zScale);
+
+    const loader = new THREE.TextureLoader(manager);
+    const texture = loader.load(boxTexture);
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearFilter;
+    texture.encoding = THREE.sRGBEncoding;
+    const loadedTexture = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      opacity: 0.9,
+    });
+    loadedTexture.depthWrite = true;
+    loadedTexture.depthTest = true;
+
+    lensFlareObject = new THREE.Mesh(geometry, loadedTexture);
+    lensFlareObject.position.set(x, y, z);
+    lensFlareObject.renderOrder = 1;
+
+    lensFlareObject.receiveShadow = true;
+    scene.add(lensFlareObject);
+  }
+
   function checkForBallInsidePlane() {
     // raises text in the air if ball is inside text section
     /*
@@ -2034,52 +2274,59 @@ Ammo().then((Ammo) => {
 
     //skyBoxTest();
     //skyBoxSphere();
-
+    simpleText(
+      8.75,
+      0.01,
+      5,
+      "Use the arrow keys on your keyboard or\njoystick in the bottom left (touchscreen)\nto move around",
+      1
+    );
     createBlock();
     createBall();
+
     //createBallMask();
     //createKinematicBox();
     //createJointObjects();
 
-    createWallX(100, 1.75, 0);
-    createWallX(-100, 1.75, 0);
-    createWallZ(0, 1.75, 100);
-    createWallZ(0, 1.75, -100);
+    createWallX(87.5, 1.75, 0);
+    createWallX(-87.5, 1.75, 0);
+    createWallZ(0, 1.75, 87.5);
+    createWallZ(0, 1.75, -87.5);
 
     //createBillboard(-95, 0, 50);
     createBillboard(
-      -95,
-      2.5,
       -80,
+      2.5,
+      -70,
       billboardTextures.terpSolutionsTexture,
       URL.terpsolutions,
       Math.PI * 0.22
     );
 
     createBillboard(
-      -60,
+      -45,
       2.5,
-      -85,
+      -78,
       billboardTextures.bagHolderBetsTexture,
       URL.bagholderBets,
-      Math.PI * 0.22
+      Math.PI * 0.17
     );
-    createBox(-52, 2, -85, 4, 4, 1, boxTexture.Github, URL.githubBagholder);
+    createBox(-39, 2, -75, 4, 4, 1, boxTexture.Github, URL.githubBagholder);
 
     createBillboardRotated(
-      -30,
+      -17,
       1.25,
-      -85,
+      -75,
       billboardTextures.homeSweetHomeTexture,
       URL.homeSweetHomeURL,
       Math.PI * 0.15
     );
-    createBox(-22, 2, -83, 4, 4, 1, boxTexture.Github, URL.githubHomeSweetHome);
+    createBox(-12, 2, -73, 4, 4, 1, boxTexture.Github, URL.githubHomeSweetHome);
 
     ryanFloydWords(11.2, 1, -20);
-    createTextOnPlane(-83, 0.01, -70, inputText.terpSolutionsText, 20, 20);
-    createTextOnPlane(-52, 0.01, -63, inputText.bagholderBetsText, 20, 40);
-    createTextOnPlane(-22, 0.01, -61, inputText.homeSweetHomeText, 20, 40);
+    createTextOnPlane(-70, 0.01, -58, inputText.terpSolutionsText, 20, 20);
+    createTextOnPlane(-42, 0.01, -53, inputText.bagholderBetsText, 20, 40);
+    createTextOnPlane(-14, 0.01, -49, inputText.homeSweetHomeText, 20, 40);
 
     createBox(13, 2, -70, 4, 4, 1, boxTexture.Github, URL.gitHub);
     createBox(21, 2, -70, 4, 4, 1, boxTexture.LinkedIn, URL.LinkedIn, 0x0077b5);
@@ -2105,15 +2352,27 @@ Ammo().then((Ammo) => {
     //createAllTriangles();
 
     //createSkillIcon(boxTexture.reactIcon);
-    allSkillsSection(70, 0.01, 10, 40, 40, boxTexture.allSkills);
-    allSkillsSection(-54, 0.01, 28, 30, 60, inputText.activities);
+    allSkillsSection(-50, 0.025, 20, 40, 40, boxTexture.allSkills);
+    allSkillsSection(61, 0.025, 13, 30, 60, inputText.activities);
+
+    //lensflare
+    createLensFlare(50, -50, -800, 200, 200, boxTexture.lensFlareMain);
 
     loadRyanText();
     loadEngineerText();
     simpleText(24, 0.01, -60, "Click boxes to visit", 1.5);
-    simpleText(70, 0.01, -15, "SKILLS", 3);
-    simpleText(-55, 0.01, -40, "PROJECTS", 3);
-    simpleText(-54, 0.01, 0, "TIMELINE", 3);
+    simpleText(-50, 0.01, -5, "SKILLS", 3);
+    simpleText(-42, 0.01, -30, "PROJECTS", 3);
+    simpleText(61, 0.01, -15, "TIMELINE", 3);
+
+    //createBrickWall();
+    //createMyWall();
+    myWallV2();
+
+    /*
+    var quaternion = new THREE.Quaternion(0, 0, 0, 1);
+    quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 18);
+    createRamp(new THREE.Vector3(0, -1.5, 0), quaternion, 8, 4, 10, 0);*/
 
     addParticles();
     //rectangleLight();
@@ -2130,7 +2389,32 @@ Ammo().then((Ammo) => {
     //console.log(textMeshes);
   }
 
-  start();
+  if (WEBGL.isWebGLAvailable()) {
+    // Initiate function or other initializations here
+    start();
+  } else {
+    for (let i = 0; i < preloadDivs.length; i++) {
+      preloadDivs[i].style.visibility = "hidden"; // or
+      preloadDivs[i].style.display = "none";
+    }
+    for (let i = 0; i < postloadDivs.length; i++) {
+      // or
+      postloadDivs[i].style.display = "none";
+    }
+    document.getElementById("preload-overlay").style.display = "none";
+    var warning = WEBGL.getWebGLErrorMessage();
+    var a = document.createElement("a");
+    var linkText = document.createTextNode(
+      "Click here to visit my static site"
+    );
+    a.appendChild(linkText);
+    a.title = "Static Site";
+    a.href = "https://ryanfloyd.io";
+    a.style.margin = "0px auto";
+    a.style.textAlign = "center";
+    document.getElementById("WEBGLcontainer").appendChild(warning);
+    document.getElementById("WEBGLcontainer").appendChild(a);
+  }
 });
 
 /* 

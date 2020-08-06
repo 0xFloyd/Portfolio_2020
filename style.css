@@ -1,8 +1,7 @@
 body {
   margin: 0;
-
   color: #fff;
-  font-family: Monospace;
+  font-family: "Roboto", sans-serif;
   font-size: 13px;
   line-height: 24px;
   overscroll-behavior: none;
@@ -142,7 +141,7 @@ select {
 }
 
 .bottom-webgl-text {
-  padding: 30px;
+  padding: 0px 50px 0px 50px;
 }
 
 .joystick-directions-text {
@@ -159,11 +158,12 @@ select {
 
 #start-button {
   margin: 0 auto;
+  margin-top: 40px;
   font-size: 25px;
   background-color: #f00;
   border: none;
   color: white;
-  border-radius: 5px;
+  border-radius: 12px;
   padding: 20px 40px 20px 40px;
   -webkit-appearance: none;
   -webkit-border-radius: none;
@@ -267,4 +267,10 @@ select {
 }
 .loader__dot:nth-child(3) {
   animation-delay: 500ms;
+}
+
+.hidden {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 0.25s, opacity 0.25s linear;
 }
