@@ -7,11 +7,14 @@ const app = express();
 app.use(express.static(__dirname));
 
 app.use(function (req, res, next) {
-  if (req.headers["x-forwarded-proto"] === "https") {
-    // OK, continue
-    return next();
+  if (
+    !req.secure &&
+    req.get("x-forwarded-proto") !== "https" &&
+    process.env.NODE_ENV !== "development"
+  ) {
+    return res.redirect("https://" + req.get("host") + req.url);
   }
-  res.redirect("https://" + req.hostname + req.url);
+  next();
 });
 
 // send the user to index html page inspite of the url
