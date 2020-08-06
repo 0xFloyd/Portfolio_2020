@@ -6,11 +6,10 @@ const app = express();
 // the __dirname is the current directory from where the script is running
 app.use(express.static(__dirname));
 
-app.use(function (req, res, next) {
+app.use(function (req, res) {
   if (req.headers["x-forwarded-proto"] !== "https") {
     return res.redirect("https://" + req.hostname + req.url);
   }
-  next();
 });
 
 // send the user to index html page inspite of the url
