@@ -8,7 +8,7 @@ app.use(express.static(__dirname));
 
 app.use(function (req, res) {
   if (req.headers["x-forwarded-proto"] !== "https") {
-    return res.redirect("https://" + req.hostname + req.url);
+    return res.redirect("https://" + req.hostname + req.baseUrl);
   }
 });
 
