@@ -1232,7 +1232,7 @@ Ammo().then((Ammo) => {
     let pos = { x: 8.75, y: 0, z: 0 };
     let radius = 2;
     let quat = { x: 0, y: 0, z: 0, w: 1 };
-    let mass = 5;
+    let mass = 3;
 
     var marble_loader = new THREE.TextureLoader(manager);
     var marbleTexture = marble_loader.load("./src/jsm/earth.jpg");
@@ -1330,7 +1330,7 @@ Ammo().then((Ammo) => {
     let pos = { x: 20, y: 30, z: 0 };
     let radius = 2;
     let quat = { x: 0, y: 0, z: 0, w: 1 };
-    let mass = 10;
+    let mass = 20;
 
     var texture_loader = new THREE.TextureLoader(manager);
     var beachTexture = texture_loader.load("./src/jsm/BeachBallColor.jpg");
@@ -1400,7 +1400,7 @@ Ammo().then((Ammo) => {
   }
 
   function moveBall() {
-    let scalingFactor = 15;
+    let scalingFactor = 20;
     let moveX = moveDirection.right - moveDirection.left;
     let moveZ = moveDirection.back - moveDirection.forward;
     let moveY = 0;
@@ -2418,7 +2418,7 @@ Ammo().then((Ammo) => {
     );
 
     ryanFloydWords(11.2, 1, -20);
-    createTextOnPlane(-70, 0.01, -58, inputText.terpSolutionsText, 20, 20);
+    createTextOnPlane(-70, 0.01, -48, inputText.terpSolutionsText, 20, 40);
     createTextOnPlane(-42, 0.01, -53, inputText.bagholderBetsText, 20, 40);
     createTextOnPlane(-14, 0.01, -49, inputText.homeSweetHomeText, 20, 40);
 
@@ -2490,7 +2490,7 @@ Ammo().then((Ammo) => {
     loadEngineerText();
     simpleText(24, 0.01, -60, "Click boxes to visit", 1.5);
     simpleText(-50, 0.01, -5, "SKILLS", 3);
-    simpleText(-42, 0.01, -30, "PROJECTS", 3);
+    simpleText(-42, 0.01, -30, "EXPERIENCE", 3);
     simpleText(61, 0.01, -15, "TIMELINE", 3);
 
     //createBrickWall();
