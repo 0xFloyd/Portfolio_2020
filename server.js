@@ -7,12 +7,8 @@ const app = express();
 app.use(express.static(__dirname));
 
 app.use(function (req, res, next) {
-  if (
-    !req.secure &&
-    req.get("x-forwarded-proto") !== "https" &&
-    process.env.NODE_ENV !== "development"
-  ) {
-    return res.redirect("https://" + req.get("host") + req.url);
+  if (!req.secure || req.get("x-forwarded-proto") !== "https") {
+    return res.redirect("https://" + req.get("Host") + req.baseUrl);
   }
   next();
 });
