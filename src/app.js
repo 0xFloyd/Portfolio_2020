@@ -11,6 +11,7 @@ import * as Ammo from "./builds/ammo";
 //import { text } from "express";
 //import { TWEEN } from "@tweenjs/tween.js";
 import { Lensflare, LensflareElement } from "./jsm/Lensflare";
+import { FBXLoader } from "./FBXLoader";
 
 // start Ammo Engine
 Ammo().then((Ammo) => {
@@ -75,7 +76,7 @@ Ammo().then((Ammo) => {
   boxTexture.Github = "./src/jsm/githubLogo.png";
   boxTexture.LinkedIn = "./src/jsm/linkedInLogo.png";
   boxTexture.mail = "./src/jsm/envelope.png";
-  boxTexture.globe = "./src/jsm/globe.png";
+  boxTexture.globe = "./src/jsm/thunder.png";
   boxTexture.reactIcon = "./src/jsm/react.png";
   boxTexture.allSkills = "./src/jsm/allSkills.png";
   boxTexture.lensFlareMain = "./src/jsm/lensflare0.png";
@@ -626,7 +627,7 @@ Ammo().then((Ammo) => {
     boxTexture,
     URLLink,
     color = 0x000000,
-    email = null
+    transparent = true
   ) {
     const boxScale = { x: scaleX, y: scaleY, z: scaleZ };
     let quat = { x: 0, y: 0, z: 0, w: 1 };
@@ -639,7 +640,7 @@ Ammo().then((Ammo) => {
     texture.encoding = THREE.sRGBEncoding;
     const loadedTexture = new THREE.MeshBasicMaterial({
       map: texture,
-      transparent: true,
+      transparent: transparent,
       color: 0xffffff,
     });
 
@@ -665,7 +666,7 @@ Ammo().then((Ammo) => {
     linkBox.renderOrder = 1;
     linkBox.castShadow = true;
     linkBox.receiveShadow = true;
-    linkBox.userData = { URL: URLLink, email: email };
+    linkBox.userData = { URL: URLLink, email: URLLink };
     scene.add(linkBox);
     objectsWithLinks.push(linkBox.uuid);
 
@@ -826,11 +827,11 @@ Ammo().then((Ammo) => {
       var color = 0x00ff08;
 
       var textMaterials = [
-        new THREE.MeshPhongMaterial({ color: color, flatShading: true }), // front
+        new THREE.MeshPhongMaterial({ color: color }), // front
         new THREE.MeshPhongMaterial({ color: color }), // side
       ];
 
-      var matLite = new THREE.MeshBasicMaterial({
+      var matLite = new THREE.MeshLambertMaterial({
         color: color,
         transparent: true,
         opacity: 1,
@@ -1137,8 +1138,9 @@ Ammo().then((Ammo) => {
         } else {
           pos.x += brickLength;
         }
+        pos.z += 0.0001;
       }
-      pos.y += brickHeight - 0.001;
+      pos.y += brickHeight;
     }
   }
 
@@ -1748,6 +1750,11 @@ Ammo().then((Ammo) => {
       camera.position.y = ballPosition.position.y + 50;
       camera.position.z = ballPosition.position.z + 40;
       camera.lookAt(ballPosition.position);
+    } else if (ballPosition.position.z > 60) {
+      camera.position.x = ballPosition.position.x;
+      camera.position.y = ballPosition.position.y + 10;
+      camera.position.z = ballPosition.position.z + 40;
+      camera.lookAt(ballPosition.position);
     } else {
       camera.position.x = ballPosition.position.x;
       camera.position.y = ballPosition.position.y + 30;
@@ -1957,6 +1964,27 @@ Ammo().then((Ammo) => {
       lensFlareObject.position.x = -750;
       lensFlareObject.position.y = -50;
     }
+
+    //move stemkoski particles
+    var time = 7 * clock.getElapsedTime();
+
+    for (var c = 0; c < particleGroup.children.length; c++) {
+      var sprite = particleGroup.children[c];
+
+      // pulse away/towards center
+      // individual rates of movement
+      var a = particleAttributes.randomness[c] + 0.75;
+      var pulseFactor = Math.sin(a * time) * 0.1 + 0.9;
+      sprite.position.x = particleAttributes.startPosition[c].x * pulseFactor;
+      sprite.position.y =
+        particleAttributes.startPosition[c].y * pulseFactor * 1.5;
+      sprite.position.z = particleAttributes.startPosition[c].z * pulseFactor;
+    }
+
+    // rotate the entire group
+    //particleGroup.rotation.x = time * 0.5;
+    particleGroup.rotation.y = time * 0.75;
+    // particleGroup.rotation.z = time * 1.0;
   }
 
   function semiCircleDome() {
@@ -1990,9 +2018,9 @@ Ammo().then((Ammo) => {
         scene.add(gltf.scene);
 
         gltf.scene.position.y = -37.5;
-        gltf.scene.scale.y = 150;
-        gltf.scene.scale.x = 150;
-        gltf.scene.scale.z = 150;
+        gltf.scene.scale.y = 50;
+        gltf.scene.scale.x = 50;
+        gltf.scene.scale.z = 50;
       },
       undefined,
       function (error) {
@@ -2262,6 +2290,50 @@ Ammo().then((Ammo) => {
     }*/
   }
 
+  //create glowing particles from Stemkoski
+  var particleGroup, particleAttributes;
+
+  function glowingParticles() {
+    var particleTexture = THREE.ImageUtils.loadTexture("./src/jsm/spark.png");
+
+    particleGroup = new THREE.Object3D();
+    particleGroup.position.x = 8.75;
+    particleGroup.position.y = 7;
+    particleGroup.position.z = 70;
+    particleAttributes = { startSize: [], startPosition: [], randomness: [] };
+
+    var totalParticles = 50;
+    var radiusRange = 4;
+    for (var i = 0; i < totalParticles; i++) {
+      var spriteMaterial = new THREE.SpriteMaterial({
+        map: particleTexture,
+        useScreenCoordinates: false,
+        color: 0xffffff,
+      });
+
+      var sprite = new THREE.Sprite(spriteMaterial);
+      sprite.scale.set(0.5, 0.5, 1.0); // imageWidth, imageHeight
+      sprite.position.set(
+        Math.random() - 0.5,
+        Math.random() - 0.5,
+        Math.random() - 0.5
+      );
+
+      sprite.position.setLength(radiusRange * (Math.random() * 0.1 + 0.9));
+
+      sprite.material.color.setHSL(Math.random(), 0.9, 0.7);
+
+      sprite.material.blending = THREE.AdditiveBlending; // "glowing" particles
+      sprite.renderOrder = 1;
+      particleGroup.add(sprite);
+      // add variable qualities to arrays, if they need to be accessed later
+      particleAttributes.startPosition.push(sprite.position.clone());
+      particleAttributes.randomness.push(Math.random());
+    }
+
+    scene.add(particleGroup);
+  }
+
   //generic temporary transform to begin
   tmpTrans = new Ammo.btTransform();
   ammoTmpPos = new Ammo.btVector3();
@@ -2311,7 +2383,18 @@ Ammo().then((Ammo) => {
       URL.bagholderBets,
       Math.PI * 0.17
     );
-    createBox(-39, 2, -75, 4, 4, 1, boxTexture.Github, URL.githubBagholder);
+    createBox(
+      -39,
+      2,
+      -75,
+      4,
+      4,
+      1,
+      boxTexture.Github,
+      URL.githubBagholder,
+      0x000000,
+      true
+    );
 
     createBillboardRotated(
       -17,
@@ -2321,16 +2404,60 @@ Ammo().then((Ammo) => {
       URL.homeSweetHomeURL,
       Math.PI * 0.15
     );
-    createBox(-12, 2, -73, 4, 4, 1, boxTexture.Github, URL.githubHomeSweetHome);
+    createBox(
+      -12,
+      2,
+      -73,
+      4,
+      4,
+      1,
+      boxTexture.Github,
+      URL.githubHomeSweetHome,
+      0x000000,
+      true
+    );
 
     ryanFloydWords(11.2, 1, -20);
     createTextOnPlane(-70, 0.01, -58, inputText.terpSolutionsText, 20, 20);
     createTextOnPlane(-42, 0.01, -53, inputText.bagholderBetsText, 20, 40);
     createTextOnPlane(-14, 0.01, -49, inputText.homeSweetHomeText, 20, 40);
 
-    createBox(13, 2, -70, 4, 4, 1, boxTexture.Github, URL.gitHub);
-    createBox(21, 2, -70, 4, 4, 1, boxTexture.LinkedIn, URL.LinkedIn, 0x0077b5);
-    createBox(37, 2, -70, 4, 4, 1, boxTexture.globe, URL.ryanfloyd, 0xffffff);
+    createBox(
+      13,
+      2,
+      -70,
+      4,
+      4,
+      1,
+      boxTexture.Github,
+      URL.gitHub,
+      0x000000,
+      true
+    );
+    createBox(
+      21,
+      2,
+      -70,
+      4,
+      4,
+      1,
+      boxTexture.LinkedIn,
+      URL.LinkedIn,
+      0x0077b5,
+      true
+    );
+    createBox(
+      37,
+      2,
+      -70,
+      4,
+      4,
+      1,
+      boxTexture.globe,
+      URL.ryanfloyd,
+      0xffffff,
+      false
+    );
 
     createBox(
       29,
@@ -2341,7 +2468,8 @@ Ammo().then((Ammo) => {
       1,
       boxTexture.mail,
       "mailto:arfloyd7@gmail.com",
-      0xffffff
+      0x000000,
+      false
     );
 
     floatingLabel(13.125, 4.5, -70, "Github");
@@ -2379,6 +2507,7 @@ Ammo().then((Ammo) => {
     //semiCircleDome();
     //islandGenerator();
     //glowingOrb();
+    glowingParticles();
 
     //lensFlare();
 
