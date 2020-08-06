@@ -1,4 +1,5 @@
 const path = require("path");
+const CompressionPlugin = require("compression-webpack-plugin");
 
 module.exports = {
   entry: {
@@ -20,6 +21,7 @@ module.exports = {
       },
     ],
   },
+  plugins: [new CompressionPlugin()],
   devServer: {
     contentBase: path.join(__dirname, ""),
     compress: true,
