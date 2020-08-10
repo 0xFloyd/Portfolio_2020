@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { WEBGL } from "./WebGL";
-import Stats from "stats.js";
 import * as Ammo from "./builds/ammo";
 import {
   billboardTextures,
@@ -26,29 +25,48 @@ import {
   noWebGL,
 } from "./resources/preload";
 
+import {
+  clock,
+  scene,
+  camera,
+  renderer,
+  stats,
+  manager,
+  createWorld,
+  lensFlareObject,
+  createLensFlare,
+  particleGroup,
+  particleAttributes,
+  particleSystemObject,
+  glowingParticles,
+  addParticles,
+  moveParticles,
+} from "./resources/world";
+
+import {
+  simpleText,
+  floatingLabel,
+  allSkillsSection,
+  createTextOnPlane,
+} from "./resources/surfaces";
+
 // start Ammo Engine
 Ammo().then((Ammo) => {
-  //threejs variable declaration
-  var clock, scene, camera, renderer, stats, particleSystemObject;
-
   //Ammo.js variable declaration
-  var rigidBodies = [],
-    tmpTrans,
-    ammoTmpPos,
-    ammoTmpQuat,
+  let rigidBodies = [],
     physicsWorld;
 
   //Ammo Dynamic  bodies vars for ball
   let ballObject = null;
   const STATE = { DISABLE_DEACTIVATION: 4 };
-
   const FLAGS = { CF_KINEMATIC_OBJECT: 2 };
+
+  let tmpTrans = new Ammo.btTransform();
+  let ammoTmpPos = new Ammo.btVector3();
+  let ammoTmpQuat = new Ammo.btQuaternion();
 
   // list of hyperlink objects
   var objectsWithLinks = [];
-
-  //text Meshes to hover
-  var textMeshes = [];
 
   //holds computed Box3's
   var boxArrayTest = [];
@@ -58,15 +76,12 @@ Ammo().then((Ammo) => {
   var ballWireMesh;
   var interceptFlag = false;
 
-  //lens flare object
-  var lensFlareObject;
-
   //start button pressed, person has entered 3d environment
   var startButtonPressed = false;
   var callOnceFlag = true; //boolean to only call on first render
 
-  //function to create physics world
-  function initPhysicsWorld() {
+  //function to create physics world with Ammo.js
+  function createPhysicsWorld() {
     //algortihms for full (not broadphase) collision detection
     let collisionConfiguration = new Ammo.btDefaultCollisionConfiguration(),
       dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration), // dispatch calculations for overlapping pairs/ collisions.
@@ -83,70 +98,6 @@ Ammo().then((Ammo) => {
 
     // add gravity
     physicsWorld.setGravity(new Ammo.btVector3(0, -50, 0));
-  }
-
-  // use Three.js to set up graphics
-  function initGraphics() {
-    clock = new THREE.Clock();
-
-    // init new Three.js scene
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
-
-    // camera
-    camera = new THREE.PerspectiveCamera(
-      45,
-      window.innerWidth / window.innerHeight,
-      1,
-      5000
-    );
-    camera.position.set(0, 30, 70);
-    //camera.lookAt(scene.position);
-
-    //Add hemisphere light
-    let hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.1);
-    hemiLight.color.setHSL(0.6, 0.6, 0.6);
-    hemiLight.groundColor.setHSL(0.1, 1, 0.4);
-    hemiLight.position.set(0, 50, 0);
-    scene.add(hemiLight);
-
-    //Add directional light
-    let dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
-    dirLight.color.setHSL(0.1, 1, 0.95);
-    dirLight.position.set(-10, 100, 50);
-    dirLight.position.multiplyScalar(100);
-    scene.add(dirLight);
-
-    dirLight.castShadow = true;
-
-    dirLight.shadow.mapSize.width = 4096;
-    dirLight.shadow.mapSize.height = 4096;
-
-    let d = 200;
-
-    dirLight.shadow.camera.left = -d;
-    dirLight.shadow.camera.right = d;
-    dirLight.shadow.camera.top = d;
-    dirLight.shadow.camera.bottom = -d;
-
-    dirLight.shadow.camera.far = 15000;
-
-    //Setup the renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    //renderer.setClearColor(0xbfd1e5);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    //renderer.shadowMap.type = THREE.BasicShadowMap;
-    document.body.appendChild(renderer.domElement);
-
-    stats = new Stats();
-    document.body.appendChild(stats.dom);
-    stats.dom.style.opacity = 0.5;
-
-    renderer.gammaInput = true;
-    renderer.gammaOutput = true;
-
-    renderer.shadowMap.enabled = true;
   }
 
   function renderFrame() {
@@ -178,39 +129,6 @@ Ammo().then((Ammo) => {
     requestAnimationFrame(renderFrame);
   }
 
-  //document loading
-  var manager = new THREE.LoadingManager();
-
-  manager.onStart = function (item, loaded, total) {
-    console.log("Loading started");
-  };
-
-  manager.onLoad = function () {
-    var readyStateCheckInterval = setInterval(function () {
-      if (document.readyState === "complete") {
-        clearInterval(readyStateCheckInterval);
-        for (let i = 0; i < preloadDivs.length; i++) {
-          preloadDivs[i].style.visibility = "hidden"; // or
-          preloadDivs[i].style.display = "none";
-        }
-        for (let i = 0; i < postloadDivs.length; i++) {
-          postloadDivs[i].style.visibility = "visible"; // or
-          postloadDivs[i].style.display = "block";
-          preloadOpactiy.style.opacity = 0.9;
-        }
-      }
-    }, 1000);
-    console.log("Loading complete");
-  };
-
-  manager.onProgress = function (item, loaded, total) {
-    //console.log(item, loaded, total);
-  };
-
-  manager.onError = function (url) {
-    console.log("Error loading");
-  };
-
   //loading page section
   function startButtonEventListener() {
     for (let i = 0; i < startScreenDivs.length; i++) {
@@ -222,28 +140,10 @@ Ammo().then((Ammo) => {
     document.addEventListener("click", launchClickPosition);
     createBallMask();
 
-    //adds white visual helper boxes around text
-    /*
-    for (let i = 0; i < textMeshes.length; i++) {
-      boxAroundMesh = new THREE.BoxHelper(textMeshes[i], 0xffffff);
-      scene.add(boxAroundMesh);
-      var box = new THREE.Box3();
-      box
-        .copy(textMeshes[i].geometry.boundingBox)
-        .applyMatrix4(textMeshes[i].matrixWorld);
-      boxArrayTest.push(box);
-    }*/
-
     startButtonPressed = true;
   }
 
   startButton.addEventListener("click", startButtonEventListener);
-
-  if (isTouchscreenDevice()) {
-    createJoystick(document.getElementById("joystick-wrapper"));
-    document.getElementById("joystick-wrapper").style.visibility = "visible";
-    document.getElementById("joystick").style.visibility = "visible";
-  }
 
   //create flat plane
   function createBlock() {
@@ -379,72 +279,6 @@ Ammo().then((Ammo) => {
     objectsWithLinks.push(linkBox.uuid);
 
     addRigidPhysics(linkBox, boxScale);
-  }
-
-  function createTextOnPlane(x, y, z, inputText, size1, size2) {
-    // word text
-    var activitiesGeometry = new THREE.PlaneBufferGeometry(size1, size2);
-    const loader = new THREE.TextureLoader(manager);
-    var activitiesTexture = loader.load(inputText);
-    activitiesTexture.magFilter = THREE.NearestFilter;
-    activitiesTexture.minFilter = THREE.LinearFilter;
-    var activitiesMaterial = new THREE.MeshBasicMaterial({
-      alphaMap: activitiesTexture,
-      transparent: true,
-    });
-
-    activitiesMaterial.depthWrite = true;
-    activitiesMaterial.depthTest = true;
-    let activitiesText = new THREE.Mesh(activitiesGeometry, activitiesMaterial);
-    activitiesText.position.x = x;
-    activitiesText.position.y = y;
-    activitiesText.position.z = z;
-    activitiesText.rotation.x = -Math.PI * 0.5;
-    //activitiesText.matrixAutoUpdate = false;
-    //activitiesText.updateMatrix();
-    activitiesText.renderOrder = 1;
-    textMeshes.push(activitiesText);
-    scene.add(activitiesText);
-  }
-
-  function simpleText(x, y, z, inputText, fontSize) {
-    var text_loader = new THREE.FontLoader();
-
-    text_loader.load("./src/jsm/Roboto_Regular.json", function (font) {
-      var xMid, text;
-
-      var color = 0xffffff;
-
-      var matLite = new THREE.MeshBasicMaterial({
-        color: color,
-        transparent: true,
-        opacity: 1,
-        side: THREE.DoubleSide,
-      });
-
-      var message = inputText;
-
-      var shapes = font.generateShapes(message, fontSize);
-
-      var geometry = new THREE.ShapeBufferGeometry(shapes);
-
-      geometry.computeBoundingBox();
-
-      xMid = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
-
-      geometry.translate(xMid, 0, 0);
-
-      // make shape ( N.B. edge view not visible )
-
-      text = new THREE.Mesh(geometry, matLite);
-      text.position.z = z;
-      text.position.y = y;
-      text.position.x = x;
-      text.rotation.x = -Math.PI * 0.5;
-
-      textMeshes.push(text);
-      scene.add(text);
-    });
   }
 
   function ryanFloydWords(x, y, z) {
@@ -1219,234 +1053,52 @@ Ammo().then((Ammo) => {
       else {
         return;
       }
+    }
+  }
 
-      if (intersectedObjects[0].object.userData.email) {
-        var divElement = document.getElementById("tooltip");
-        divElement.setAttribute("style", "display: block");
+  //document loading
 
-        var tootipWidth = divElement.offsetWidth;
-        var tootipHeight = divElement.offsetHeight;
-        divElement.setAttribute(
-          "style",
-          `left: ${pickPosition.x - tootipWidth / 2}px`,
-          `top: ${pickPosition.y - tootipHeight - 5}px`
-        );
-        divElement.innerText = intersectedObjects[0].object.userData.email;
+  manager.onStart = function (item, loaded, total) {
+    console.log("Loading started");
+  };
 
-        setTimeout(function () {
-          divElement.setAttribute("style", "opacity: 1.0");
-        }, 5000);
+  manager.onLoad = function () {
+    var readyStateCheckInterval = setInterval(function () {
+      if (document.readyState === "complete") {
+        clearInterval(readyStateCheckInterval);
+        for (let i = 0; i < preloadDivs.length; i++) {
+          preloadDivs[i].style.visibility = "hidden"; // or
+          preloadDivs[i].style.display = "none";
+        }
+        for (let i = 0; i < postloadDivs.length; i++) {
+          postloadDivs[i].style.visibility = "visible"; // or
+          postloadDivs[i].style.display = "block";
+          preloadOpactiy.style.opacity = 0.9;
+        }
       }
-    }
+    }, 1000);
+    console.log("Loading complete");
+  };
+
+  manager.onProgress = function (item, loaded, total) {
+    //console.log(item, loaded, total);
+  };
+
+  manager.onError = function (url) {
+    console.log("Error loading");
+  };
+
+  if (isTouchscreenDevice()) {
+    createJoystick(document.getElementById("joystick-wrapper"));
+    document.getElementById("joystick-wrapper").style.visibility = "visible";
+    document.getElementById("joystick").style.visibility = "visible";
   }
-
-  function addParticles() {
-    var geometry = new THREE.Geometry();
-
-    for (let i = 0; i < 3000; i++) {
-      var vertex = new THREE.Vector3();
-      vertex.x = getRandomArbitrary(-1100, 1100);
-      vertex.y = getRandomArbitrary(-1100, 1100);
-      vertex.z = getRandomArbitrary(-1100, -500);
-      geometry.vertices.push(vertex);
-    }
-
-    var material = new THREE.PointsMaterial({ size: 3 });
-    particleSystemObject = new THREE.Points(geometry, material);
-
-    scene.add(particleSystemObject);
-  }
-
-  function getRandomArbitrary(min, max) {
-    return Math.random() * (max - min) + min;
-  }
-
-  function moveParticles() {
-    particleSystemObject.rotation.z += 0.0003;
-    lensFlareObject.rotation.z += 0.0002;
-    if (lensFlareObject.position.x < 750) {
-      lensFlareObject.position.x += 0.025;
-      lensFlareObject.position.y -= 0.001;
-    } else {
-      lensFlareObject.position.x = -750;
-      lensFlareObject.position.y = -50;
-    }
-
-    //move stemkoski particles
-    var time = 7 * clock.getElapsedTime();
-
-    for (var c = 0; c < particleGroup.children.length; c++) {
-      var sprite = particleGroup.children[c];
-
-      // pulse away/towards center
-      // individual rates of movement
-      var a = particleAttributes.randomness[c] + 0.75;
-      var pulseFactor = Math.sin(a * time) * 0.1 + 0.9;
-      sprite.position.x = particleAttributes.startPosition[c].x * pulseFactor;
-      sprite.position.y =
-        particleAttributes.startPosition[c].y * pulseFactor * 1.5;
-      sprite.position.z = particleAttributes.startPosition[c].z * pulseFactor;
-    }
-
-    // rotate the entire group
-    //particleGroup.rotation.x = time * 0.5;
-    particleGroup.rotation.y = time * 0.75;
-    // particleGroup.rotation.z = time * 1.0;
-  }
-
-  function floatingLabel(x, y, z, inputMessage) {
-    var text_loader = new THREE.FontLoader();
-
-    text_loader.load("./src/jsm/Roboto_Regular.json", function (font) {
-      var xMid, text;
-
-      var color = 0xffffff;
-
-      var matLite = new THREE.MeshBasicMaterial({
-        color: color,
-        transparent: true,
-        opacity: 1,
-        side: THREE.DoubleSide,
-      });
-
-      var message = inputMessage;
-
-      var shapes = font.generateShapes(message, 1);
-
-      var geometry = new THREE.ShapeBufferGeometry(shapes);
-
-      geometry.computeBoundingBox();
-
-      xMid = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
-
-      geometry.translate(xMid, 0, 0);
-
-      // make shape ( N.B. edge view not visible )
-
-      text = new THREE.Mesh(geometry, matLite);
-      text.position.z = z;
-      text.position.y = y;
-      text.position.x = x;
-      scene.add(text);
-    });
-  }
-
-  function allSkillsSection(x, y, z, xScale, zScale, boxTexture) {
-    const boxScale = { x: xScale, y: 0.1, z: zScale };
-    let quat = { x: 0, y: 0, z: 0, w: 1 };
-    let mass = 0; //mass of zero = infinite mass
-
-    var geometry = new THREE.PlaneBufferGeometry(xScale, zScale);
-
-    const loader = new THREE.TextureLoader(manager);
-    const texture = loader.load(boxTexture);
-    texture.magFilter = THREE.LinearFilter;
-    texture.minFilter = THREE.LinearFilter;
-    texture.encoding = THREE.sRGBEncoding;
-    const loadedTexture = new THREE.MeshBasicMaterial({
-      map: texture,
-      transparent: true,
-    });
-    loadedTexture.depthWrite = true;
-    loadedTexture.depthTest = true;
-
-    const linkBox = new THREE.Mesh(geometry, loadedTexture);
-    linkBox.position.set(x, y, z);
-    linkBox.renderOrder = 1;
-    linkBox.rotation.x = -Math.PI * 0.5;
-    linkBox.receiveShadow = true;
-    scene.add(linkBox);
-  }
-
-  function createLensFlare(x, y, z, xScale, zScale, boxTexture) {
-    const boxScale = { x: xScale, y: 0.1, z: zScale };
-    let quat = { x: 0, y: 0, z: 0, w: 1 };
-    let mass = 0; //mass of zero = infinite mass
-
-    var geometry = new THREE.PlaneBufferGeometry(xScale, zScale);
-
-    const loader = new THREE.TextureLoader(manager);
-    const texture = loader.load(boxTexture);
-    texture.magFilter = THREE.LinearFilter;
-    texture.minFilter = THREE.LinearFilter;
-    texture.encoding = THREE.sRGBEncoding;
-    const loadedTexture = new THREE.MeshBasicMaterial({
-      map: texture,
-      transparent: true,
-      opacity: 0.9,
-    });
-    loadedTexture.depthWrite = true;
-    loadedTexture.depthTest = true;
-
-    lensFlareObject = new THREE.Mesh(geometry, loadedTexture);
-    lensFlareObject.position.set(x, y, z);
-    lensFlareObject.renderOrder = 1;
-
-    lensFlareObject.receiveShadow = true;
-    scene.add(lensFlareObject);
-  }
-
-  //create glowing particles from Stemkoski
-  var particleGroup, particleAttributes;
-
-  function glowingParticles() {
-    var particleTexture = THREE.ImageUtils.loadTexture("./src/jsm/spark.png");
-
-    particleGroup = new THREE.Object3D();
-    particleGroup.position.x = 8.75;
-    particleGroup.position.y = 7;
-    particleGroup.position.z = 70;
-    particleAttributes = { startSize: [], startPosition: [], randomness: [] };
-
-    var totalParticles = 50;
-    var radiusRange = 4;
-    for (var i = 0; i < totalParticles; i++) {
-      var spriteMaterial = new THREE.SpriteMaterial({
-        map: particleTexture,
-        useScreenCoordinates: false,
-        color: 0xffffff,
-      });
-
-      var sprite = new THREE.Sprite(spriteMaterial);
-      sprite.scale.set(0.5, 0.5, 1.0); // imageWidth, imageHeight
-      sprite.position.set(
-        Math.random() - 0.5,
-        Math.random() - 0.5,
-        Math.random() - 0.5
-      );
-
-      sprite.position.setLength(radiusRange * (Math.random() * 0.1 + 0.9));
-
-      sprite.material.color.setHSL(Math.random(), 0.9, 0.7);
-
-      sprite.material.blending = THREE.AdditiveBlending; // "glowing" particles
-      sprite.renderOrder = 1;
-      particleGroup.add(sprite);
-      // add variable qualities to arrays, if they need to be accessed later
-      particleAttributes.startPosition.push(sprite.position.clone());
-      particleAttributes.randomness.push(Math.random());
-    }
-
-    scene.add(particleGroup);
-  }
-
-  //generic temporary transform to begin
-  tmpTrans = new Ammo.btTransform();
-  ammoTmpPos = new Ammo.btVector3();
-  ammoTmpQuat = new Ammo.btQuaternion();
 
   //initialize world and begin
   function start() {
-    initPhysicsWorld();
-    initGraphics();
+    createWorld();
+    createPhysicsWorld();
 
-    simpleText(
-      8.75,
-      0.01,
-      5,
-      "Use the arrow keys on your keyboard or\njoystick in the bottom left (touchscreen)\nto move around",
-      1
-    );
     createBlock();
     createBall();
 
@@ -1574,34 +1226,26 @@ Ammo().then((Ammo) => {
 
     loadRyanText();
     loadEngineerText();
+
+    simpleText(
+      8.75,
+      0.01,
+      5,
+      "Use the arrow keys on your keyboard or\njoystick in the bottom left (touchscreen)\nto move around",
+      1
+    );
     simpleText(24, 0.01, -60, "Click boxes to visit", 1.5);
     simpleText(-50, 0.01, -5, "SKILLS", 3);
     simpleText(-42, 0.01, -30, "EXPERIENCE", 3);
     simpleText(61, 0.01, -15, "TIMELINE", 3);
 
-    //createBrickWall();
-    //createMyWall();
     wallOfBricks();
 
-    /*
-    var quaternion = new THREE.Quaternion(0, 0, 0, 1);
-    quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 18);
-    createRamp(new THREE.Vector3(0, -1.5, 0), quaternion, 8, 4, 10, 0);*/
-
     addParticles();
-    //rectangleLight();
-    //semiCircleDome();
-    //islandGenerator();
-    //glowingOrb();
     glowingParticles();
 
-    //lensFlare();
-
-    //updatePhysics();
     setupEventHandlers();
     renderFrame();
-
-    //console.log(textMeshes);
   }
 
   if (WEBGL.isWebGLAvailable()) {
@@ -1611,28 +1255,3 @@ Ammo().then((Ammo) => {
     noWebGL();
   }
 });
-
-/* 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Test code 
-
-Tween test 
- this.angle.items = {
-            default: new THREE.Vector3(1.135, - 1.45, 1.15),
-            projects: new THREE.Vector3(0.38, - 1.4, 1.63)
-        }
-
-        // Value
-        this.angle.value = new THREE.Vector3()
-        this.angle.value.copy(this.angle.items.default)
-
-        // Set method
-        this.angle.set = (_name) =>
-        {
-            const angle = this.angle.items[_name]
-            if(typeof angle !== 'undefined')
-            {
-                TweenLite.to(this.angle.value, 2, { ...angle, ease: Power1.easeInOut })
-            }
-        }
-*/
