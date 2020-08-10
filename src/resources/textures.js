@@ -1,7 +1,6 @@
 //billboardTextures
 let billboardTextures = {};
 billboardTextures.terpSolutionsTexture = "../src/jsm/terpSolutions.png";
-billboardTextures.grassImage = "../src/jsm/grasslight-small.jpg";
 billboardTextures.bagHolderBetsTexture =
   "../src/jsm/Bagholdersbetsbillboard.png";
 billboardTextures.homeSweetHomeTexture =
