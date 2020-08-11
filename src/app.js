@@ -50,35 +50,28 @@ import {
   createTextOnPlane,
 } from "./resources/surfaces";
 
+import {
+  pickPosition,
+  launchClickPosition,
+  getCanvasRelativePosition,
+  rotateCamera,
+} from "./resources/utils";
+
 // start Ammo Engine
 Ammo().then((Ammo) => {
   //Ammo.js variable declaration
   let rigidBodies = [],
     physicsWorld;
 
-  //Ammo Dynamic  bodies vars for ball
+  //Ammo Dynamic bodies for ball
   let ballObject = null;
   const STATE = { DISABLE_DEACTIVATION: 4 };
-  const FLAGS = { CF_KINEMATIC_OBJECT: 2 };
 
+  //default transform object
   let tmpTrans = new Ammo.btTransform();
-  let ammoTmpPos = new Ammo.btVector3();
-  let ammoTmpQuat = new Ammo.btQuaternion();
 
   // list of hyperlink objects
   var objectsWithLinks = [];
-
-  //holds computed Box3's
-  var boxArrayTest = [];
-  var ballObjectBox3; //box3 for the marble
-  var ballComputeBoundingSphere;
-  var ballComputeBoundingBox;
-  var ballWireMesh;
-  var interceptFlag = false;
-
-  //start button pressed, person has entered 3d environment
-  var startButtonPressed = false;
-  var callOnceFlag = true; //boolean to only call on first render
 
   //function to create physics world with Ammo.js
   function createPhysicsWorld() {
@@ -100,76 +93,13 @@ Ammo().then((Ammo) => {
     physicsWorld.setGravity(new Ammo.btVector3(0, -50, 0));
   }
 
-  function renderFrame() {
-    // FPS stats module
-    stats.begin();
-
-    let deltaTime = clock.getDelta();
-    if (!isTouchscreenDevice())
-      if (document.hasFocus()) {
-        moveBall();
-      } else {
-        moveDirection.forward = 0;
-        moveDirection.back = 0;
-        moveDirection.left = 0;
-        moveDirection.right = 0;
-      }
-    else {
-      moveBall();
-    }
-
-    updatePhysics(deltaTime);
-
-    moveParticles();
-
-    renderer.render(scene, camera);
-    stats.end();
-
-    // tells browser theres animation, update before the next repaint
-    requestAnimationFrame(renderFrame);
-  }
-
-  //loading page section
-  function startButtonEventListener() {
-    for (let i = 0; i < startScreenDivs.length; i++) {
-      startScreenDivs[i].style.visibility = "hidden"; // or
-      startScreenDivs[i].style.display = "none";
-    }
-
-    startButton.removeEventListener("click", startButtonEventListener);
-    document.addEventListener("click", launchClickPosition);
-    createBallMask();
-
-    startButtonPressed = true;
-  }
-
-  startButton.addEventListener("click", startButtonEventListener);
-
   //create flat plane
-  function createBlock() {
+  function createGridPlane() {
     // block properties
     let pos = { x: 0, y: -0.25, z: 0 };
     let scale = { x: 175, y: 0.5, z: 175 };
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 0; //mass of zero = infinite mass
-
-    //grass ground
-    /*
-    var grass_loader = new THREE.TextureLoader();
-    var groundTexture = grass_loader.load("./src/jsm/grasslight-small.jpg");
-    groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
-    groundTexture.repeat.set(5, 5);
-    groundTexture.anisotropy = 16;
-    groundTexture.encoding = THREE.sRGBEncoding;
-    
-    var material = new THREE.MeshPhysicalMaterial({
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.1,
-      metalness: 0.9,
-      roughness: 0.5,
-      color: 0x0000ff,
-      normalScale: new THREE.Vector2(0.15, 0.15),
-    });*/
 
     var grid = new THREE.GridHelper(175, 20, 0xffffff, 0xffffff);
     grid.material.opacity = 0.15;
@@ -223,6 +153,159 @@ Ammo().then((Ammo) => {
 
     // add to world
     physicsWorld.addRigidBody(body);
+  }
+
+  // create ball
+  function createBall() {
+    let pos = { x: 8.75, y: 0, z: 0 };
+    let radius = 2;
+    let quat = { x: 0, y: 0, z: 0, w: 1 };
+    let mass = 3;
+
+    var marble_loader = new THREE.TextureLoader(manager);
+    var marbleTexture = marble_loader.load("./src/jsm/earth.jpg");
+    marbleTexture.wrapS = marbleTexture.wrapT = THREE.RepeatWrapping;
+    marbleTexture.repeat.set(1, 1);
+    marbleTexture.anisotropy = 1;
+    marbleTexture.encoding = THREE.sRGBEncoding;
+
+    /*
+    var material = new THREE.MeshPhysicalMaterial({
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.1,
+      metalness: 0.9,
+      roughness: 0.5,
+      color: 0xffffff,
+      opacity: 0.8,
+      transparent: true,
+      normalScale: new THREE.Vector2(0.15, 0.15),
+    });*/
+
+    //threeJS Section
+    let ball = (ballObject = new THREE.Mesh(
+      new THREE.SphereGeometry(radius, 32, 32),
+      new THREE.MeshLambertMaterial({ map: marbleTexture })
+    ));
+
+    let ballComputeBoundingSphere = ball.geometry.computeBoundingSphere();
+    let ballComputeBoundingBox = ball.geometry.computeBoundingBox();
+
+    ball.position.set(pos.x, pos.y, pos.z);
+
+    ball.castShadow = true;
+    ball.receiveShadow = true;
+
+    scene.add(ball);
+
+    //Ammojs Section
+    let transform = new Ammo.btTransform();
+    transform.setIdentity();
+    transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+    transform.setRotation(
+      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
+    );
+    let motionState = new Ammo.btDefaultMotionState(transform);
+
+    let colShape = new Ammo.btSphereShape(radius);
+    colShape.setMargin(0.05);
+
+    let localInertia = new Ammo.btVector3(0, 0, 0);
+    colShape.calculateLocalInertia(mass, localInertia);
+
+    let rbInfo = new Ammo.btRigidBodyConstructionInfo(
+      mass,
+      motionState,
+      colShape,
+      localInertia
+    );
+    let body = new Ammo.btRigidBody(rbInfo);
+    //body.setFriction(4);
+    body.setRollingFriction(10);
+
+    //set ball friction
+
+    //once state is set to disable, dynamic interaction no longer calculated
+    body.setActivationState(STATE.DISABLE_DEACTIVATION);
+
+    physicsWorld.addRigidBody(
+      body //collisionGroupRedBall, collisionGroupGreenBall | collisionGroupPlane
+    );
+
+    ball.userData.physicsBody = body;
+    ballObject.userData.physicsBody = body;
+
+    rigidBodies.push(ball);
+    rigidBodies.push(ballObject);
+
+    // currently testing 7/29/20: mesh surrounding ball
+    /* sets orange box underneath ball to show position 
+    const wireMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff6600,
+      wireframe: true,
+    });
+
+    let wireMeshTemp = (ballWireMesh = new THREE.Mesh(
+      new THREE.PlaneBufferGeometry(4, 4),
+      wireMaterial
+    ));
+    wireMeshTemp.position.y = 0.01;
+    wireMeshTemp.rotation.x = -Math.PI * 0.5;
+    //mesh.position.copy(ballObject.geometry.boundingSphere.center);
+    scene.add(wireMeshTemp);*/
+  }
+
+  function createBeachBall() {
+    let pos = { x: 20, y: 30, z: 0 };
+    let radius = 2;
+    let quat = { x: 0, y: 0, z: 0, w: 1 };
+    let mass = 20;
+
+    var texture_loader = new THREE.TextureLoader(manager);
+    var beachTexture = texture_loader.load("./src/jsm/BeachBallColor.jpg");
+    beachTexture.wrapS = beachTexture.wrapT = THREE.RepeatWrapping;
+    beachTexture.repeat.set(1, 1);
+    beachTexture.anisotropy = 1;
+    beachTexture.encoding = THREE.sRGBEncoding;
+
+    //threeJS Section
+    let ball = new THREE.Mesh(
+      new THREE.SphereGeometry(radius, 32, 32),
+      new THREE.MeshLambertMaterial({ map: beachTexture })
+    );
+
+    ball.position.set(pos.x, pos.y, pos.z);
+    ball.castShadow = true;
+    ball.receiveShadow = true;
+    scene.add(ball);
+
+    //Ammojs Section
+    let transform = new Ammo.btTransform();
+    transform.setIdentity();
+    transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+    transform.setRotation(
+      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
+    );
+    let motionState = new Ammo.btDefaultMotionState(transform);
+
+    let colShape = new Ammo.btSphereShape(radius);
+    colShape.setMargin(0.05);
+
+    let localInertia = new Ammo.btVector3(0, 0, 0);
+    colShape.calculateLocalInertia(mass, localInertia);
+
+    let rbInfo = new Ammo.btRigidBodyConstructionInfo(
+      mass,
+      motionState,
+      colShape,
+      localInertia
+    );
+    let body = new Ammo.btRigidBody(rbInfo);
+
+    body.setRollingFriction(1);
+    physicsWorld.addRigidBody(body);
+
+    ball.userData.physicsBody = body;
+    rigidBodies.push(ball);
   }
 
   function createBox(
@@ -660,7 +743,7 @@ Ammo().then((Ammo) => {
           brickLengthCurrent *= 0.5;
           brickMassCurrent *= 0.5;
         }
-        var brick = createParalellepiped(
+        var brick = createBrick(
           brickLengthCurrent,
           brickHeight,
           brickDepth,
@@ -686,7 +769,7 @@ Ammo().then((Ammo) => {
     }
   }
 
-  function createParalellepiped(sx, sy, sz, mass, pos, quat, material) {
+  function createBrick(sx, sy, sz, mass, pos, quat, material) {
     var threeObject = new THREE.Mesh(
       new THREE.BoxBufferGeometry(sx, sy, sz, 1, 1, 1),
       material
@@ -696,12 +779,12 @@ Ammo().then((Ammo) => {
     );
     shape.setMargin(0.05);
 
-    createRigidBody(threeObject, shape, mass, pos, quat);
+    createBrickBody(threeObject, shape, mass, pos, quat);
 
     return threeObject;
   }
 
-  function createRigidBody(threeObject, physicsShape, mass, pos, quat) {
+  function createBrickBody(threeObject, physicsShape, mass, pos, quat) {
     threeObject.position.copy(pos);
     threeObject.quaternion.copy(quat);
 
@@ -769,159 +852,6 @@ Ammo().then((Ammo) => {
     physicsWorld.addRigidBody(body);
   }
 
-  // create ball
-  function createBall() {
-    let pos = { x: 8.75, y: 0, z: 0 };
-    let radius = 2;
-    let quat = { x: 0, y: 0, z: 0, w: 1 };
-    let mass = 3;
-
-    var marble_loader = new THREE.TextureLoader(manager);
-    var marbleTexture = marble_loader.load("./src/jsm/earth.jpg");
-    marbleTexture.wrapS = marbleTexture.wrapT = THREE.RepeatWrapping;
-    marbleTexture.repeat.set(1, 1);
-    marbleTexture.anisotropy = 1;
-    marbleTexture.encoding = THREE.sRGBEncoding;
-
-    /*
-    var material = new THREE.MeshPhysicalMaterial({
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.1,
-      metalness: 0.9,
-      roughness: 0.5,
-      color: 0xffffff,
-      opacity: 0.8,
-      transparent: true,
-      normalScale: new THREE.Vector2(0.15, 0.15),
-    });*/
-
-    //threeJS Section
-    let ball = (ballObject = new THREE.Mesh(
-      new THREE.SphereGeometry(radius, 32, 32),
-      new THREE.MeshLambertMaterial({ map: marbleTexture })
-    ));
-
-    ballComputeBoundingSphere = ball.geometry.computeBoundingSphere();
-    ballComputeBoundingBox = ball.geometry.computeBoundingBox();
-
-    ball.position.set(pos.x, pos.y, pos.z);
-
-    ball.castShadow = true;
-    ball.receiveShadow = true;
-
-    scene.add(ball);
-
-    //Ammojs Section
-    let transform = new Ammo.btTransform();
-    transform.setIdentity();
-    transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
-    transform.setRotation(
-      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
-    );
-    let motionState = new Ammo.btDefaultMotionState(transform);
-
-    let colShape = new Ammo.btSphereShape(radius);
-    colShape.setMargin(0.05);
-
-    let localInertia = new Ammo.btVector3(0, 0, 0);
-    colShape.calculateLocalInertia(mass, localInertia);
-
-    let rbInfo = new Ammo.btRigidBodyConstructionInfo(
-      mass,
-      motionState,
-      colShape,
-      localInertia
-    );
-    let body = new Ammo.btRigidBody(rbInfo);
-    //body.setFriction(4);
-    body.setRollingFriction(10);
-
-    //set ball friction
-
-    //once state is set to disable, dynamic interaction no longer calculated
-    body.setActivationState(STATE.DISABLE_DEACTIVATION);
-
-    physicsWorld.addRigidBody(
-      body //collisionGroupRedBall, collisionGroupGreenBall | collisionGroupPlane
-    );
-
-    ball.userData.physicsBody = body;
-    ballObject.userData.physicsBody = body;
-
-    rigidBodies.push(ball);
-    rigidBodies.push(ballObject);
-
-    // currently testing 7/29/20: mesh surrounding ball
-    /* sets orange box underneath ball to show position 
-    const wireMaterial = new THREE.MeshBasicMaterial({
-      color: 0xff6600,
-      wireframe: true,
-    });
-
-    let wireMeshTemp = (ballWireMesh = new THREE.Mesh(
-      new THREE.PlaneBufferGeometry(4, 4),
-      wireMaterial
-    ));
-    wireMeshTemp.position.y = 0.01;
-    wireMeshTemp.rotation.x = -Math.PI * 0.5;
-    //mesh.position.copy(ballObject.geometry.boundingSphere.center);
-    scene.add(wireMeshTemp);*/
-  }
-
-  function createBallMask() {
-    let pos = { x: 20, y: 30, z: 0 };
-    let radius = 2;
-    let quat = { x: 0, y: 0, z: 0, w: 1 };
-    let mass = 20;
-
-    var texture_loader = new THREE.TextureLoader(manager);
-    var beachTexture = texture_loader.load("./src/jsm/BeachBallColor.jpg");
-    beachTexture.wrapS = beachTexture.wrapT = THREE.RepeatWrapping;
-    beachTexture.repeat.set(1, 1);
-    beachTexture.anisotropy = 1;
-    beachTexture.encoding = THREE.sRGBEncoding;
-
-    //threeJS Section
-    let ball = new THREE.Mesh(
-      new THREE.SphereGeometry(radius, 32, 32),
-      new THREE.MeshLambertMaterial({ map: beachTexture })
-    );
-
-    ball.position.set(pos.x, pos.y, pos.z);
-    ball.castShadow = true;
-    ball.receiveShadow = true;
-    scene.add(ball);
-
-    //Ammojs Section
-    let transform = new Ammo.btTransform();
-    transform.setIdentity();
-    transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
-    transform.setRotation(
-      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
-    );
-    let motionState = new Ammo.btDefaultMotionState(transform);
-
-    let colShape = new Ammo.btSphereShape(radius);
-    colShape.setMargin(0.05);
-
-    let localInertia = new Ammo.btVector3(0, 0, 0);
-    colShape.calculateLocalInertia(mass, localInertia);
-
-    let rbInfo = new Ammo.btRigidBodyConstructionInfo(
-      mass,
-      motionState,
-      colShape,
-      localInertia
-    );
-    let body = new Ammo.btRigidBody(rbInfo);
-
-    body.setRollingFriction(1);
-    physicsWorld.addRigidBody(body);
-
-    ball.userData.physicsBody = body;
-    rigidBodies.push(ball);
-  }
-
   function moveBall() {
     let scalingFactor = 20;
     let moveX = moveDirection.right - moveDirection.left;
@@ -955,6 +885,47 @@ Ammo().then((Ammo) => {
     return moveX, moveZ;
   }
 
+  function renderFrame() {
+    // FPS stats module
+    stats.begin();
+
+    let deltaTime = clock.getDelta();
+    if (!isTouchscreenDevice())
+      if (document.hasFocus()) {
+        moveBall();
+      } else {
+        moveDirection.forward = 0;
+        moveDirection.back = 0;
+        moveDirection.left = 0;
+        moveDirection.right = 0;
+      }
+    else {
+      moveBall();
+    }
+
+    updatePhysics(deltaTime);
+
+    moveParticles();
+
+    renderer.render(scene, camera);
+    stats.end();
+
+    // tells browser theres animation, update before the next repaint
+    requestAnimationFrame(renderFrame);
+  }
+
+  //loading page section
+  function startButtonEventListener() {
+    for (let i = 0; i < startScreenDivs.length; i++) {
+      startScreenDivs[i].style.visibility = "hidden"; // or
+      startScreenDivs[i].style.display = "none";
+    }
+
+    startButton.removeEventListener("click", startButtonEventListener);
+    document.addEventListener("click", launchClickPosition);
+    createBeachBall();
+  }
+
   function updatePhysics(deltaTime) {
     // Step world
     physicsWorld.stepSimulation(deltaTime, 10);
@@ -977,87 +948,10 @@ Ammo().then((Ammo) => {
       createBall();
     }
 
-    /* deprecated function for checking ball position to raise text 
-    if (startButtonPressed) {
-      checkForBallInsidePlane();
-    } */
-
-    //(x = -52), (z = 28);
     rotateCamera(ballObject);
-
-    /* sets position for wire mesh under ball. currently disabled 8/3/20
-    ballWireMesh.position.x = ballObject.position.x;
-    ballWireMesh.position.z = ballObject.position.z;
-    //ballWireMesh.position.set(ballObject.position);
-    */
-
-    //controls.update();
-  }
-
-  //start link events
-  const pickPosition = { x: 0, y: 0 };
-
-  function rotateCamera(ballPosition) {
-    if (
-      (ballPosition.position.x < 77 &&
-        ballPosition.position.x > 42 &&
-        ballPosition.position.z > -15 &&
-        ballPosition.position.z < 40) ||
-      (ballPosition.position.x < -2 && ballPosition.position.z < -39) ||
-      (ballPosition.position.x < -30 &&
-        ballPosition.position.x > -70 &&
-        ballPosition.position.z > 0 &&
-        ballPosition.position.z < 40)
-    ) {
-      camera.position.x = ballPosition.position.x;
-      camera.position.y = ballPosition.position.y + 50;
-      camera.position.z = ballPosition.position.z + 40;
-      camera.lookAt(ballPosition.position);
-    } else if (ballPosition.position.z > 60) {
-      camera.position.x = ballPosition.position.x;
-      camera.position.y = ballPosition.position.y + 10;
-      camera.position.z = ballPosition.position.z + 40;
-      camera.lookAt(ballPosition.position);
-    } else {
-      camera.position.x = ballPosition.position.x;
-      camera.position.y = ballPosition.position.y + 30;
-      camera.position.z = ballPosition.position.z + 60;
-      camera.lookAt(ballPosition.position);
-    }
-  }
-
-  function getCanvasRelativePosition(event) {
-    const rect = renderer.domElement.getBoundingClientRect();
-    return {
-      x: ((event.clientX - rect.left) * renderer.domElement.width) / rect.width,
-      y:
-        ((event.clientY - rect.top) * renderer.domElement.height) / rect.height,
-    };
-  }
-
-  function launchClickPosition(event) {
-    const pos = getCanvasRelativePosition(event);
-    pickPosition.x = (pos.x / renderer.domElement.width) * 2 - 1;
-    pickPosition.y = (pos.y / renderer.domElement.height) * -2 + 1; // note we flip Y
-
-    // cast a ray through the frustum
-    const myRaycaster = new THREE.Raycaster();
-    myRaycaster.setFromCamera(pickPosition, camera);
-    // get the list of objects the ray intersected
-    const intersectedObjects = myRaycaster.intersectObjects(scene.children);
-    if (intersectedObjects.length) {
-      // pick the first object. It's the closest one
-      const pickedObject = intersectedObjects[0].object;
-      if (intersectedObjects[0].object.userData.URL)
-        window.open(intersectedObjects[0].object.userData.URL);
-      else {
-        return;
-      }
-    }
   }
 
   //document loading
-
   manager.onStart = function (item, loaded, total) {
     console.log("Loading started");
   };
@@ -1088,6 +982,8 @@ Ammo().then((Ammo) => {
     console.log("Error loading");
   };
 
+  startButton.addEventListener("click", startButtonEventListener);
+
   if (isTouchscreenDevice()) {
     createJoystick(document.getElementById("joystick-wrapper"));
     document.getElementById("joystick-wrapper").style.visibility = "visible";
@@ -1099,7 +995,7 @@ Ammo().then((Ammo) => {
     createWorld();
     createPhysicsWorld();
 
-    createBlock();
+    createGridPlane();
     createBall();
 
     createWallX(87.5, 1.75, 0);

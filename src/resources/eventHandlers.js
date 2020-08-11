@@ -117,39 +117,6 @@ export function touchEvent(coordinates) {
   }
 }
 
-export function moveBall() {
-  let scalingFactor = 20;
-  let moveX = moveDirection.right - moveDirection.left;
-  let moveZ = moveDirection.back - moveDirection.forward;
-  let moveY = 0;
-
-  if (ballObject.position.y < 2.01) {
-    moveX = moveDirection.right - moveDirection.left;
-    moveZ = moveDirection.back - moveDirection.forward;
-    moveY = 0;
-  } else {
-    moveX = moveDirection.right - moveDirection.left;
-    moveZ = moveDirection.back - moveDirection.forward;
-    moveY = -0.25;
-  }
-
-  /*
-  if (ballObject.position.y > 2.25) {
-    moveY = -0.5;
-  } else {
-    moveY = 0;
-  }*/
-
-  // no movement
-  if (moveX == 0 && moveY == 0 && moveZ == 0) return;
-
-  let resultantImpulse = new Ammo.btVector3(moveX, moveY, moveZ);
-  resultantImpulse.op_mul(scalingFactor);
-  let physicsBody = ballObject.userData.physicsBody;
-  physicsBody.setLinearVelocity(resultantImpulse);
-  return moveX, moveZ;
-}
-
 export function createJoystick(parent) {
   const maxDiff = 62; //how far drag can go
   const stick = document.createElement("div");
