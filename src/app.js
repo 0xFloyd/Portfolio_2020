@@ -101,6 +101,7 @@ Ammo().then((Ammo) => {
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 0; //mass of zero = infinite mass
 
+    //create grid overlay on plane
     var grid = new THREE.GridHelper(175, 20, 0xffffff, 0xffffff);
     grid.material.opacity = 0.15;
     grid.material.transparent = true;
@@ -118,7 +119,6 @@ Ammo().then((Ammo) => {
     );
     blockPlane.position.set(pos.x, pos.y, pos.z);
     blockPlane.scale.set(scale.x, scale.y, scale.z);
-    //blockPlane.castShadow = true;
     blockPlane.receiveShadow = true;
     scene.add(blockPlane);
 
@@ -169,26 +169,14 @@ Ammo().then((Ammo) => {
     marbleTexture.anisotropy = 1;
     marbleTexture.encoding = THREE.sRGBEncoding;
 
-    /*
-    var material = new THREE.MeshPhysicalMaterial({
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.1,
-      metalness: 0.9,
-      roughness: 0.5,
-      color: 0xffffff,
-      opacity: 0.8,
-      transparent: true,
-      normalScale: new THREE.Vector2(0.15, 0.15),
-    });*/
-
     //threeJS Section
     let ball = (ballObject = new THREE.Mesh(
       new THREE.SphereGeometry(radius, 32, 32),
       new THREE.MeshLambertMaterial({ map: marbleTexture })
     ));
 
-    let ballComputeBoundingSphere = ball.geometry.computeBoundingSphere();
-    let ballComputeBoundingBox = ball.geometry.computeBoundingBox();
+    ball.geometry.computeBoundingSphere();
+    ball.geometry.computeBoundingBox();
 
     ball.position.set(pos.x, pos.y, pos.z);
 
@@ -236,30 +224,16 @@ Ammo().then((Ammo) => {
 
     rigidBodies.push(ball);
     rigidBodies.push(ballObject);
-
-    // currently testing 7/29/20: mesh surrounding ball
-    /* sets orange box underneath ball to show position 
-    const wireMaterial = new THREE.MeshBasicMaterial({
-      color: 0xff6600,
-      wireframe: true,
-    });
-
-    let wireMeshTemp = (ballWireMesh = new THREE.Mesh(
-      new THREE.PlaneBufferGeometry(4, 4),
-      wireMaterial
-    ));
-    wireMeshTemp.position.y = 0.01;
-    wireMeshTemp.rotation.x = -Math.PI * 0.5;
-    //mesh.position.copy(ballObject.geometry.boundingSphere.center);
-    scene.add(wireMeshTemp);*/
   }
 
+  //create beach ball Mesh
   function createBeachBall() {
     let pos = { x: 20, y: 30, z: 0 };
     let radius = 2;
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 20;
 
+    //import beach ball texture
     var texture_loader = new THREE.TextureLoader(manager);
     var beachTexture = texture_loader.load("./src/jsm/BeachBallColor.jpg");
     beachTexture.wrapS = beachTexture.wrapT = THREE.RepeatWrapping;
@@ -308,6 +282,7 @@ Ammo().then((Ammo) => {
     rigidBodies.push(ball);
   }
 
+  //create link boxes
   function createBox(
     x,
     y,
@@ -324,6 +299,7 @@ Ammo().then((Ammo) => {
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 0; //mass of zero = infinite mass
 
+    //load link logo
     const loader = new THREE.TextureLoader(manager);
     const texture = loader.load(boxTexture);
     texture.magFilter = THREE.LinearFilter;
@@ -364,6 +340,7 @@ Ammo().then((Ammo) => {
     addRigidPhysics(linkBox, boxScale);
   }
 
+  //create Ammo.js body to add solid mass to "Ryan Floyd Software Engineer"
   function ryanFloydWords(x, y, z) {
     const boxScale = { x: 46, y: 3, z: 2 };
     let quat = { x: 0, y: 0, z: 0, w: 1 };
@@ -375,17 +352,16 @@ Ammo().then((Ammo) => {
         color: 0xff6600,
       })
     );
+
     linkBox.position.set(x, y, z);
-    //linkBox.scale.set(boxScale.x, boxScale.y, boxScale.z);
     linkBox.castShadow = true;
     linkBox.receiveShadow = true;
-    //linkBox.userData = { URL: "https://ryanfloyd.io" };
-    //scene.add(linkBox);
     objectsWithLinks.push(linkBox.uuid);
 
     addRigidPhysics(linkBox, boxScale);
   }
 
+  //loads text for Ryan Floyd Mesh
   function loadRyanText() {
     var text_loader = new THREE.FontLoader();
 
@@ -398,18 +374,6 @@ Ammo().then((Ammo) => {
         new THREE.MeshPhongMaterial({ color: color }), // front
         new THREE.MeshPhongMaterial({ color: color }), // side
       ];
-
-      var matLite = new THREE.MeshBasicMaterial({
-        color: color,
-        transparent: true,
-        opacity: 1,
-      });
-
-      /*
-      var message = "Ryan Floyd";
-
-      var shapes = font.generateShapes(message, 1);
-      */
 
       var geometry = new THREE.TextGeometry("RYAN FLOYD", {
         font: font,
@@ -432,17 +396,16 @@ Ammo().then((Ammo) => {
 
       var textGeo = new THREE.BufferGeometry().fromGeometry(geometry);
 
-      // make shape ( N.B. edge view not visible )
-
       text = new THREE.Mesh(geometry, textMaterials);
       text.position.z = -20;
       text.position.y = 0.1;
       text.receiveShadow = true;
       text.castShadow = true;
       scene.add(text);
-    }); //end load function
+    });
   }
 
+  //create "software engineer text"
   function loadEngineerText() {
     var text_loader = new THREE.FontLoader();
 
@@ -455,19 +418,6 @@ Ammo().then((Ammo) => {
         new THREE.MeshPhongMaterial({ color: color }), // front
         new THREE.MeshPhongMaterial({ color: color }), // side
       ];
-
-      var matLite = new THREE.MeshLambertMaterial({
-        color: color,
-        transparent: true,
-        opacity: 1,
-        side: THREE.DoubleSide,
-      });
-
-      /*
-      var message = "Ryan Floyd";
-
-      var shapes = font.generateShapes(message, 1);
-      */
 
       var geometry = new THREE.TextGeometry("SOFTWARE ENGINEER", {
         font: font,
@@ -488,8 +438,6 @@ Ammo().then((Ammo) => {
 
       var textGeo = new THREE.BufferGeometry().fromGeometry(geometry);
 
-      // make shape ( N.B. edge view not visible )
-
       text = new THREE.Mesh(textGeo, textMaterials);
       text.position.z = -20;
       text.position.y = 0.1;
@@ -497,9 +445,10 @@ Ammo().then((Ammo) => {
       text.receiveShadow = true;
       text.castShadow = true;
       scene.add(text);
-    }); //end load function
+    });
   }
 
+  //function to create billboard
   function createBillboard(
     x,
     y,
@@ -508,7 +457,6 @@ Ammo().then((Ammo) => {
     urlLink,
     rotation = 0
   ) {
-    //const billboard = new THREE.Object3D();
     const billboardPoleScale = { x: 1, y: 5, z: 1 };
     const billboardSignScale = { x: 30, y: 15, z: 1 };
     const billboardPole = new THREE.Mesh(
@@ -576,9 +524,9 @@ Ammo().then((Ammo) => {
     scene.add(billboardPole);
     scene.add(billboardSign);
     addRigidPhysics(billboardPole, billboardPoleScale);
-    //addRigidPhysics(billboardSign, billboardSignScale);
   }
 
+  //create vertical billboard
   function createBillboardRotated(
     x,
     y,
@@ -587,7 +535,6 @@ Ammo().then((Ammo) => {
     urlLink,
     rotation = 0
   ) {
-    //const billboard = new THREE.Object3D();
     const billboardPoleScale = { x: 1, y: 2.5, z: 1 };
     const billboardSignScale = { x: 15, y: 20, z: 1 };
     const billboardPole = new THREE.Mesh(
@@ -658,8 +605,8 @@ Ammo().then((Ammo) => {
     addRigidPhysics(billboardSign, billboardSignScale);
   }
 
+  //create X axis wall around entire plane
   function createWallX(x, y, z) {
-    //const billboard = new THREE.Object3D();
     const wallScale = { x: 0.125, y: 4, z: 175 };
 
     const wall = new THREE.Mesh(
@@ -675,19 +622,15 @@ Ammo().then((Ammo) => {
     wall.position.y = y;
     wall.position.z = z;
 
-    //wall.rotation.y = Math.PI * 0.5;
-
-    //wall.castShadow = true;
     wall.receiveShadow = true;
 
     scene.add(wall);
 
     addRigidPhysics(wall, wallScale);
-    //addRigidPhysics(billboardSign, billboardSignScale);
   }
 
+  //create Z axis wall around entire plane
   function createWallZ(x, y, z) {
-    //const billboard = new THREE.Object3D();
     const wallScale = { x: 175, y: 4, z: 0.125 };
 
     const wall = new THREE.Mesh(
@@ -703,8 +646,6 @@ Ammo().then((Ammo) => {
     wall.position.y = y;
     wall.position.z = z;
 
-    //wall.rotation.y = Math.PI * 0.5;
-
     wall.receiveShadow = true;
 
     scene.add(wall);
@@ -712,6 +653,7 @@ Ammo().then((Ammo) => {
     addRigidPhysics(wall, wallScale);
   }
 
+  //create brick wall
   function wallOfBricks() {
     var pos = new THREE.Vector3();
     var quat = new THREE.Quaternion();
@@ -769,6 +711,7 @@ Ammo().then((Ammo) => {
     }
   }
 
+  //helper function to create individual brick mesh
   function createBrick(sx, sy, sz, mass, pos, quat, material) {
     var threeObject = new THREE.Mesh(
       new THREE.BoxBufferGeometry(sx, sy, sz, 1, 1, 1),
@@ -784,6 +727,7 @@ Ammo().then((Ammo) => {
     return threeObject;
   }
 
+  //add physics to brick body
   function createBrickBody(threeObject, physicsShape, mass, pos, quat) {
     threeObject.position.copy(pos);
     threeObject.quaternion.copy(quat);
@@ -821,6 +765,7 @@ Ammo().then((Ammo) => {
     physicsWorld.addRigidBody(body);
   }
 
+  //generic function to add physics to Mesh with scale
   function addRigidPhysics(item, itemScale) {
     let pos = { x: item.position.x, y: item.position.y, z: item.position.z };
     let scale = { x: itemScale.x, y: itemScale.y, z: itemScale.z };
@@ -868,13 +813,6 @@ Ammo().then((Ammo) => {
       moveY = -0.25;
     }
 
-    /*
-    if (ballObject.position.y > 2.25) {
-      moveY = -0.5;
-    } else {
-      moveY = 0;
-    }*/
-
     // no movement
     if (moveX == 0 && moveY == 0 && moveZ == 0) return;
 
@@ -882,7 +820,6 @@ Ammo().then((Ammo) => {
     resultantImpulse.op_mul(scalingFactor);
     let physicsBody = ballObject.userData.physicsBody;
     physicsBody.setLinearVelocity(resultantImpulse);
-    //return moveX, moveZ;
   }
 
   function renderFrame() {
@@ -943,11 +880,14 @@ Ammo().then((Ammo) => {
         objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());
       }
     }
+
+    //check to see if ball escaped the plane
     if (ballObject.position.y < -50) {
       scene.remove(ballObject);
       createBall();
     }
 
+    //check to see if ball is on text to rotate camera
     rotateCamera(ballObject);
   }
 
@@ -972,10 +912,6 @@ Ammo().then((Ammo) => {
       }
     }, 1000);
     console.log("Loading complete");
-  };
-
-  manager.onProgress = function (item, loaded, total) {
-    //console.log(item, loaded, total);
   };
 
   manager.onError = function (url) {
@@ -1144,8 +1080,8 @@ Ammo().then((Ammo) => {
     renderFrame();
   }
 
+  //check if user's browser has WebGL capabilities
   if (WEBGL.isWebGLAvailable()) {
-    // Initiate function or other initializations here
     start();
   } else {
     noWebGL();
