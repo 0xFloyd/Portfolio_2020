@@ -882,7 +882,7 @@ Ammo().then((Ammo) => {
     resultantImpulse.op_mul(scalingFactor);
     let physicsBody = ballObject.userData.physicsBody;
     physicsBody.setLinearVelocity(resultantImpulse);
-    return moveX, moveZ;
+    //return moveX, moveZ;
   }
 
   function renderFrame() {

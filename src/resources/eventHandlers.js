@@ -30,25 +30,6 @@ function handleKeyDown(event) {
     case 39: //right arrow
       moveDirection.right = 1;
       break;
-    /*
-      case 38: //↑: FORWARD
-        kMoveDirection.forward = 1;
-        break;
-
-      case 40: //↓: BACK
-        kMoveDirection.back = 1;
-        break;
-
-      case 37: //←: LEFT
-        kMoveDirection.left = 1;
-        break;
-
-      case 39: //→: RIGHT
-        kMoveDirection.right = 1;
-        break;
-
-      case 82: //→: RESET
-        break;*/
   }
 }
 

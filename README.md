@@ -4,7 +4,7 @@ This was my quarantine project! I decided to revamp my portfolio into an interac
 
 Try it out! [https://www.ryan-floyd.com/](https://www.ryan-floyd.com/)
 
-![alt text](/src/jsm/ryan_floyd_portfolio_gif.gif)
+![alt text](/ryan_floyd_portfolio_gif.gif)
 
 ## Motivation
 
