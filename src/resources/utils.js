@@ -8,19 +8,19 @@ export function rotateCamera(ballPosition) {
   if (
     (ballPosition.position.x < 77 &&
       ballPosition.position.x > 42 &&
-      ballPosition.position.z > -15 &&
+      ballPosition.position.z > -20 &&
       ballPosition.position.z < 40) ||
-    (ballPosition.position.x < -2 && ballPosition.position.z < -39) ||
-    (ballPosition.position.x < -30 &&
+    (ballPosition.position.x < -2 && ballPosition.position.z < -28) ||
+    (ballPosition.position.x < -25 &&
       ballPosition.position.x > -70 &&
-      ballPosition.position.z > 0 &&
+      ballPosition.position.z > -10 &&
       ballPosition.position.z < 40)
   ) {
     camera.position.x = ballPosition.position.x;
     camera.position.y = ballPosition.position.y + 50;
     camera.position.z = ballPosition.position.z + 40;
     camera.lookAt(ballPosition.position);
-  } else if (ballPosition.position.z > 60) {
+  } else if (ballPosition.position.z > 45) {
     camera.position.x = ballPosition.position.x;
     camera.position.y = ballPosition.position.y + 10;
     camera.position.z = ballPosition.position.z + 40;

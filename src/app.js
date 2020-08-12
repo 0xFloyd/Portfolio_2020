@@ -18,11 +18,12 @@ import {
 
 import {
   preloadDivs,
-  preloadOpactiy,
+  preloadOpacity,
   postloadDivs,
   startScreenDivs,
   startButton,
   noWebGL,
+  fadeOutDivs,
 } from "./resources/preload";
 
 import {
@@ -853,10 +854,12 @@ Ammo().then((Ammo) => {
 
   //loading page section
   function startButtonEventListener() {
-    for (let i = 0; i < startScreenDivs.length; i++) {
-      startScreenDivs[i].style.visibility = "hidden"; // or
-      startScreenDivs[i].style.display = "none";
+    for (let i = 0; i < fadeOutDivs.length; i++) {
+      fadeOutDivs[i].classList.add("fade-out");
     }
+    setTimeout(() => {
+      document.getElementById("preload-overlay").style.display = "none";
+    }, 750);
 
     startButton.removeEventListener("click", startButtonEventListener);
     document.addEventListener("click", launchClickPosition);
@@ -907,7 +910,6 @@ Ammo().then((Ammo) => {
         for (let i = 0; i < postloadDivs.length; i++) {
           postloadDivs[i].style.visibility = "visible"; // or
           postloadDivs[i].style.display = "block";
-          preloadOpactiy.style.opacity = 0.9;
         }
       }
     }, 1000);
@@ -921,6 +923,8 @@ Ammo().then((Ammo) => {
   startButton.addEventListener("click", startButtonEventListener);
 
   if (isTouchscreenDevice()) {
+    document.getElementById("appDirections").innerHTML =
+      "Use the joystick in the bottom left of the screen to move the ball.";
     createJoystick(document.getElementById("joystick-wrapper"));
     document.getElementById("joystick-wrapper").style.visibility = "visible";
     document.getElementById("joystick").style.visibility = "visible";
@@ -953,20 +957,8 @@ Ammo().then((Ammo) => {
       2.5,
       -78,
       billboardTextures.bagHolderBetsTexture,
-      URL.bagholderBets,
-      Math.PI * 0.17
-    );
-    createBox(
-      -39,
-      2,
-      -75,
-      4,
-      4,
-      1,
-      boxTexture.Github,
       URL.githubBagholder,
-      0x000000,
-      true
+      Math.PI * 0.17
     );
 
     createBillboardRotated(
@@ -974,20 +966,8 @@ Ammo().then((Ammo) => {
       1.25,
       -75,
       billboardTextures.homeSweetHomeTexture,
-      URL.homeSweetHomeURL,
-      Math.PI * 0.15
-    );
-    createBox(
-      -12,
-      2,
-      -73,
-      4,
-      4,
-      1,
-      boxTexture.Github,
       URL.githubHomeSweetHome,
-      0x000000,
-      true
+      Math.PI * 0.15
     );
 
     ryanFloydWords(11.2, 1, -20);
@@ -1045,7 +1025,7 @@ Ammo().then((Ammo) => {
       false
     );
 
-    floatingLabel(13.125, 4.5, -70, "Github");
+    floatingLabel(12.875, 4.5, -70, "Github");
     floatingLabel(21.125, 4.5, -70, "LinkedIn");
     floatingLabel(28.875, 4.5, -70, "Email");
     floatingLabel(37, 4.5, -70, "Website");
@@ -1066,7 +1046,14 @@ Ammo().then((Ammo) => {
       "Use the arrow keys on your keyboard or\njoystick in the bottom left (touchscreen)\nto move around",
       1
     );
-    simpleText(24, 0.01, -60, "Click boxes to visit", 1.5);
+
+    let touchText;
+    if (isTouchscreenDevice()) {
+      touchText = "Touch boxes with your \nfinger to open links";
+    } else {
+      touchText = "Click on boxes with \nthe mouse to open links";
+    }
+    simpleText(24, 0.01, -60, touchText, 1.5);
     simpleText(-50, 0.01, -5, "SKILLS", 3);
     simpleText(-42, 0.01, -30, "EXPERIENCE", 3);
     simpleText(61, 0.01, -15, "TIMELINE", 3);
