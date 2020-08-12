@@ -2,8 +2,8 @@ body {
   margin: 0;
   color: #fff;
   font-family: "Roboto", sans-serif;
-  font-size: 13px;
-  line-height: 24px;
+  font-size: 16px;
+
   overscroll-behavior: none;
   position: fixed;
 }
@@ -121,7 +121,7 @@ select {
   -ms-user-select: none; /* IE10+ */
 }
 
-#preload-overlay {
+.preload-overlay {
   height: 100%;
   width: 100%;
   position: absolute;
@@ -140,33 +140,55 @@ select {
   display: none;
 }
 
+.bottom-webgl-text-div {
+  position: absolute;
+  bottom: 2px;
+  text-align: center;
+}
+
 .bottom-webgl-text {
   padding: 0px 50px 0px 50px;
 }
 
 .joystick-directions-text {
-  padding: 0px 15px 0px 15px;
+  padding: 0px 30px 0px 30px;
 }
 
 .start-page-content-div {
   display: inline-block;
   text-align: center;
   justify-content: center;
-  align-items: center;
-  margin-bottom: 150px;
 }
 
 #start-button {
   margin: 0 auto;
-  margin-top: 40px;
+  margin-top: 20px;
+  margin-bottom: 100px;
   font-size: 25px;
-  background-color: #f00;
+  background-color: grey;
   border: none;
-  color: white;
+  color: #fffc00;
   border-radius: 12px;
-  padding: 20px 40px 20px 40px;
+  padding: 15px 30px 15px 30px;
   -webkit-appearance: none;
   -webkit-border-radius: none;
+  outline: none;
+}
+
+#start-button:hover {
+  cursor: pointer;
+}
+
+.interactive-site-text {
+  margin: 50px 50px 50px 50px;
+}
+
+.junior-engineer {
+  margin-bottom: 50px;
+}
+
+.yellow-text {
+  color: #fffc00;
 }
 
 #static-site-link {
@@ -195,7 +217,7 @@ select {
   position: absolute;
   display: block;
   border-radius: 50%;
-  border: 10px solid #8eff0a;
+  border: 10px solid #fffc00;
 }
 
 .trinity-rings-spinner .circle:nth-child(1) {
@@ -251,7 +273,7 @@ select {
   font-size: 26px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  color: #8eff0a;
+  color: #fffc00;
 }
 
 @keyframes blink {
@@ -273,4 +295,22 @@ select {
   visibility: hidden;
   opacity: 0;
   transition: visibility 0s 0.25s, opacity 0.25s linear;
+}
+
+.fade-out {
+  animation: fade-out-animation 0.75s 1;
+  /* animation-duration: 0.25s; */
+  animation-fill-mode: forwards;
+}
+
+@keyframes fade-out-animation {
+  from {
+    opacity: 0.9;
+  }
+  to {
+    opacity: 0;
+    display: none;
+    visibility: "hidden";
+    cursor: default;
+  }
 }

@@ -39,20 +39,19 @@
       <!-- End Google Tag Manager (noscript) -->
     <div id="WEBGLcontainer"></div>
     <div id="joystick-wrapper"></div>
-     <div id="preload-overlay" class="start-screen">
-      <div class="start-page-content-div">
-        <h1 class="start-page-text postload">Hi, I'm Ryan Floyd!</h1>
-        <h4 class="postload start-page-text">Junior Software Engineer in Boston, MA</h4>
-        <h3 class=" joystick-directions-text postload">Move around with the joystick (touchscreen only) or arrow keys on the keyboard</h3>
+     <div class="fadeOutDiv preload-overlay" id="preload-overlay">
+      <div class="start-page-content-div fadeOutDiv">
+        <h1 class="start-page-text postload fadeOutDiv">Hi, I'm <span class="yellow-text">Ryan Floyd!</span></h1>
+        <h4 class="postload start-page-text junior-engineer fadeOutDiv">Junior Software Engineer in Boston, MA</h4>
+        <h2 class="postload start-page-text interactive-site-text fadeOutDiv">This is an interactive 3D site built with Three.js!</h2>
+        <h3 id="appDirections" class="joystick-directions-text postload fadeOutDiv">Move the ball around with the arrow keys on the keyboard.</h3>
        
-        <button id="start-button" class="postload">ENTER</button>
-        <br>
-        <br>
-     
-        <p class="postload bottom-webgl-text">This site uses some experimental WebGL technology. For best experience, please use a modern browser like Google Chrome.</p><p class="bottom-webgl-text postload">Static site available <a id="static-site-link" href="https://ryanfloyd.io" target="_blank">here</a></p>
+        <button id="start-button" class="postload fadeOutDiv">EXPLORE</button>
         
       </div>
-     
+     <div class="bottom-webgl-text-div">
+      <p class="postload bottom-webgl-text fadeOutDiv">For best experience, please use a modern browser. My static site is available <a id="static-site-link" href="https://ryanfloyd.io" target="_blank">here</a></p><p class="bottom-webgl-text postload"></p>
+     </div>
      
       <div class="trinity-rings-spinner preload">
         <div class="circle preload"></div>
