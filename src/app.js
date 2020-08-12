@@ -369,10 +369,10 @@ Ammo().then((Ammo) => {
     text_loader.load("./src/jsm/Roboto_Regular.json", function (font) {
       var xMid, text;
 
-      var color = 0x00ff08;
+      var color = 0xfffc00;
 
       var textMaterials = [
-        new THREE.MeshPhongMaterial({ color: color }), // front
+        new THREE.MeshBasicMaterial({ color: color }), // front
         new THREE.MeshPhongMaterial({ color: color }), // side
       ];
 
@@ -416,7 +416,7 @@ Ammo().then((Ammo) => {
       var color = 0x00ff08;
 
       var textMaterials = [
-        new THREE.MeshPhongMaterial({ color: color }), // front
+        new THREE.MeshBasicMaterial({ color: color }), // front
         new THREE.MeshPhongMaterial({ color: color }), // side
       ];
 
@@ -766,6 +766,30 @@ Ammo().then((Ammo) => {
     physicsWorld.addRigidBody(body);
   }
 
+  function createTriangle(x, z) {
+    var geom = new THREE.Geometry();
+    var v1 = new THREE.Vector3(4, 0, 0);
+    var v2 = new THREE.Vector3(5, 0, 0);
+    var v3 = new THREE.Vector3(4.5, 1, 0);
+
+    geom.vertices.push(v1);
+    geom.vertices.push(v2);
+    geom.vertices.push(v3);
+
+    geom.faces.push(new THREE.Face3(0, 1, 2));
+    geom.computeFaceNormals();
+
+    var mesh = new THREE.Mesh(
+      geom,
+      new THREE.MeshBasicMaterial({ color: 0xffffff })
+    );
+    mesh.rotation.x = -Math.PI * 0.5;
+    //mesh.rotation.z = -90;
+    mesh.position.y = 0.01;
+    mesh.position.x = x;
+    mesh.position.z = z;
+    scene.add(mesh);
+  }
   //generic function to add physics to Mesh with scale
   function addRigidPhysics(item, itemScale) {
     let pos = { x: item.position.x, y: item.position.y, z: item.position.z };
@@ -1039,26 +1063,29 @@ Ammo().then((Ammo) => {
     loadRyanText();
     loadEngineerText();
 
-    simpleText(
-      8.75,
-      0.01,
-      5,
-      "Use the arrow keys on your keyboard or\njoystick in the bottom left (touchscreen)\nto move around",
-      1
-    );
-
-    let touchText;
+    let touchText, instructionsText;
     if (isTouchscreenDevice()) {
       touchText = "Touch boxes with your \nfinger to open links";
+      instructionsText =
+        "Use the joystick in the bottom left \nof the screen to move the ball";
     } else {
       touchText = "Click on boxes with \nthe mouse to open links";
+      instructionsText =
+        "Use the arrow keys on your \nkeyboard to move the ball";
     }
+
+    simpleText(8.75, 0.01, 5, instructionsText, 1);
+
     simpleText(24, 0.01, -60, touchText, 1.5);
     simpleText(-50, 0.01, -5, "SKILLS", 3);
     simpleText(-42, 0.01, -30, "EXPERIENCE", 3);
     simpleText(61, 0.01, -15, "TIMELINE", 3);
 
     wallOfBricks();
+    createTriangle(63, -55);
+    createTriangle(63, -51);
+    createTriangle(63, -47);
+    createTriangle(63, -43);
 
     addParticles();
     glowingParticles();
