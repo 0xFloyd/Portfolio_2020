@@ -84,9 +84,9 @@ export function glowingParticles() {
   var particleTexture = THREE.ImageUtils.loadTexture("../src/jsm/spark.png");
 
   particleGroup = new THREE.Object3D();
-  particleGroup.position.x = -3;
+  particleGroup.position.x = 9;
   particleGroup.position.y = 7;
-  particleGroup.position.z = 20;
+  particleGroup.position.z = 35;
   particleAttributes = { startSize: [], startPosition: [], randomness: [] };
 
   var totalParticles = 50;
