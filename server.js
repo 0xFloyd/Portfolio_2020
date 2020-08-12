@@ -11,14 +11,6 @@ app.use(function (req, res, next) {
   }
 });
 
-/*
-could be req.headers.host instead of req.hostname or req.url
-or req.get('hostname') or 'Host'
-
-For anyone using a newer version of Express (4.x) you will need to update the redirect to use baseUrl instead of url. The line 
-should read: return res.redirect(['https://', req.get('Host'), req.baseUrl].join('')); – n-devr Sep 27 '18 at 18:22
-*/
-
 // the __dirname is the current directory from where the script is running
 app.use(express.static(__dirname));
 
