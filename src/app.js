@@ -1000,7 +1000,7 @@ Ammo().then((Ammo) => {
     createTextOnPlane(-14, 0.01, -49, inputText.homeSweetHomeText, 20, 40);
 
     createBox(
-      13,
+      7,
       2,
       -70,
       4,
@@ -1012,7 +1012,7 @@ Ammo().then((Ammo) => {
       true
     );
     createBox(
-      21,
+      15,
       2,
       -70,
       4,
@@ -1024,7 +1024,7 @@ Ammo().then((Ammo) => {
       true
     );
     createBox(
-      37,
+      31,
       2,
       -70,
       4,
@@ -1037,7 +1037,7 @@ Ammo().then((Ammo) => {
     );
 
     createBox(
-      29,
+      23,
       2,
       -70,
       4,
@@ -1049,10 +1049,24 @@ Ammo().then((Ammo) => {
       false
     );
 
-    floatingLabel(12.875, 4.5, -70, "Github");
-    floatingLabel(21.125, 4.5, -70, "LinkedIn");
-    floatingLabel(28.875, 4.5, -70, "Email");
-    floatingLabel(37, 4.5, -70, "Website");
+    createBox(
+      39,
+      2,
+      -70,
+      4,
+      4,
+      1,
+      boxTexture.writing,
+      URL.devTo,
+      0x000000,
+      false
+    );
+
+    floatingLabel(6.875, 4.5, -70, "Github");
+    floatingLabel(15.125, 4.5, -70, "LinkedIn");
+    floatingLabel(22.875, 4.5, -70, "Email");
+    floatingLabel(31, 6.5, -70, "  Static \nWebsite");
+    floatingLabel(39, 6.5, -70, "   How I \nmade this");
 
     allSkillsSection(-50, 0.025, 20, 40, 40, boxTexture.allSkills);
     allSkillsSection(61, 0.025, 13, 30, 60, inputText.activities);
@@ -1069,16 +1083,16 @@ Ammo().then((Ammo) => {
     if (isTouchscreenDevice()) {
       touchText = "Touch boxes with your \nfinger to open links";
       instructionsText =
-        "Use the joystick in the bottom \nleft of the screen to move the \nball. Click on this text to read \nhow this was built!";
+        "Use the joystick in the bottom \nleft of the screen to move the ball.";
     } else {
       touchText = "Click on boxes with \nthe mouse to open links";
       instructionsText =
-        "Use the arrow keys on your \nkeyboard to move the ball. \nClick on this text to read \nabout this website!";
+        "Use the arrow keys on your \nkeyboard to move the ball.";
     }
 
-    simpleText(8.75, 0.01, 5, instructionsText, 1.25, URL.devTo);
+    simpleText(8.75, 0.01, 5, instructionsText, 1.25);
 
-    simpleText(24, 0.01, -60, touchText, 1.5);
+    simpleText(23, 0.01, -60, touchText, 1.5);
     simpleText(-50, 0.01, -5, "SKILLS", 3);
     simpleText(-42, 0.01, -30, "EXPERIENCE", 3);
     simpleText(61, 0.01, -15, "TIMELINE", 3);
