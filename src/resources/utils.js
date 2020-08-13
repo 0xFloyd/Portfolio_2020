@@ -20,6 +20,16 @@ export function rotateCamera(ballPosition) {
     camera.position.y = ballPosition.position.y + 50;
     camera.position.z = ballPosition.position.z + 40;
     camera.lookAt(ballPosition.position);
+  } else if (
+    ballPosition.position.x > -1 &&
+    ballPosition.position.x < 20 &&
+    ballPosition.position.z > 33 &&
+    ballPosition.position.z < 56
+  ) {
+    camera.position.x = ballPosition.position.x;
+    camera.position.y = ballPosition.position.y + 50;
+    camera.position.z = ballPosition.position.z + 40;
+    camera.lookAt(ballPosition.position);
   } else if (ballPosition.position.z > 50) {
     camera.position.x = ballPosition.position.x;
     camera.position.y = ballPosition.position.y + 10;

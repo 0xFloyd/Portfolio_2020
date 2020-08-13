@@ -1056,8 +1056,8 @@ Ammo().then((Ammo) => {
 
     allSkillsSection(-50, 0.025, 20, 40, 40, boxTexture.allSkills);
     allSkillsSection(61, 0.025, 13, 30, 60, inputText.activities);
-    //allSkillsSection(9, 0.025, 54, 7, 3.5, boxTexture.skrillex);
-    //allSkillsSection(10, 0.01, 45, 15, 15, boxTexture.edmText);
+    allSkillsSection(9, 0.025, 54, 7, 3.5, boxTexture.skrillex);
+    allSkillsSection(10, 0.01, 45, 15, 15, boxTexture.edmText);
 
     //lensflare
     createLensFlare(50, -50, -800, 200, 200, boxTexture.lensFlareMain);
