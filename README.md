@@ -4,6 +4,8 @@ This was my quarantine project! I decided to revamp my portfolio into an interac
 
 Try it out! [https://www.ryan-floyd.com/](https://www.ryan-floyd.com/)
 
+I wrote an article explaining the site [here](https://dev.to/mrryanfloyd/create-an-interactive-3d-portfolio-website-that-stands-out-to-employers-47gc)
+
 ![alt text](/ryan_floyd_portfolio_gif.gif)
 
 ## Motivation
