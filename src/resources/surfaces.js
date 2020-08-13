@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { scene, manager } from "./world";
 
-export function simpleText(x, y, z, inputText, fontSize, URLLink) {
+export function simpleText(x, y, z, inputText, fontSize) {
   var text_loader = new THREE.FontLoader();
 
   text_loader.load("../src/jsm/Roboto_Regular.json", function (font) {
@@ -35,7 +35,6 @@ export function simpleText(x, y, z, inputText, fontSize, URLLink) {
     text.position.y = y;
     text.position.x = x;
     text.rotation.x = -Math.PI * 0.5;
-    text.userData = { URL: URLLink };
 
     scene.add(text);
   });
