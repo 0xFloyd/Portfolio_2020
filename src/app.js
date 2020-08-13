@@ -948,7 +948,7 @@ Ammo().then((Ammo) => {
 
   if (isTouchscreenDevice()) {
     document.getElementById("appDirections").innerHTML =
-      "Use the joystick in the bottom left of the screen to move the ball.";
+      "Use the joystick in the bottom left of the screen to move the ball. Please use this website with your device in portrait orientation.";
     createJoystick(document.getElementById("joystick-wrapper"));
     document.getElementById("joystick-wrapper").style.visibility = "visible";
     document.getElementById("joystick").style.visibility = "visible";
@@ -1069,14 +1069,14 @@ Ammo().then((Ammo) => {
     if (isTouchscreenDevice()) {
       touchText = "Touch boxes with your \nfinger to open links";
       instructionsText =
-        "Use the joystick in the bottom left \nof the screen to move the ball";
+        "Use the joystick in the bottom \nleft of the screen to move the \nball. Click on this text to read \nhow this was built!";
     } else {
       touchText = "Click on boxes with \nthe mouse to open links";
       instructionsText =
-        "Use the arrow keys on your \nkeyboard to move the ball";
+        "Use the arrow keys on your \nkeyboard to move the ball. \nClick on this text to read \nabout this website!";
     }
 
-    simpleText(8.75, 0.01, 5, instructionsText, 1);
+    simpleText(8.75, 0.01, 5, instructionsText, 1.25, URL.devTo);
 
     simpleText(24, 0.01, -60, touchText, 1.5);
     simpleText(-50, 0.01, -5, "SKILLS", 3);
