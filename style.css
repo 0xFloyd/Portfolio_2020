@@ -3,14 +3,17 @@ body {
   color: #fff;
   font-family: "Roboto", sans-serif;
   font-size: 16px;
-
   overscroll-behavior: none;
   position: fixed;
+  width: 100vw;
+  height: 100vh;
 }
 
 canvas {
   display: block;
   overscroll-behavior: none;
+  width: 100vw;
+  height: 100vh;
 }
 
 #info {
@@ -142,12 +145,12 @@ select {
 
 .bottom-webgl-text-div {
   position: absolute;
-  bottom: 2px;
+  bottom: 15vh;
   text-align: center;
 }
 
 .bottom-webgl-text {
-  padding: 0px 50px 0px 50px;
+  padding: 0px 0px 0px 0px;
 }
 
 .joystick-directions-text {
