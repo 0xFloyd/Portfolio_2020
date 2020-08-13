@@ -8,7 +8,7 @@ Try it out! [https://www.ryan-floyd.com/](https://www.ryan-floyd.com/)
 
 ## Motivation
 
-While exploring [Google Experiments](https://experiments.withgoogle.com/) I stumbled down a rabbit hole and discovered an amazing world of web rendering. There are so many incredible web projects out there, and I wanted to learn this technology. I was inspired by many awesome projects, but specifically examples from the [official examples/documentation](https://threejs.org/), [Lee Stemkoski](https://home.adelphi.edu/~stemkoski/) and [Three.js Fundamentals](https://threejsfundamentals.org/).
+While exploring [Google Experiments](https://experiments.withgoogle.com/) I discovered an amazing world of web rendering. There are so many incredible web projects out there, and I wanted to learn this technology. I was inspired by many awesome projects, but specifically examples from the [official examples/documentation](https://threejs.org/), [Lee Stemkoski](https://home.adelphi.edu/~stemkoski/) and [Three.js Fundamentals](https://threejsfundamentals.org/).
 
 ## Features
 

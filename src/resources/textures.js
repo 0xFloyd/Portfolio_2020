@@ -35,10 +35,12 @@ URL.terpsolutions = "https://terpsolutions.com/";
 URL.ryanfloyd = "https://ryanfloyd.io";
 URL.bagholderBets = "https://www.bagholderbets.com/welcome";
 URL.homeSweetHomeURL = "https://home-sweet-home-ip.herokuapp.com/";
-URL.gitHub = "https://github.com/MrRyanFloyd";
+URL.gitHub = "https://github.com/MrRyanFloyd/Portfolio_2020";
 URL.LinkedIn = "https://www.linkedin.com/in/ryan-floyd/";
 URL.email = "https://mailto:arfloyd7@gmail.com";
 URL.githubBagholder = "https://github.com/MrRyanFloyd/bagholder-bets";
 URL.githubHomeSweetHome = "https://github.com/MrRyanFloyd/home-sweet-127.0.0.1";
+URL.devTo =
+  "https://dev.to/mrryanfloyd/quarantine-project-3d-interactive-portfolio-website-to-stand-out-to-employers-2cak-temp-slug-8583546?preview=e1aac6d3c69777f57241536cc86ff33a374fae224d3fa9e2fffca0981f3aec8ed20516f8d4d3105e628f4fdea71d0365aa5c7d0832a10d2e0eee34c2";
 
 export { billboardTextures, boxTexture, inputText, URL };
