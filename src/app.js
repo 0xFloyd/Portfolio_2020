@@ -920,7 +920,7 @@ Ammo().then((Ammo) => {
 
   //document loading
   manager.onStart = function (item, loaded, total) {
-    console.log("Loading started");
+    //console.log("Loading started");
   };
 
   manager.onLoad = function () {
@@ -937,18 +937,18 @@ Ammo().then((Ammo) => {
         }
       }
     }, 1000);
-    console.log("Loading complete");
+    //console.log("Loading complete");
   };
 
   manager.onError = function (url) {
-    console.log("Error loading");
+    //console.log("Error loading");
   };
 
   startButton.addEventListener("click", startButtonEventListener);
 
   if (isTouchscreenDevice()) {
     document.getElementById("appDirections").innerHTML =
-      "Use the joystick in the bottom left of the screen to move the ball. Please use this website with your device in portrait orientation.";
+      "Use the joystick in the bottom left to move the ball. Please use your device in portrait orientation!";
     createJoystick(document.getElementById("joystick-wrapper"));
     document.getElementById("joystick-wrapper").style.visibility = "visible";
     document.getElementById("joystick").style.visibility = "visible";
@@ -1070,8 +1070,17 @@ Ammo().then((Ammo) => {
 
     allSkillsSection(-50, 0.025, 20, 40, 40, boxTexture.allSkills);
     allSkillsSection(61, 0.025, 13, 30, 60, inputText.activities);
-    allSkillsSection(9, 0.025, 54, 7, 3.5, boxTexture.skrillex);
-    allSkillsSection(10, 0.01, 45, 15, 15, boxTexture.edmText);
+    allSkillsSection(8.5, 0.025, 54, 7, 3.5, boxTexture.skrillex);
+    allSkillsSection(9, 0.01, 45, 15, 15, boxTexture.edmText);
+    allSkillsSection(
+      9,
+      0.01,
+      20,
+      21,
+      7,
+      inputText.staticPortfolio,
+      URL.ryanfloyd
+    );
 
     //lensflare
     createLensFlare(50, -50, -800, 200, 200, boxTexture.lensFlareMain);
@@ -1083,14 +1092,14 @@ Ammo().then((Ammo) => {
     if (isTouchscreenDevice()) {
       touchText = "Touch boxes with your \nfinger to open links";
       instructionsText =
-        "Use the joystick in the bottom \nleft of the screen to move the ball.";
+        "   Use the joystick in the bottom \nleft of the screen to move the ball.";
     } else {
       touchText = "Click on boxes with \nthe mouse to open links";
       instructionsText =
-        "Use the arrow keys on your \nkeyboard to move the ball.";
+        "Use the arrow keys on your \n keyboard to move the ball.";
     }
 
-    simpleText(8.75, 0.01, 5, instructionsText, 1.25);
+    simpleText(9, 0.01, 5, instructionsText, 1.25);
 
     simpleText(23, 0.01, -60, touchText, 1.5);
     simpleText(-50, 0.01, -5, "SKILLS", 3);

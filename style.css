@@ -155,8 +155,18 @@ select {
   padding: 0px 0px 0px 0px;
 }
 
-.joystick-directions-text {
-  padding: 0px 30px 0px 30px;
+.start-page-text {
+  padding-right: 30px;
+  padding-left: 30px;
+  padding-bottom: 20px;
+  font-size: calc(24px + (20 - 18) * (100vw - 400px) / (800 - 400));
+}
+
+.ryan-text {
+  padding-right: 30px;
+  padding-left: 30px;
+  padding-bottom: 20px;
+  font-size: calc(32px + (24 - 18) * (100vw - 400px) / (800 - 400));
 }
 
 .start-page-content-div {
@@ -167,8 +177,7 @@ select {
 
 #start-button {
   margin: 0 auto;
-  margin-top: 20px;
-  margin-bottom: 100px;
+  margin-bottom: 20vh;
   font-size: 25px;
   background-color: grey;
   border: none;
@@ -178,19 +187,26 @@ select {
   -webkit-appearance: none;
   -webkit-border-radius: none;
   outline: none;
+  transition: 0.25s;
 }
 
 #start-button:hover {
   cursor: pointer;
+  transform: scale(1.15);
 }
 
+/*
 .interactive-site-text {
   margin: 50px 50px 50px 50px;
 }
 
+.joystick-directions-text {
+  padding: 0px 30px 0px 30px;
+}
+
 .junior-engineer {
   margin-bottom: 50px;
-}
+}*/
 
 .yellow-text {
   color: #fffc00;
