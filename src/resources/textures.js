@@ -25,6 +25,7 @@ inputText.terpSolutionsText = "../src/jsm/terp-solutions-text.png";
 inputText.activities = "../src/jsm/activities_text.png";
 inputText.bagholderBetsText = "../src/jsm/bagholderbets-text.png";
 inputText.homeSweetHomeText = "../src/jsm/home-sweet-home-text.png";
+inputText.staticPortfolio = "../src/jsm/static-portfolio.png";
 
 //SVG
 let SVG = {};

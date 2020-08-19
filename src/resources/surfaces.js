@@ -77,7 +77,15 @@ export function floatingLabel(x, y, z, inputMessage) {
   });
 }
 
-export function allSkillsSection(x, y, z, xScale, zScale, boxTexture) {
+export function allSkillsSection(
+  x,
+  y,
+  z,
+  xScale,
+  zScale,
+  boxTexture,
+  URLLink = null
+) {
   const boxScale = { x: xScale, y: 0.1, z: zScale };
   let quat = { x: 0, y: 0, z: 0, w: 1 };
   let mass = 0; //mass of zero = infinite mass
@@ -101,6 +109,7 @@ export function allSkillsSection(x, y, z, xScale, zScale, boxTexture) {
   linkBox.renderOrder = 1;
   linkBox.rotation.x = -Math.PI * 0.5;
   linkBox.receiveShadow = true;
+  linkBox.userData = { URL: URLLink };
   scene.add(linkBox);
 }
 

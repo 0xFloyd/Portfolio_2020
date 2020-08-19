@@ -72,7 +72,6 @@ export function createWorld() {
 
   stats = new Stats();
   document.body.appendChild(stats.dom);
-  stats.dom.style.opacity = 0.5;
 
   renderer.gammaInput = true;
   renderer.gammaOutput = true;
@@ -81,12 +80,13 @@ export function createWorld() {
 }
 
 export function glowingParticles() {
-  var particleTexture = THREE.ImageUtils.loadTexture("../src/jsm/spark.png");
+  var particleTextureLoader = new THREE.TextureLoader(manager);
+  var particleTexture = particleTextureLoader.load("../src/jsm/spark.png");
 
   particleGroup = new THREE.Object3D();
-  particleGroup.position.x = 9;
+  particleGroup.position.x = -1;
   particleGroup.position.y = 7;
-  particleGroup.position.z = 35;
+  particleGroup.position.z = 45;
   particleAttributes = { startSize: [], startPosition: [], randomness: [] };
 
   var totalParticles = 50;
