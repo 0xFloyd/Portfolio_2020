@@ -1072,15 +1072,7 @@ Ammo().then((Ammo) => {
     allSkillsSection(61, 0.025, 13, 30, 60, inputText.activities);
     allSkillsSection(8.5, 0.025, 54, 7, 3.5, boxTexture.skrillex);
     allSkillsSection(9, 0.01, 45, 15, 15, boxTexture.edmText);
-    allSkillsSection(
-      9,
-      0.01,
-      20,
-      21,
-      7,
-      inputText.staticPortfolio,
-      URL.ryanfloyd
-    );
+    allSkillsSection(9, 0.01, 20, 21, 10.5, inputText.staticPortfolio);
 
     //lensflare
     createLensFlare(50, -50, -800, 200, 200, boxTexture.lensFlareMain);
