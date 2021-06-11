@@ -1,12 +1,14 @@
-import * as THREE from "three";
-import { WEBGL } from "./WebGL";
-import * as Ammo from "./builds/ammo";
+import * as THREE from 'three';
+import { WEBGL } from './WebGL';
+import * as Ammo from './builds/ammo';
 import {
   billboardTextures,
   boxTexture,
   inputText,
   URL,
-} from "./resources/textures";
+  stoneTexture,
+  woodTexture,
+} from './resources/textures';
 
 import {
   setupEventHandlers,
@@ -14,7 +16,7 @@ import {
   isTouchscreenDevice,
   touchEvent,
   createJoystick,
-} from "./resources/eventHandlers";
+} from './resources/eventHandlers';
 
 import {
   preloadDivs,
@@ -24,7 +26,7 @@ import {
   startButton,
   noWebGL,
   fadeOutDivs,
-} from "./resources/preload";
+} from './resources/preload';
 
 import {
   clock,
@@ -42,21 +44,28 @@ import {
   glowingParticles,
   addParticles,
   moveParticles,
-} from "./resources/world";
+  generateGalaxy,
+  galaxyMaterial,
+  galaxyClock,
+  galaxyPoints,
+} from './resources/world';
 
 import {
   simpleText,
   floatingLabel,
   allSkillsSection,
   createTextOnPlane,
-} from "./resources/surfaces";
+} from './resources/surfaces';
 
 import {
   pickPosition,
   launchClickPosition,
   getCanvasRelativePosition,
   rotateCamera,
-} from "./resources/utils";
+  launchHover,
+} from './resources/utils';
+
+export let cursorHoverObjects = [];
 
 // start Ammo Engine
 Ammo().then((Ammo) => {
@@ -104,7 +113,7 @@ Ammo().then((Ammo) => {
 
     //create grid overlay on plane
     var grid = new THREE.GridHelper(175, 20, 0xffffff, 0xffffff);
-    grid.material.opacity = 0.15;
+    grid.material.opacity = 0.5;
     grid.material.transparent = true;
     grid.position.y = 0.005;
     scene.add(grid);
@@ -115,7 +124,7 @@ Ammo().then((Ammo) => {
       new THREE.MeshPhongMaterial({
         color: 0xffffff,
         transparent: true,
-        opacity: 0.5,
+        opacity: 0.25,
       })
     );
     blockPlane.position.set(pos.x, pos.y, pos.z);
@@ -164,7 +173,7 @@ Ammo().then((Ammo) => {
     let mass = 3;
 
     var marble_loader = new THREE.TextureLoader(manager);
-    var marbleTexture = marble_loader.load("./src/jsm/earth.jpg");
+    var marbleTexture = marble_loader.load('./src/jsm/earth.jpg');
     marbleTexture.wrapS = marbleTexture.wrapT = THREE.RepeatWrapping;
     marbleTexture.repeat.set(1, 1);
     marbleTexture.anisotropy = 1;
@@ -236,7 +245,7 @@ Ammo().then((Ammo) => {
 
     //import beach ball texture
     var texture_loader = new THREE.TextureLoader(manager);
-    var beachTexture = texture_loader.load("./src/jsm/BeachBallColor.jpg");
+    var beachTexture = texture_loader.load('./src/jsm/BeachBallColor.jpg');
     beachTexture.wrapS = beachTexture.wrapT = THREE.RepeatWrapping;
     beachTexture.repeat.set(1, 1);
     beachTexture.anisotropy = 1;
@@ -339,6 +348,8 @@ Ammo().then((Ammo) => {
     objectsWithLinks.push(linkBox.uuid);
 
     addRigidPhysics(linkBox, boxScale);
+
+    cursorHoverObjects.push(linkBox);
   }
 
   //create Ammo.js body to add solid mass to "Ryan Floyd Software Engineer"
@@ -366,7 +377,7 @@ Ammo().then((Ammo) => {
   function loadRyanText() {
     var text_loader = new THREE.FontLoader();
 
-    text_loader.load("./src/jsm/Roboto_Regular.json", function (font) {
+    text_loader.load('./src/jsm/Roboto_Regular.json', function (font) {
       var xMid, text;
 
       var color = 0xfffc00;
@@ -376,7 +387,7 @@ Ammo().then((Ammo) => {
         new THREE.MeshPhongMaterial({ color: color }), // side
       ];
 
-      var geometry = new THREE.TextGeometry("RYAN FLOYD", {
+      var geometry = new THREE.TextGeometry('RYAN FLOYD', {
         font: font,
         size: 3,
         height: 0.5,
@@ -410,7 +421,7 @@ Ammo().then((Ammo) => {
   function loadEngineerText() {
     var text_loader = new THREE.FontLoader();
 
-    text_loader.load("./src/jsm/Roboto_Regular.json", function (font) {
+    text_loader.load('./src/jsm/Roboto_Regular.json', function (font) {
       var xMid, text;
 
       var color = 0x00ff08;
@@ -420,7 +431,7 @@ Ammo().then((Ammo) => {
         new THREE.MeshPhongMaterial({ color: color }), // side
       ];
 
-      var geometry = new THREE.TextGeometry("SOFTWARE ENGINEER", {
+      var geometry = new THREE.TextGeometry('SOFTWARE ENGINEER', {
         font: font,
         size: 1.5,
         height: 0.5,
@@ -460,6 +471,10 @@ Ammo().then((Ammo) => {
   ) {
     const billboardPoleScale = { x: 1, y: 5, z: 1 };
     const billboardSignScale = { x: 30, y: 15, z: 1 };
+
+    /* default texture loading */
+    const loader = new THREE.TextureLoader(manager);
+
     const billboardPole = new THREE.Mesh(
       new THREE.BoxBufferGeometry(
         billboardPoleScale.x,
@@ -467,12 +482,10 @@ Ammo().then((Ammo) => {
         billboardPoleScale.z
       ),
       new THREE.MeshStandardMaterial({
-        color: 0x878787,
+        map: loader.load(woodTexture),
       })
     );
 
-    /* default texture loading */
-    const loader = new THREE.TextureLoader(manager);
     const texture = loader.load(textureImage);
     texture.magFilter = THREE.LinearFilter;
     texture.minFilter = THREE.LinearFilter;
@@ -525,6 +538,8 @@ Ammo().then((Ammo) => {
     scene.add(billboardPole);
     scene.add(billboardSign);
     addRigidPhysics(billboardPole, billboardPoleScale);
+
+    cursorHoverObjects.push(billboardSign);
   }
 
   //create vertical billboard
@@ -538,6 +553,9 @@ Ammo().then((Ammo) => {
   ) {
     const billboardPoleScale = { x: 1, y: 2.5, z: 1 };
     const billboardSignScale = { x: 15, y: 20, z: 1 };
+
+    /* default texture loading */
+    const loader = new THREE.TextureLoader(manager);
     const billboardPole = new THREE.Mesh(
       new THREE.BoxBufferGeometry(
         billboardPoleScale.x,
@@ -545,12 +563,9 @@ Ammo().then((Ammo) => {
         billboardPoleScale.z
       ),
       new THREE.MeshStandardMaterial({
-        color: 0x878787,
+        map: loader.load(woodTexture),
       })
     );
-
-    /* default texture loading */
-    const loader = new THREE.TextureLoader(manager);
     const texture = loader.load(textureImage);
     texture.magFilter = THREE.LinearFilter;
     texture.minFilter = THREE.LinearFilter;
@@ -604,6 +619,8 @@ Ammo().then((Ammo) => {
     scene.add(billboardSign);
     addRigidPhysics(billboardPole, billboardPoleScale);
     addRigidPhysics(billboardSign, billboardSignScale);
+
+    cursorHoverObjects.push(billboardSign);
   }
 
   //create X axis wall around entire plane
@@ -656,6 +673,7 @@ Ammo().then((Ammo) => {
 
   //create brick wall
   function wallOfBricks() {
+    const loader = new THREE.TextureLoader(manager);
     var pos = new THREE.Vector3();
     var quat = new THREE.Quaternion();
     var brickMass = 0.1;
@@ -693,8 +711,8 @@ Ammo().then((Ammo) => {
           brickMassCurrent,
           pos,
           quat,
-          new THREE.MeshLambertMaterial({
-            color: 0xffffff,
+          new THREE.MeshStandardMaterial({
+            map: loader.load(stoneTexture),
           })
         );
         brick.castShadow = true;
@@ -790,6 +808,7 @@ Ammo().then((Ammo) => {
     mesh.position.z = z;
     scene.add(mesh);
   }
+
   //generic function to add physics to Mesh with scale
   function addRigidPhysics(item, itemScale) {
     let pos = { x: item.position.x, y: item.position.y, z: item.position.z };
@@ -851,6 +870,8 @@ Ammo().then((Ammo) => {
     // FPS stats module
     stats.begin();
 
+    const elapsedTime = galaxyClock.getElapsedTime() + 150;
+
     let deltaTime = clock.getDelta();
     if (!isTouchscreenDevice())
       if (document.hasFocus()) {
@@ -872,6 +893,9 @@ Ammo().then((Ammo) => {
     renderer.render(scene, camera);
     stats.end();
 
+    galaxyMaterial.uniforms.uTime.value = elapsedTime * 5;
+    //galaxyPoints.position.set(-50, -50, 0);
+
     // tells browser theres animation, update before the next repaint
     requestAnimationFrame(renderFrame);
   }
@@ -879,15 +903,19 @@ Ammo().then((Ammo) => {
   //loading page section
   function startButtonEventListener() {
     for (let i = 0; i < fadeOutDivs.length; i++) {
-      fadeOutDivs[i].classList.add("fade-out");
+      fadeOutDivs[i].classList.add('fade-out');
     }
     setTimeout(() => {
-      document.getElementById("preload-overlay").style.display = "none";
+      document.getElementById('preload-overlay').style.display = 'none';
     }, 750);
 
-    startButton.removeEventListener("click", startButtonEventListener);
-    document.addEventListener("click", launchClickPosition);
+    startButton.removeEventListener('click', startButtonEventListener);
+    document.addEventListener('click', launchClickPosition);
     createBeachBall();
+
+    setTimeout(() => {
+      document.addEventListener('mousemove', launchHover);
+    }, 1000);
   }
 
   function updatePhysics(deltaTime) {
@@ -925,15 +953,15 @@ Ammo().then((Ammo) => {
 
   manager.onLoad = function () {
     var readyStateCheckInterval = setInterval(function () {
-      if (document.readyState === "complete") {
+      if (document.readyState === 'complete') {
         clearInterval(readyStateCheckInterval);
         for (let i = 0; i < preloadDivs.length; i++) {
-          preloadDivs[i].style.visibility = "hidden"; // or
-          preloadDivs[i].style.display = "none";
+          preloadDivs[i].style.visibility = 'hidden'; // or
+          preloadDivs[i].style.display = 'none';
         }
         for (let i = 0; i < postloadDivs.length; i++) {
-          postloadDivs[i].style.visibility = "visible"; // or
-          postloadDivs[i].style.display = "block";
+          postloadDivs[i].style.visibility = 'visible'; // or
+          postloadDivs[i].style.display = 'block';
         }
       }
     }, 1000);
@@ -944,14 +972,14 @@ Ammo().then((Ammo) => {
     //console.log("Error loading");
   };
 
-  startButton.addEventListener("click", startButtonEventListener);
+  startButton.addEventListener('click', startButtonEventListener);
 
   if (isTouchscreenDevice()) {
-    document.getElementById("appDirections").innerHTML =
-      "Use the joystick in the bottom left to move the ball. Please use your device in portrait orientation!";
-    createJoystick(document.getElementById("joystick-wrapper"));
-    document.getElementById("joystick-wrapper").style.visibility = "visible";
-    document.getElementById("joystick").style.visibility = "visible";
+    document.getElementById('appDirections').innerHTML =
+      'Use the joystick in the bottom left to move the ball. Please use your device in portrait orientation!';
+    createJoystick(document.getElementById('joystick-wrapper'));
+    document.getElementById('joystick-wrapper').style.visibility = 'visible';
+    document.getElementById('joystick').style.visibility = 'visible';
   }
 
   //initialize world and begin
@@ -1000,7 +1028,7 @@ Ammo().then((Ammo) => {
     createTextOnPlane(-14, 0.01, -49, inputText.homeSweetHomeText, 20, 40);
 
     createBox(
-      7,
+      12,
       2,
       -70,
       4,
@@ -1011,8 +1039,22 @@ Ammo().then((Ammo) => {
       0x000000,
       true
     );
+
     createBox(
-      15,
+      4,
+      2,
+      -70,
+      4,
+      4,
+      1,
+      boxTexture.twitter,
+      URL.twitter,
+      0xffffff,
+      true
+    );
+
+    createBox(
+      19,
       2,
       -70,
       4,
@@ -1024,7 +1066,7 @@ Ammo().then((Ammo) => {
       true
     );
     createBox(
-      31,
+      35,
       2,
       -70,
       4,
@@ -1037,20 +1079,20 @@ Ammo().then((Ammo) => {
     );
 
     createBox(
-      23,
+      27,
       2,
       -70,
       4,
       4,
       1,
       boxTexture.mail,
-      "mailto:arfloyd7@gmail.com",
+      'mailto:arfloyd7@gmail.com',
       0x000000,
       false
     );
 
     createBox(
-      39,
+      44,
       2,
       -70,
       4,
@@ -1062,11 +1104,12 @@ Ammo().then((Ammo) => {
       false
     );
 
-    floatingLabel(6.875, 4.5, -70, "Github");
-    floatingLabel(15.125, 4.5, -70, "LinkedIn");
-    floatingLabel(22.875, 4.5, -70, "Email");
-    floatingLabel(31, 6.5, -70, "  Static \nWebsite");
-    floatingLabel(39, 6.5, -70, "   How I \nmade this");
+    floatingLabel(3.875, 4.5, -70, 'Twitter');
+    floatingLabel(11.875, 4.5, -70, 'Github');
+    floatingLabel(19.125, 4.5, -70, 'LinkedIn');
+    floatingLabel(26.875, 4.5, -70, 'Email');
+    floatingLabel(35, 6.5, -70, '  Static \nWebsite');
+    floatingLabel(44, 6.5, -70, '   How I \nmade this');
 
     allSkillsSection(-50, 0.025, 20, 40, 40, boxTexture.allSkills);
     allSkillsSection(61, 0.025, 13, 30, 60, inputText.activities);
@@ -1082,21 +1125,21 @@ Ammo().then((Ammo) => {
 
     let touchText, instructionsText;
     if (isTouchscreenDevice()) {
-      touchText = "Touch boxes with your \nfinger to open links";
+      touchText = 'Touch boxes with your \nfinger to open links';
       instructionsText =
-        "   Use the joystick in the bottom \nleft of the screen to move the ball.";
+        '   Use the joystick in the bottom \nleft of the screen to move the ball.';
     } else {
-      touchText = "Click on boxes with \nthe mouse to open links";
+      touchText = 'Click on boxes with \nthe mouse to open links';
       instructionsText =
-        "Use the arrow keys on your \n keyboard to move the ball.";
+        'Use the arrow keys on your \n keyboard to move the ball.';
     }
 
     simpleText(9, 0.01, 5, instructionsText, 1.25);
 
     simpleText(23, 0.01, -60, touchText, 1.5);
-    simpleText(-50, 0.01, -5, "SKILLS", 3);
-    simpleText(-42, 0.01, -30, "EXPERIENCE", 3);
-    simpleText(61, 0.01, -15, "TIMELINE", 3);
+    simpleText(-50, 0.01, -5, 'SKILLS', 3);
+    simpleText(-42, 0.01, -30, 'EXPERIENCE', 3);
+    simpleText(61, 0.01, -15, 'TIMELINE', 3);
 
     wallOfBricks();
     createTriangle(63, -55);
@@ -1106,8 +1149,10 @@ Ammo().then((Ammo) => {
 
     addParticles();
     glowingParticles();
+    generateGalaxy();
 
     setupEventHandlers();
+    // window.addEventListener('mousemove', onDocumentMouseMove, false);
     renderFrame();
   }
 

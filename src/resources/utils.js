@@ -1,6 +1,7 @@
 //start link events
-import * as THREE from "three";
-import { camera, renderer, scene } from "./world";
+import * as THREE from 'three';
+import { camera, renderer, scene } from './world';
+import { cursorHoverObjects } from '../app';
 
 export const pickPosition = { x: 0, y: 0 };
 
@@ -97,6 +98,23 @@ export function launchClickPosition(event) {
     else {
       return;
     }
+  }
+}
+
+export function launchHover(event) {
+  event.preventDefault();
+  var mouse = new THREE.Vector2();
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  var raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+  var intersects = raycaster.intersectObjects(cursorHoverObjects);
+
+  if (intersects.length > 0) {
+    document.getElementById('document-body').style.cursor = 'pointer';
+  } else {
+    document.getElementById('document-body').style.cursor = 'default';
   }
 }
 
