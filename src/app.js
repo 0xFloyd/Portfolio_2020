@@ -1065,18 +1065,18 @@ Ammo().then((Ammo) => {
       0x0077b5,
       true
     );
-    createBox(
-      35,
-      2,
-      -70,
-      4,
-      4,
-      1,
-      boxTexture.globe,
-      URL.ryanfloyd,
-      0xffffff,
-      false
-    );
+    // createBox(
+    //   35,
+    //   2,
+    //   -70,
+    //   4,
+    //   4,
+    //   1,
+    //   boxTexture.globe,
+    //   URL.ryanfloyd,
+    //   0xffffff,
+    //   false
+    // );
 
     createBox(
       27,
@@ -1091,8 +1091,21 @@ Ammo().then((Ammo) => {
       false
     );
 
+    // createBox(
+    //   44,
+    //   2,
+    //   -70,
+    //   4,
+    //   4,
+    //   1,
+    //   boxTexture.writing,
+    //   URL.devTo,
+    //   0x000000,
+    //   false
+    // );
+    
     createBox(
-      44,
+      35,
       2,
       -70,
       4,
@@ -1108,8 +1121,9 @@ Ammo().then((Ammo) => {
     floatingLabel(11.875, 4.5, -70, 'Github');
     floatingLabel(19.125, 4.5, -70, 'LinkedIn');
     floatingLabel(26.875, 4.5, -70, 'Email');
-    floatingLabel(35, 6.5, -70, '  Static \nWebsite');
-    floatingLabel(44, 6.5, -70, '   How I \nmade this');
+    // floatingLabel(35, 6.5, -70, '  Static \nWebsite');
+    floatingLabel(35, 6.5, -70, '   How I \nmade this');
+    // floatingLabel(44, 6.5, -70, '   How I \nmade this');
 
     allSkillsSection(-50, 0.025, 20, 40, 40, boxTexture.allSkills);
     allSkillsSection(61, 0.025, 13, 30, 60, inputText.activities);
