@@ -1040,18 +1040,18 @@ Ammo().then((Ammo) => {
       true
     );
 
-    createBox(
-      4,
-      2,
-      -70,
-      4,
-      4,
-      1,
-      boxTexture.twitter,
-      URL.twitter,
-      0xffffff,
-      true
-    );
+    // createBox(
+    //   4,
+    //   2,
+    //   -70,
+    //   4,
+    //   4,
+    //   1,
+    //   boxTexture.twitter,
+    //   URL.twitter,
+    //   0xffffff,
+    //   true
+    // );
 
     createBox(
       19,
@@ -1103,7 +1103,7 @@ Ammo().then((Ammo) => {
     //   0x000000,
     //   false
     // );
-    
+
     createBox(
       35,
       2,
@@ -1117,7 +1117,7 @@ Ammo().then((Ammo) => {
       false
     );
 
-    floatingLabel(3.875, 4.5, -70, 'Twitter');
+    // floatingLabel(3.875, 4.5, -70, 'Twitter');
     floatingLabel(11.875, 4.5, -70, 'Github');
     floatingLabel(19.125, 4.5, -70, 'LinkedIn');
     floatingLabel(26.875, 4.5, -70, 'Email');
