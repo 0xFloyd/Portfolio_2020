@@ -1,10 +1,8 @@
 //billboardTextures
 let billboardTextures = {};
 billboardTextures.terpSolutionsTexture = '../src/jsm/terpSolutions.png';
-billboardTextures.bagHolderBetsTexture =
-  '../src/jsm/Bagholdersbetsbillboard.png';
-billboardTextures.homeSweetHomeTexture =
-  '../src/jsm/home-sweet-home-portrait.png';
+billboardTextures.bagHolderBetsTexture = '../src/jsm/Bagholdersbetsbillboard.png';
+billboardTextures.homeSweetHomeTexture = '../src/jsm/home-sweet-home-portrait.png';
 
 //box textures
 let boxTexture = {};
@@ -38,25 +36,16 @@ SVG.reactLogo = '../src/jsm/react-svg.svg';
 
 //URLs
 let URL = {};
-URL.terpsolutions =
-  'https://web.archive.org/web/20200302001846/https://terpsolutions.com/';
+URL.terpsolutions = 'https://web.archive.org/web/20200302001846/https://terpsolutions.com/';
 URL.ryanfloyd = 'https://ryanfloyd.io';
 URL.bagholderBets = 'https://bagholder-bets.herokuapp.com';
-URL.homeSweetHomeURL = 'https://github.com/MrRyanFloyd/home-sweet-127.0.0.1';
-URL.gitHub = 'https://github.com/MrRyanFloyd/Portfolio_2020';
+URL.homeSweetHomeURL = 'https://github.com/0xFloyd/home-sweet-127.0.0.1';
+URL.gitHub = 'https://github.com/0xFloyd/Portfolio_2020';
 URL.twitter = 'https://twitter.com/0xFloyd';
 URL.LinkedIn = 'https://www.linkedin.com/in/ryan-floyd/';
-URL.email = 'https://mailto:arfloyd7@gmail.com';
-URL.githubBagholder = 'https://github.com/MrRyanFloyd/bagholder-bets';
-URL.githubHomeSweetHome = 'https://github.com/MrRyanFloyd/home-sweet-127.0.0.1';
-URL.devTo =
-  'https://dev.to/mrryanfloyd/create-an-interactive-3d-portfolio-website-that-stands-out-to-employers-47gc';
+URL.email = 'https://mailto:xfloyd.eth@gmail.com';
+URL.githubBagholder = 'https://github.com/0xFloyd/bagholder-bets';
+URL.githubHomeSweetHome = 'https://github.com/0xFloyd/home-sweet-127.0.0.1';
+URL.devTo = 'https://dev.to/0xfloyd/create-an-interactive-3d-portfolio-website-that-stands-out-to-employers-47gc';
 
-export {
-  billboardTextures,
-  boxTexture,
-  inputText,
-  URL,
-  stoneTexture,
-  woodTexture,
-};
+export { billboardTextures, boxTexture, inputText, URL, stoneTexture, woodTexture };

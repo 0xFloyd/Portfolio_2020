@@ -1,12 +1,12 @@
-# Ryan Floyd's Portfolio
+# Portfolio 2020
 
-This was my quarantine project! I decided to revamp my portfolio into an interactive 3D world built using [Three.js](https://github.com/mrdoob/three.js) for graphics ( WebGL under the hood) and [Ammo.js](https://github.com/kripken/ammo.js), a port of the [Bullet physics engine](https://pybullet.org/wordpress/) to JavaScript. I had an absolute blast making this!
+As a quarantine project, I wanted to learn 3D web development, and decided to revamp my portfolio into an interactive 3D world built using [Three.js](https://github.com/mrdoob/three.js) and [Ammo.js](https://github.com/kripken/ammo.js), a port of the [Bullet physics engine](https://pybullet.org/wordpress/) to JavaScript. I had an absolute blast making this!
 
 Try it out! [https://www.ryan-floyd.com/](https://www.ryan-floyd.com/)
 
-I wrote an article explaining the site [here](https://dev.to/mrryanfloyd/create-an-interactive-3d-portfolio-website-that-stands-out-to-employers-47gc)
+I wrote an article explaining the site [here](https://dev.to/0xfloyd/create-an-interactive-3d-portfolio-website-that-stands-out-to-employers-47gc)
 
-![alt text](/ryan_floyd_portfolio_gif.gif)
+![alt text](/portfolio_2020.gif)
 
 ## Motivation
 
