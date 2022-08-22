@@ -1,5 +1,5 @@
 {
-  "name": "ryan_floyd_threejs",
+  "name": "portfolio_2020",
   "version": "1.0.0",
   "description": "webpack starter",
   "main": "app.js",
@@ -10,7 +10,7 @@
     "start": "node server.js",
     "heroku-postbuild": "webpack -p"
   },
-  "author": "Ryan Floyd",
+  "author": "0xFloyd",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.4.3",

@@ -1,7 +1,7 @@
 body {
   margin: 0;
   color: #fff;
-  font-family: "Roboto", sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 16px;
   overscroll-behavior: none;
   position: fixed;
@@ -162,7 +162,7 @@ select {
   font-size: calc(24px + (20 - 18) * (100vw - 400px) / (800 - 400));
 }
 
-.ryan-text {
+.floyd-text {
   padding-right: 30px;
   padding-left: 30px;
   padding-bottom: 20px;
@@ -292,8 +292,7 @@ select {
   box-sizing: border-box;
   position: absolute;
   font-size: 26px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   color: #fffc00;
 }
 
@@ -331,7 +330,7 @@ select {
   to {
     opacity: 0;
     display: none;
-    visibility: "hidden";
+    visibility: 'hidden';
     cursor: default;
   }
 }

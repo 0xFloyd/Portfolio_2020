@@ -1,32 +1,11 @@
 import * as THREE from 'three';
 import { WEBGL } from './WebGL';
 import * as Ammo from './builds/ammo';
-import {
-  billboardTextures,
-  boxTexture,
-  inputText,
-  URL,
-  stoneTexture,
-  woodTexture,
-} from './resources/textures';
+import { billboardTextures, boxTexture, inputText, URL, stoneTexture, woodTexture } from './resources/textures';
 
-import {
-  setupEventHandlers,
-  moveDirection,
-  isTouchscreenDevice,
-  touchEvent,
-  createJoystick,
-} from './resources/eventHandlers';
+import { setupEventHandlers, moveDirection, isTouchscreenDevice, touchEvent, createJoystick } from './resources/eventHandlers';
 
-import {
-  preloadDivs,
-  preloadOpacity,
-  postloadDivs,
-  startScreenDivs,
-  startButton,
-  noWebGL,
-  fadeOutDivs,
-} from './resources/preload';
+import { preloadDivs, preloadOpacity, postloadDivs, startScreenDivs, startButton, noWebGL, fadeOutDivs } from './resources/preload';
 
 import {
   clock,
@@ -50,20 +29,9 @@ import {
   galaxyPoints,
 } from './resources/world';
 
-import {
-  simpleText,
-  floatingLabel,
-  allSkillsSection,
-  createTextOnPlane,
-} from './resources/surfaces';
+import { simpleText, floatingLabel, allSkillsSection, createTextOnPlane } from './resources/surfaces';
 
-import {
-  pickPosition,
-  launchClickPosition,
-  getCanvasRelativePosition,
-  rotateCamera,
-  launchHover,
-} from './resources/utils';
+import { pickPosition, launchClickPosition, getCanvasRelativePosition, rotateCamera, launchHover } from './resources/utils';
 
 export let cursorHoverObjects = [];
 
@@ -92,12 +60,7 @@ Ammo().then((Ammo) => {
       constraintSolver = new Ammo.btSequentialImpulseConstraintSolver(); //causes the objects to interact properly, like gravity, game logic forces, collisions
 
     // see bullet physics docs for info
-    physicsWorld = new Ammo.btDiscreteDynamicsWorld(
-      dispatcher,
-      overlappingPairCache,
-      constraintSolver,
-      collisionConfiguration
-    );
+    physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, constraintSolver, collisionConfiguration);
 
     // add gravity
     physicsWorld.setGravity(new Ammo.btVector3(0, -50, 0));
@@ -136,27 +99,18 @@ Ammo().then((Ammo) => {
     let transform = new Ammo.btTransform();
     transform.setIdentity(); // sets safe default values
     transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
-    transform.setRotation(
-      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
-    );
+    transform.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
     let motionState = new Ammo.btDefaultMotionState(transform);
 
     //setup collision box
-    let colShape = new Ammo.btBoxShape(
-      new Ammo.btVector3(scale.x * 0.5, scale.y * 0.5, scale.z * 0.5)
-    );
+    let colShape = new Ammo.btBoxShape(new Ammo.btVector3(scale.x * 0.5, scale.y * 0.5, scale.z * 0.5));
     colShape.setMargin(0.05);
 
     let localInertia = new Ammo.btVector3(0, 0, 0);
     colShape.calculateLocalInertia(mass, localInertia);
 
     //  provides information to create a rigid body
-    let rigidBodyStruct = new Ammo.btRigidBodyConstructionInfo(
-      mass,
-      motionState,
-      colShape,
-      localInertia
-    );
+    let rigidBodyStruct = new Ammo.btRigidBodyConstructionInfo(mass, motionState, colShape, localInertia);
     let body = new Ammo.btRigidBody(rigidBodyStruct);
     body.setFriction(10);
     body.setRollingFriction(10);
@@ -180,10 +134,7 @@ Ammo().then((Ammo) => {
     marbleTexture.encoding = THREE.sRGBEncoding;
 
     //threeJS Section
-    let ball = (ballObject = new THREE.Mesh(
-      new THREE.SphereGeometry(radius, 32, 32),
-      new THREE.MeshLambertMaterial({ map: marbleTexture })
-    ));
+    let ball = (ballObject = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 32), new THREE.MeshLambertMaterial({ map: marbleTexture })));
 
     ball.geometry.computeBoundingSphere();
     ball.geometry.computeBoundingBox();
@@ -199,9 +150,7 @@ Ammo().then((Ammo) => {
     let transform = new Ammo.btTransform();
     transform.setIdentity();
     transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
-    transform.setRotation(
-      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
-    );
+    transform.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
     let motionState = new Ammo.btDefaultMotionState(transform);
 
     let colShape = new Ammo.btSphereShape(radius);
@@ -210,12 +159,7 @@ Ammo().then((Ammo) => {
     let localInertia = new Ammo.btVector3(0, 0, 0);
     colShape.calculateLocalInertia(mass, localInertia);
 
-    let rbInfo = new Ammo.btRigidBodyConstructionInfo(
-      mass,
-      motionState,
-      colShape,
-      localInertia
-    );
+    let rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, colShape, localInertia);
     let body = new Ammo.btRigidBody(rbInfo);
     //body.setFriction(4);
     body.setRollingFriction(10);
@@ -252,10 +196,7 @@ Ammo().then((Ammo) => {
     beachTexture.encoding = THREE.sRGBEncoding;
 
     //threeJS Section
-    let ball = new THREE.Mesh(
-      new THREE.SphereGeometry(radius, 32, 32),
-      new THREE.MeshLambertMaterial({ map: beachTexture })
-    );
+    let ball = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 32), new THREE.MeshLambertMaterial({ map: beachTexture }));
 
     ball.position.set(pos.x, pos.y, pos.z);
     ball.castShadow = true;
@@ -266,9 +207,7 @@ Ammo().then((Ammo) => {
     let transform = new Ammo.btTransform();
     transform.setIdentity();
     transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
-    transform.setRotation(
-      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
-    );
+    transform.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
     let motionState = new Ammo.btDefaultMotionState(transform);
 
     let colShape = new Ammo.btSphereShape(radius);
@@ -277,12 +216,7 @@ Ammo().then((Ammo) => {
     let localInertia = new Ammo.btVector3(0, 0, 0);
     colShape.calculateLocalInertia(mass, localInertia);
 
-    let rbInfo = new Ammo.btRigidBodyConstructionInfo(
-      mass,
-      motionState,
-      colShape,
-      localInertia
-    );
+    let rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, colShape, localInertia);
     let body = new Ammo.btRigidBody(rbInfo);
 
     body.setRollingFriction(1);
@@ -293,18 +227,7 @@ Ammo().then((Ammo) => {
   }
 
   //create link boxes
-  function createBox(
-    x,
-    y,
-    z,
-    scaleX,
-    scaleY,
-    scaleZ,
-    boxTexture,
-    URLLink,
-    color = 0x000000,
-    transparent = true
-  ) {
+  function createBox(x, y, z, scaleX, scaleY, scaleZ, boxTexture, URLLink, color = 0x000000, transparent = true) {
     const boxScale = { x: scaleX, y: scaleY, z: scaleZ };
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 0; //mass of zero = infinite mass
@@ -335,10 +258,7 @@ Ammo().then((Ammo) => {
       borderMaterial, // Back side
     ];
 
-    const linkBox = new THREE.Mesh(
-      new THREE.BoxBufferGeometry(boxScale.x, boxScale.y, boxScale.z),
-      materials
-    );
+    const linkBox = new THREE.Mesh(new THREE.BoxBufferGeometry(boxScale.x, boxScale.y, boxScale.z), materials);
     linkBox.position.set(x, y, z);
     linkBox.renderOrder = 1;
     linkBox.castShadow = true;
@@ -352,8 +272,8 @@ Ammo().then((Ammo) => {
     cursorHoverObjects.push(linkBox);
   }
 
-  //create Ammo.js body to add solid mass to "Ryan Floyd Software Engineer"
-  function ryanFloydWords(x, y, z) {
+  //create Ammo.js body to add solid mass to "Software Engineer"
+  function floydWords(x, y, z) {
     const boxScale = { x: 46, y: 3, z: 2 };
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 0; //mass of zero = infinite mass
@@ -373,8 +293,8 @@ Ammo().then((Ammo) => {
     addRigidPhysics(linkBox, boxScale);
   }
 
-  //loads text for Ryan Floyd Mesh
-  function loadRyanText() {
+  //loads text for Floyd Mesh
+  function loadFloydText() {
     var text_loader = new THREE.FontLoader();
 
     text_loader.load('./src/jsm/Roboto_Regular.json', function (font) {
@@ -387,7 +307,7 @@ Ammo().then((Ammo) => {
         new THREE.MeshPhongMaterial({ color: color }), // side
       ];
 
-      var geometry = new THREE.TextGeometry('RYAN FLOYD', {
+      var geometry = new THREE.TextGeometry('0xFloyd', {
         font: font,
         size: 3,
         height: 0.5,
@@ -402,7 +322,7 @@ Ammo().then((Ammo) => {
       geometry.computeBoundingBox();
       geometry.computeVertexNormals();
 
-      xMid = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+      xMid = -0.15 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
 
       geometry.translate(xMid, 0, 0);
 
@@ -461,14 +381,7 @@ Ammo().then((Ammo) => {
   }
 
   //function to create billboard
-  function createBillboard(
-    x,
-    y,
-    z,
-    textureImage = billboardTextures.grassImage,
-    urlLink,
-    rotation = 0
-  ) {
+  function createBillboard(x, y, z, textureImage = billboardTextures.grassImage, urlLink, rotation = 0) {
     const billboardPoleScale = { x: 1, y: 5, z: 1 };
     const billboardSignScale = { x: 30, y: 15, z: 1 };
 
@@ -476,11 +389,7 @@ Ammo().then((Ammo) => {
     const loader = new THREE.TextureLoader(manager);
 
     const billboardPole = new THREE.Mesh(
-      new THREE.BoxBufferGeometry(
-        billboardPoleScale.x,
-        billboardPoleScale.y,
-        billboardPoleScale.z
-      ),
+      new THREE.BoxBufferGeometry(billboardPoleScale.x, billboardPoleScale.y, billboardPoleScale.z),
       new THREE.MeshStandardMaterial({
         map: loader.load(woodTexture),
       })
@@ -506,14 +415,7 @@ Ammo().then((Ammo) => {
       borderMaterial, // Back side
     ];
     // order to add materials: x+,x-,y+,y-,z+,z-
-    const billboardSign = new THREE.Mesh(
-      new THREE.BoxGeometry(
-        billboardSignScale.x,
-        billboardSignScale.y,
-        billboardSignScale.z
-      ),
-      materials
-    );
+    const billboardSign = new THREE.Mesh(new THREE.BoxGeometry(billboardSignScale.x, billboardSignScale.y, billboardSignScale.z), materials);
 
     billboardPole.position.x = x;
     billboardPole.position.y = y;
@@ -543,25 +445,14 @@ Ammo().then((Ammo) => {
   }
 
   //create vertical billboard
-  function createBillboardRotated(
-    x,
-    y,
-    z,
-    textureImage = billboardTextures.grassImage,
-    urlLink,
-    rotation = 0
-  ) {
+  function createBillboardRotated(x, y, z, textureImage = billboardTextures.grassImage, urlLink, rotation = 0) {
     const billboardPoleScale = { x: 1, y: 2.5, z: 1 };
     const billboardSignScale = { x: 15, y: 20, z: 1 };
 
     /* default texture loading */
     const loader = new THREE.TextureLoader(manager);
     const billboardPole = new THREE.Mesh(
-      new THREE.BoxBufferGeometry(
-        billboardPoleScale.x,
-        billboardPoleScale.y,
-        billboardPoleScale.z
-      ),
+      new THREE.BoxBufferGeometry(billboardPoleScale.x, billboardPoleScale.y, billboardPoleScale.z),
       new THREE.MeshStandardMaterial({
         map: loader.load(woodTexture),
       })
@@ -586,14 +477,7 @@ Ammo().then((Ammo) => {
       borderMaterial, // Back side
     ];
     // order to add materials: x+,x-,y+,y-,z+,z-
-    const billboardSign = new THREE.Mesh(
-      new THREE.BoxGeometry(
-        billboardSignScale.x,
-        billboardSignScale.y,
-        billboardSignScale.z
-      ),
-      materials
-    );
+    const billboardSign = new THREE.Mesh(new THREE.BoxGeometry(billboardSignScale.x, billboardSignScale.y, billboardSignScale.z), materials);
 
     billboardPole.position.x = x;
     billboardPole.position.y = y;
@@ -732,13 +616,8 @@ Ammo().then((Ammo) => {
 
   //helper function to create individual brick mesh
   function createBrick(sx, sy, sz, mass, pos, quat, material) {
-    var threeObject = new THREE.Mesh(
-      new THREE.BoxBufferGeometry(sx, sy, sz, 1, 1, 1),
-      material
-    );
-    var shape = new Ammo.btBoxShape(
-      new Ammo.btVector3(sx * 0.5, sy * 0.5, sz * 0.5)
-    );
+    var threeObject = new THREE.Mesh(new THREE.BoxBufferGeometry(sx, sy, sz, 1, 1, 1), material);
+    var shape = new Ammo.btBoxShape(new Ammo.btVector3(sx * 0.5, sy * 0.5, sz * 0.5));
     shape.setMargin(0.05);
 
     createBrickBody(threeObject, shape, mass, pos, quat);
@@ -754,20 +633,13 @@ Ammo().then((Ammo) => {
     var transform = new Ammo.btTransform();
     transform.setIdentity();
     transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
-    transform.setRotation(
-      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
-    );
+    transform.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
     var motionState = new Ammo.btDefaultMotionState(transform);
 
     var localInertia = new Ammo.btVector3(0, 0, 0);
     physicsShape.calculateLocalInertia(mass, localInertia);
 
-    var rbInfo = new Ammo.btRigidBodyConstructionInfo(
-      mass,
-      motionState,
-      physicsShape,
-      localInertia
-    );
+    var rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, physicsShape, localInertia);
     var body = new Ammo.btRigidBody(rbInfo);
 
     threeObject.userData.physicsBody = body;
@@ -797,10 +669,7 @@ Ammo().then((Ammo) => {
     geom.faces.push(new THREE.Face3(0, 1, 2));
     geom.computeFaceNormals();
 
-    var mesh = new THREE.Mesh(
-      geom,
-      new THREE.MeshBasicMaterial({ color: 0xffffff })
-    );
+    var mesh = new THREE.Mesh(geom, new THREE.MeshBasicMaterial({ color: 0xffffff }));
     mesh.rotation.x = -Math.PI * 0.5;
     //mesh.rotation.z = -90;
     mesh.position.y = 0.01;
@@ -818,23 +687,14 @@ Ammo().then((Ammo) => {
     var transform = new Ammo.btTransform();
     transform.setIdentity();
     transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
-    transform.setRotation(
-      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
-    );
+    transform.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
 
     var localInertia = new Ammo.btVector3(0, 0, 0);
     var motionState = new Ammo.btDefaultMotionState(transform);
-    let colShape = new Ammo.btBoxShape(
-      new Ammo.btVector3(scale.x * 0.5, scale.y * 0.5, scale.z * 0.5)
-    );
+    let colShape = new Ammo.btBoxShape(new Ammo.btVector3(scale.x * 0.5, scale.y * 0.5, scale.z * 0.5));
     colShape.setMargin(0.05);
     colShape.calculateLocalInertia(mass, localInertia);
-    let rbInfo = new Ammo.btRigidBodyConstructionInfo(
-      mass,
-      motionState,
-      colShape,
-      localInertia
-    );
+    let rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, colShape, localInertia);
     let body = new Ammo.btRigidBody(rbInfo);
     body.setActivationState(STATE.DISABLE_DEACTIVATION);
     body.setCollisionFlags(2);
@@ -995,50 +855,18 @@ Ammo().then((Ammo) => {
     createWallZ(0, 1.75, 87.5);
     createWallZ(0, 1.75, -87.5);
 
-    createBillboard(
-      -80,
-      2.5,
-      -70,
-      billboardTextures.terpSolutionsTexture,
-      URL.terpsolutions,
-      Math.PI * 0.22
-    );
+    createBillboard(-80, 2.5, -70, billboardTextures.terpSolutionsTexture, URL.terpsolutions, Math.PI * 0.22);
 
-    createBillboard(
-      -45,
-      2.5,
-      -78,
-      billboardTextures.bagHolderBetsTexture,
-      URL.githubBagholder,
-      Math.PI * 0.17
-    );
+    createBillboard(-45, 2.5, -78, billboardTextures.bagHolderBetsTexture, URL.githubBagholder, Math.PI * 0.17);
 
-    createBillboardRotated(
-      -17,
-      1.25,
-      -75,
-      billboardTextures.homeSweetHomeTexture,
-      URL.githubHomeSweetHome,
-      Math.PI * 0.15
-    );
+    createBillboardRotated(-17, 1.25, -75, billboardTextures.homeSweetHomeTexture, URL.githubHomeSweetHome, Math.PI * 0.15);
 
-    ryanFloydWords(11.2, 1, -20);
+    floydWords(11.2, 1, -20);
     createTextOnPlane(-70, 0.01, -48, inputText.terpSolutionsText, 20, 40);
     createTextOnPlane(-42, 0.01, -53, inputText.bagholderBetsText, 20, 40);
     createTextOnPlane(-14, 0.01, -49, inputText.homeSweetHomeText, 20, 40);
 
-    createBox(
-      12,
-      2,
-      -70,
-      4,
-      4,
-      1,
-      boxTexture.Github,
-      URL.gitHub,
-      0x000000,
-      true
-    );
+    createBox(12, 2, -70, 4, 4, 1, boxTexture.Github, URL.gitHub, 0x000000, true);
 
     // createBox(
     //   4,
@@ -1053,18 +881,7 @@ Ammo().then((Ammo) => {
     //   true
     // );
 
-    createBox(
-      19,
-      2,
-      -70,
-      4,
-      4,
-      1,
-      boxTexture.LinkedIn,
-      URL.LinkedIn,
-      0x0077b5,
-      true
-    );
+    createBox(19, 2, -70, 4, 4, 1, boxTexture.LinkedIn, URL.LinkedIn, 0x0077b5, true);
     // createBox(
     //   35,
     //   2,
@@ -1073,23 +890,11 @@ Ammo().then((Ammo) => {
     //   4,
     //   1,
     //   boxTexture.globe,
-    //   URL.ryanfloyd,
     //   0xffffff,
     //   false
     // );
 
-    createBox(
-      27,
-      2,
-      -70,
-      4,
-      4,
-      1,
-      boxTexture.mail,
-      'mailto:arfloyd7@gmail.com',
-      0x000000,
-      false
-    );
+    createBox(27, 2, -70, 4, 4, 1, boxTexture.mail, 'mailto:arfloyd7@gmail.com', 0x000000, false);
 
     // createBox(
     //   44,
@@ -1104,18 +909,7 @@ Ammo().then((Ammo) => {
     //   false
     // );
 
-    createBox(
-      35,
-      2,
-      -70,
-      4,
-      4,
-      1,
-      boxTexture.writing,
-      URL.devTo,
-      0x000000,
-      false
-    );
+    createBox(35, 2, -70, 4, 4, 1, boxTexture.writing, URL.devTo, 0x000000, false);
 
     // floatingLabel(3.875, 4.5, -70, 'Twitter');
     floatingLabel(11.875, 4.5, -70, 'Github');
@@ -1125,33 +919,28 @@ Ammo().then((Ammo) => {
     floatingLabel(35, 6.5, -70, '   How I \nmade this');
     // floatingLabel(44, 6.5, -70, '   How I \nmade this');
 
-    allSkillsSection(-50, 0.025, 20, 40, 40, boxTexture.allSkills);
+    // allSkillsSection(-50, 0.025, 20, 40, 40, boxTexture.allSkills);
     allSkillsSection(61, 0.025, 13, 30, 60, inputText.activities);
-    allSkillsSection(8.5, 0.025, 54, 7, 3.5, boxTexture.skrillex);
-    allSkillsSection(9, 0.01, 45, 15, 15, boxTexture.edmText);
-    allSkillsSection(9, 0.01, 20, 21, 10.5, inputText.staticPortfolio);
 
     //lensflare
     createLensFlare(50, -50, -800, 200, 200, boxTexture.lensFlareMain);
 
-    loadRyanText();
+    loadFloydText();
     loadEngineerText();
 
     let touchText, instructionsText;
     if (isTouchscreenDevice()) {
       touchText = 'Touch boxes with your \nfinger to open links';
-      instructionsText =
-        '   Use the joystick in the bottom \nleft of the screen to move the ball.';
+      instructionsText = '   Use the joystick in the bottom \nleft of the screen to move the ball.';
     } else {
       touchText = 'Click on boxes with \nthe mouse to open links';
-      instructionsText =
-        'Use the arrow keys on your \n keyboard to move the ball.';
+      instructionsText = 'Use the arrow keys on your \n keyboard to move the ball.';
     }
 
     simpleText(9, 0.01, 5, instructionsText, 1.25);
 
     simpleText(23, 0.01, -60, touchText, 1.5);
-    simpleText(-50, 0.01, -5, 'SKILLS', 3);
+    // simpleText(-50, 0.01, -5, 'SKILLS', 3);
     simpleText(-42, 0.01, -30, 'EXPERIENCE', 3);
     simpleText(61, 0.01, -15, 'TIMELINE', 3);
 
