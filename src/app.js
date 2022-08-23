@@ -274,7 +274,7 @@ Ammo().then((Ammo) => {
 
   //create Ammo.js body to add solid mass to "Software Engineer"
   function floydWords(x, y, z) {
-    const boxScale = { x: 46, y: 3, z: 2 };
+    const boxScale = { x: 37, y: 3, z: 2 };
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 0; //mass of zero = infinite mass
 
@@ -861,7 +861,7 @@ Ammo().then((Ammo) => {
 
     createBillboardRotated(-17, 1.25, -75, billboardTextures.homeSweetHomeTexture, URL.githubHomeSweetHome, Math.PI * 0.15);
 
-    floydWords(11.2, 1, -20);
+    floydWords(16.2, 1, -20);
     createTextOnPlane(-70, 0.01, -48, inputText.terpSolutionsText, 20, 40);
     createTextOnPlane(-42, 0.01, -53, inputText.bagholderBetsText, 20, 40);
     createTextOnPlane(-14, 0.01, -49, inputText.homeSweetHomeText, 20, 40);
@@ -881,7 +881,7 @@ Ammo().then((Ammo) => {
     //   true
     // );
 
-    createBox(19, 2, -70, 4, 4, 1, boxTexture.LinkedIn, URL.LinkedIn, 0x0077b5, true);
+    createBox(19, 2, -70, 4, 4, 1, boxTexture.twitter, URL.twitter, 0x0077b5, true);
     // createBox(
     //   35,
     //   2,
@@ -913,7 +913,7 @@ Ammo().then((Ammo) => {
 
     // floatingLabel(3.875, 4.5, -70, 'Twitter');
     floatingLabel(11.875, 4.5, -70, 'Github');
-    floatingLabel(19.125, 4.5, -70, 'LinkedIn');
+    floatingLabel(19.125, 4.5, -70, 'Twitter');
     floatingLabel(26.875, 4.5, -70, 'Email');
     // floatingLabel(35, 6.5, -70, '  Static \nWebsite');
     floatingLabel(35, 6.5, -70, '   How I \nmade this');
@@ -941,7 +941,7 @@ Ammo().then((Ammo) => {
 
     simpleText(23, 0.01, -60, touchText, 1.5);
     // simpleText(-50, 0.01, -5, 'SKILLS', 3);
-    simpleText(-42, 0.01, -30, 'EXPERIENCE', 3);
+    simpleText(-42, 0.01, -30, 'PROJECTS', 3);
     simpleText(61, 0.01, -15, 'TIMELINE', 3);
 
     wallOfBricks();
