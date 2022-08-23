@@ -37,12 +37,10 @@ SVG.reactLogo = '../src/jsm/react-svg.svg';
 //URLs
 let URL = {};
 URL.terpsolutions = 'https://web.archive.org/web/20200302001846/https://terpsolutions.com/';
-URL.ryanfloyd = 'https://ryanfloyd.io';
 URL.bagholderBets = 'https://bagholder-bets.herokuapp.com';
 URL.homeSweetHomeURL = 'https://github.com/0xFloyd/home-sweet-127.0.0.1';
 URL.gitHub = 'https://github.com/0xFloyd/Portfolio_2020';
 URL.twitter = 'https://twitter.com/0xFloyd';
-URL.LinkedIn = 'https://www.linkedin.com/in/ryan-floyd/';
 URL.email = 'https://mailto:xfloyd.eth@gmail.com';
 URL.githubBagholder = 'https://github.com/0xFloyd/bagholder-bets';
 URL.githubHomeSweetHome = 'https://github.com/0xFloyd/home-sweet-127.0.0.1';
